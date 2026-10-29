@@ -279,7 +279,7 @@ export class AppComponent implements IAppComponent {
         icon: this.entity.getIcon('Programa'),
       },
       PORTIFOLIOS: {
-        name: this.lex.translate("Portifólios"),
+        name: this.lex.translate("Projetos Estruturantes"),
         permition: 'MOD_PROJ',
         route: ['gestao', 'projeto'],
         icon: this.entity.getIcon('Projeto'),
@@ -553,6 +553,7 @@ export class AppComponent implements IAppComponent {
         ],
       },
       Object.assign({}, this.menuSchema.PLANOS_TRABALHOS),
+      this.menuSchema.PORTIFOLIOS,
       Object.assign({}, this.menuSchema.OCORRENCIAS),
       {
         name: this.lex.translate("Institucional"),

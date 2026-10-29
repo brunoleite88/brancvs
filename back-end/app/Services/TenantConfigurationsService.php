@@ -78,16 +78,17 @@ class TenantConfigurationsService
         $protocol = parse_url($appUrl, PHP_URL_SCHEME);
 
         # Setagem das informações nos configs ###
-        config(['app.url' => $protocol . "://" . $settings['dominio_url']]);
-        config(['session.domain' => $settings['dominio_url']]);
+        $dominioUrl = $settings['dominio_url'] ?? (request() ? request()->getHost() : 'localhost');
+        config(['app.url' => $protocol . "://" . $dominioUrl]);
+        config(['session.domain' => $dominioUrl]);
         config(['sanctum.stateful' => [
-            $settings['dominio_url'],
-            $settings['dominio_url'] . ":" . self::HTTPS_PORT
+            $dominioUrl,
+            $dominioUrl . ":" . self::HTTPS_PORT
         ]]);
         #Petrvs
-        config(['petrvs.schemas.base' => $settings['id']]);
-        config(['petrvs.schemas.tenant_aplicacao' => $settings['tenancy_db_name']]);
-        config(['petrvs.schemas.tenant_log' => $settings['log_database']]);
+        config(['petrvs.schemas.base' => $settings['id'] ?? 'pgema']);
+        config(['petrvs.schemas.tenant_aplicacao' => $settings['tenancy_db_name'] ?? 'tenantpgema']);
+        config(['petrvs.schemas.tenant_log' => $settings['log_database'] ?? env('LOG_DATABASE', 'petrvs_logs')]);
 
 
         # LOGIN UNICO - GOVBR

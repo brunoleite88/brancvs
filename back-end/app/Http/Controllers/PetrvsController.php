@@ -89,15 +89,15 @@ class PetrvsController extends ControllerBase
       "entidade" => $tenant["id"],
       "suporte_url" => $tenant["dominio_url"],
       "logo_url" => null,
-      "versao" => $tenant["version"],
+      "versao" => $tenant["version"] ?? "3.2.3",
       "login" => [
-        "google_client_id" =>   $tenant["login_google_client_id"],
-        "gsuit" =>              $tenant["login_google"],
-        "azure" =>              $tenant["login_azure"],
+        "google_client_id" =>   $tenant["login_google_client_id"] ?? "",
+        "gsuit" =>              $tenant["login_google"] ?? false,
+        "azure" =>              $tenant["login_azure"] ?? false,
         "institucional" =>      false,
-        "firebase" =>           $tenant["login_google"],
-        "user_password" =>      false,
-        "login_unico" =>        $tenant["login_login_unico"],
+        "firebase" =>           $tenant["login_google"] ?? false,
+        "user_password" =>      true,
+        "login_unico" =>        $tenant["login_login_unico"] ?? false,
       ]
     ]);
     return response()->view('environment-config', ["config" => $config])

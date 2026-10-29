@@ -67,11 +67,22 @@ export class LoginComponent implements OnInit, ModalPage, OnDestroy {
 
     if (['senha', 'token'].indexOf(controlName) >= 0 && !control.value?.length) {
       result = "Obrigatório";
-    } else if (controlName == "usuario" && !this.util.validarCPF(control.value)) {
+    } else if (controlName == "usuario" && !control.value?.length) {
       result = "Inválido";
     }
 
     return result;
+  }
+
+  public async signInUserPassword() {
+    if (this.login.valid) {
+      try {
+        await this.auth.authUserPassword(this.login.controls['usuario'].value, this.login.controls['senha'].value, this.redirectTo);
+      } catch (error: any) {
+        this.error = error?.message || error || "Falha ao autenticar";
+        this.cdRef.detectChanges();
+      }
+    }
   }
 
   ngOnInit(): void {

@@ -5,73 +5,69 @@
 
     <div [class]="modalRoute ? 'col-12 col-lg-6' : 'col-12 col-lg-6'">
 
-        <button class="btn btn-outline-primary botao-suporte rounded btn-sm" (click)="openModal({route: ['suporte']})"  [attr.data-bs-toggle]="'tooltip'" data-bs-placement="top" title="Suporte Petrvs">
-            <i class="bi bi-headset"></i>
-        </button>
-
         <div class="d-flex align-items-center justify-content-center h-100 g-0 px-4 px-sm-0">
-            <div class=".col col-sm-6 col-lg-7 col-xl-6">
-                <div *ngIf="error.length" class="alert alert-danger mt-2 mb-5" role="alert">
+            <div class="col col-sm-8 col-lg-8 col-xl-7">
+                <div *ngIf="error.length" class="alert alert-danger mt-2 mb-4" role="alert">
                     <span><u><strong>{{ (error || '').split('&')[0] }}</strong></u></span><br>{{ (error || '').split('&')[1] }}
                 </div>
 
-                <div class="text-center mb-5">
-                    <h2 class="fw-bold mb-0">PGD Petrvs</h2>
-                    <hr class="mx-auto" style="width: 60px; border-top: 2px solid #0d6efd; margin: 4px auto;">
-                    <p class="fs-5 text-secondary">Sistema do Programa de Gestão e Desempenho<br>da Administração Pública Federal</p>
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold mb-1 text-primary">PGE-MA</h2>
+                    <h5 class="fw-semibold text-secondary mb-2">Procuradoria Geral do Estado do Maranhão</h5>
+                    <hr class="mx-auto" style="width: 60px; border-top: 2px solid #0d6efd; margin: 8px auto;">
+                    <p class="fs-6 text-muted">Gestão Estratégica e Projetos Estruturantes</p>
                 </div>
-                <div class="text-center mb-5">
 
-                    <h4 class="fw-bold text-danger">{{ ambiente }}</h4>
-                </div>
-                <div class="text-center">
-                    <div class="card-body">
-
-                      <div *ngIf="globals.hasGoogleLogin" class="card-body">
-                        <div id="gbtn"></div>
-                      </div>
-                        <div class="or-container" *ngIf="globals.hasGoogleLogin">
-                          <div class="line-separator"></div>
-                          <div *ngIf="globals.hasLoginUnicoLogin" class="or-label">ou</div>
-                          <div *ngIf="globals.hasLoginUnicoLogin" class="line-separator"></div>
-                        </div>
-                        <div class="govbr" *ngIf="globals.hasLoginUnicoLogin">
-                            <button class="br-button mt-3" type="button" (click)="signInLoginUnicoBackEnd()">
-                                Entrar com <span>gov.br</span>
-                            </button>
-                        </div>
-                      <div class="or-container"  *ngIf="globals.hasLoginUnicoLogin">
-                        <div class="line-separator"></div>
-                        <div *ngIf="globals.hasAzureLogin" class="or-label">ou</div>
-                        <div *ngIf="globals.hasAzureLogin" class="line-separator"></div>
-                      </div>
-                        <div *ngIf="globals.hasAzureLogin" class="card-body">
-
-                          <div class="row mt-2">
-                            <div class="col-md-12 d-flex justify-content-center">
-                              <a *ngIf="!auth.logging" class="btn btn-lg btn-google btn-outline" (click)="signInAzure()">
-                                <img [src]="globals.getResourcePath('assets/images/microsoft_logo.png')"/>
-                                Microsoft (Login Institucional)
-                              </a>
-                              <div *ngIf="auth.logging" class="spinner-border spinner-border-sm" role="status">
-                                <span class="visually-hidden"></span>
-                              </div>
+                <div class="card shadow-sm p-4 border-0 rounded-3 mb-3">
+                    <form [formGroup]="login" (ngSubmit)="signInUserPassword()">
+                        <div class="mb-3 text-start">
+                            <label class="form-label small fw-bold text-secondary">Usuário ou E-mail</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" formControlName="usuario" placeholder="ex: admin@pge.ma.gov.br" autofocus>
                             </div>
-                          </div>
-                        </div>                        
+                        </div>
+
+                        <div class="mb-4 text-start">
+                            <label class="form-label small fw-bold text-secondary">Senha</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" formControlName="senha" placeholder="Digite sua senha">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" [disabled]="!login.valid || auth.logging">
+                            <span *ngIf="!auth.logging"><i class="bi bi-box-arrow-in-right me-1"></i> Acessar Sistema</span>
+                            <span *ngIf="auth.logging" class="spinner-border spinner-border-sm" role="status"></span>
+                        </button>
+                    </form>
+                </div>
+
+                <div *ngIf="globals.hasLoginUnicoLogin || globals.hasAzureLogin || globals.hasGoogleLogin" class="text-center">
+                    <div class="or-container my-3">
+                        <div class="line-separator"></div>
+                        <div class="or-label small text-muted">ou autenticação institucional</div>
+                        <div class="line-separator"></div>
                     </div>
+
+                    <div *ngIf="globals.hasLoginUnicoLogin" class="govbr mb-2">
+                        <button class="br-button w-100" type="button" (click)="signInLoginUnicoBackEnd()">
+                            Entrar com <span>gov.br</span>
+                        </button>
+                    </div>
+
+                    <div *ngIf="globals.hasAzureLogin" class="mb-2">
+                        <a class="btn btn-outline-secondary w-100" (click)="signInAzure()">
+                            <img [src]="globals.getResourcePath('assets/images/microsoft_logo.png')" height="20" class="me-2"/>
+                            Microsoft 365
+                        </a>
+                    </div>
+                </div>
+
+                <div class="logos text-center mt-4">
+                    <small class="text-muted">PGE-MA | Versão {{ globals.VERSAO_SYS }}</small>
                 </div>
             </div>
         </div>
-        <div class="logos">     
-            <div class="text-left mt-3 small text-muted" *ngIf="buildInfo">
-                <p class="m-0">Build Data: {{ buildInfo.build_date }}</p>
-                <p class="m-0">Build Número: {{ buildInfo.build_number }}</p>
-            </div>
-            <div class="text-left mt-3 small text-muted" >
-                <p class="m-0"><small class="text-primary">Versão: {{globals.VERSAO_SYS}}</small></p>
-            </div>
-
-        </div>        
     </div>
 </div>
