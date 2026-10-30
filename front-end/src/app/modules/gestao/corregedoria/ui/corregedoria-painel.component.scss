@@ -1,0 +1,26 @@
+.relatorio-documento {
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  color: #000;
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+  }
+  .modal-dialog {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  .modal-content {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .relatorio-documento {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}

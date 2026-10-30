@@ -227,6 +227,18 @@ export class AppComponent implements IAppComponent {
         route: ['gestao', 'ocorrencia-v2'],
         icon: this.entity.getIcon('Ocorrencia'),
       },
+      CORREGEDORIA_MEU_RELATORIO: {
+        name: "Meu Relatório Mensal",
+        permition: '',
+        route: ['gestao', 'corregedoria', 'meu-relatorio'],
+        icon: 'bi bi-file-earmark-person',
+      },
+      CORREGEDORIA_PAINEL: {
+        name: "Painel da Corregedoria",
+        permition: '',
+        route: ['gestao', 'corregedoria', 'painel'],
+        icon: 'bi bi-shield-shaded',
+      },
       CADEIAS_VALORES: {
         name: this.lex.translate("Cadeias de Valores"),
         permition: 'MOD_CADV',
@@ -555,6 +567,16 @@ export class AppComponent implements IAppComponent {
       Object.assign({}, this.menuSchema.PLANOS_TRABALHOS),
       Object.assign({}, this.menuSchema.PORTIFOLIOS),
       Object.assign({}, this.menuSchema.OCORRENCIAS),
+      {
+        name: "Corregedoria",
+        permition: "",
+        id: "navbarDropdownCorregedoria",
+        icon: 'bi bi-shield-check',
+        menu: [
+          this.menuSchema.CORREGEDORIA_MEU_RELATORIO,
+          this.menuSchema.CORREGEDORIA_PAINEL,
+        ],
+      },
       {
         name: this.lex.translate("Institucional"),
         permition: "MENU_GESTAO_ACESSO",
