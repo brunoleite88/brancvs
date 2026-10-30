@@ -1,121 +1,354 @@
 <div class="br-mainpanel">
   <app-breadcrumb />
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Ocorrências</h2>
-    <br-button emphasis="primary" (click)="nova()">
-      <i class="fas fa-plus mr-1"></i>Nova Ocorrência
-    </br-button>
+    <div>
+      <h2 class="mb-0">Gestão de Ocorrências e Impedimentos</h2>
+      <small class="text-muted">Acompanhamento unificado de desvios de projetos/planos e afastamentos de pessoal (PGE-MA)</small>
+    </div>
+    <div>
+      @if (abaAtiva() === 'PROJETOS_PLANOS') {
+        <button class="btn btn-primary" (click)="abrirModalNovoImpedimento()">
+          <i class="fas fa-plus me-1"></i>Novo Impedimento / Desvio
+        </button>
+      } @else {
+        <br-button emphasis="primary" (click)="nova()">
+          <i class="fas fa-plus mr-1"></i>Novo Afastamento
+        </br-button>
+      }
+    </div>
   </div>
 
-  <form [formGroup]="filtros" class="mb-3">
-    <div class="br-card">
-      <div class="card-content">
-        <div class="row g-3 align-items-start mb-3">
+  <!-- Navegação por Abas -->
+  <ul class="nav nav-tabs mb-4 border-bottom">
+    <li class="nav-item">
+      <button class="nav-link py-2 px-3 fw-semibold" [class.active]="abaAtiva() === 'PROJETOS_PLANOS'" (click)="setAba('PROJETOS_PLANOS')">
+        <i class="bi bi-exclamation-octagon me-2 text-warning"></i>Impedimentos de Projetos e Planos
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link py-2 px-3 fw-semibold" [class.active]="abaAtiva() === 'PESSOAL'" (click)="setAba('PESSOAL')">
+        <i class="bi bi-person-x me-2 text-primary"></i>Afastamentos de Pessoal (RH)
+      </button>
+    </li>
+  </ul>
 
-          <div class="col-12 col-sm-6 col-md-4">
-            <agente-publico-select
-              label="Agente Público"
-              [searchFn]="agentesSearchFn"
-              [agenteId]="agenteSelecionado()?.id ?? ''"
-              [agenteNome]="agenteSelecionado()?.nome ?? ''"
-              (agenteSelected)="selecionarAgente($event)"
-            ></agente-publico-select>
+  <!-- ── ABA 1: IMPEDIMENTOS DE PROJETOS E PLANOS ───────────────────────── -->
+  @if (abaAtiva() === 'PROJETOS_PLANOS') {
+    <!-- Filtros de Projetos/Planos -->
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+      <div class="card-body p-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-3">
+            <label class="form-label small fw-bold mb-1">Filtrar por Âmbito:</label>
+            <select class="form-select form-select-sm" [ngModel]="filtroTipoProjetoPlano()" (ngModelChange)="filtroTipoProjetoPlano.set($event); carregarImpedimentos()">
+              <option value="TODOS">Todos os Âmbitos</option>
+              <option value="PROJETO">Projetos Estruturantes (GTs)</option>
+              <option value="PLANO_SETORIAL">Planos de Ação Setoriais</option>
+              <option value="PLANO_INDIVIDUAL">Planos de Ação Individuais</option>
+            </select>
           </div>
-
-          <div class="col-12 col-sm-6 col-md-3">
-            <div class="w-100">
-              <br-select
-                label="Motivo"
-                brTodosSentinel
-                formControlName="tipo_motivo_afastamento_id"
-                [options]="tiposOptions()"
-                (change)="aplicarFiltros()"
-                class="w-100">
-              </br-select>
-            </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-bold mb-1">Status:</label>
+            <select class="form-select form-select-sm" [ngModel]="filtroStatusProjetoPlano()" (ngModelChange)="filtroStatusProjetoPlano.set($event); carregarImpedimentos()">
+              <option value="TODOS">Todos os Status</option>
+              <option value="PENDENTE">Pendente</option>
+              <option value="EM_ANDAMENTO">Em Andamento</option>
+              <option value="RESOLVIDO">Resolvido</option>
+            </select>
           </div>
-
-          <div class="col-12 col-sm-6 col-md-2">
-            <div class="br-input w-100 mb-1">
-              <label>Início</label>
-              <input type="date"
-                    formControlName="data_inicio"
-                    (change)="aplicarFiltros()" />
-            </div>
+          <div class="col-md-6 text-end pt-3">
+            <button class="btn btn-sm btn-outline-secondary me-2" (click)="filtroTipoProjetoPlano.set('TODOS'); filtroStatusProjetoPlano.set('TODOS'); carregarImpedimentos()">
+              <i class="fas fa-times me-1"></i>Limpar Filtros
+            </button>
+            <button class="btn btn-sm btn-secondary" (click)="carregarImpedimentos()">
+              <i class="fas fa-sync-alt me-1"></i>Atualizar
+            </button>
           </div>
-
-          <div class="col-12 col-sm-6 col-md-2">
-            <div class="br-input w-100 mb-1">
-              <label>Fim</label>
-              <input type="date"
-                    formControlName="data_fim"
-                    (change)="aplicarFiltros()" />
-            </div>
-          </div>
-
-        </div>
-
-        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end">
-          <br-button emphasis="secondary" (click)="aplicarFiltros()">
-            <i class="fas fa-search mr-1"></i>Consultar
-          </br-button>
-          <br-button emphasis="tertiary" (click)="limparFiltros()">
-            <i class="fas fa-times mr-1"></i>Limpar
-          </br-button>
         </div>
       </div>
     </div>
-  </form>
 
-  @if (carregando()) {
-    <div class="d-flex justify-content-center py-5">
-      <br-loading></br-loading>
-    </div>
-  } @else if (ocorrencias().length === 0) {
-    <div class="br-message info">
-      <div class="content">Nenhuma ocorrência cadastrada.</div>
-    </div>
-  } @else {
-    <div class="br-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Agente Público</th>
-            <th>Motivo</th>
-            <th>Início</th>
-            <th>Fim</th>
-            <th>Horas</th>
-            <th>Observações</th>
-            <th class="text-end">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (oc of ocorrencias(); track oc.id) {
+    <!-- Tabela de Impedimentos -->
+    @if (carregandoProjetos()) {
+      <div class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+    } @else if (ocorrenciasProjetosPlanos().length === 0) {
+      <div class="alert alert-info d-flex align-items-center" role="alert">
+        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+        <div>
+          <strong>Nenhum impedimento ou desvio registrado.</strong><br>
+          Esta funcionalidade é de uso opcional e serve para documentar atrasos em marcos de projetos ou metas de planos de ação quando necessário.
+        </div>
+      </div>
+    } @else {
+      <div class="table-responsive bg-white rounded shadow-sm border mb-4">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
             <tr>
-              <td>{{ oc.usuario?.nome ?? '-' }}</td>
-              <td>{{ oc.tipo_motivo_afastamento?.nome ?? '-' }}</td>
-              <td>{{ formatarData(oc.data_inicio) }}</td>
-              <td>{{ formatarData(oc.data_fim) }}</td>
-              <td>{{ oc.horas ?? '-' }}</td>
-              <td>{{ oc.observacoes ?? '-' }}</td>
-              <td class="text-end">
-                <div class="d-inline-flex gap-2">
-                  @if (podeExcluir(oc)) {
-                  <br-button emphasis="tertiary" shape="circle" (click)="excluir(oc)" title="Excluir">
-                    <i class="fa fa-trash"></i>
-                  </br-button>
-                  }
-                </div>
-              </td>
+              <th>Status</th>
+              <th>Título / Causa</th>
+              <th>Âmbito & Vínculo</th>
+              <th>Motivo Principal</th>
+              <th>Impacto & Novo Prazo</th>
+              <th>Ação Mitigatória</th>
+              <th class="text-end">Ações</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            @for (item of ocorrenciasProjetosPlanos(); track item.id) {
+              <tr>
+                <td>
+                  @if (item.status === 'PENDENTE') {
+                    <span class="badge bg-danger">Pendente</span>
+                  } @else if (item.status === 'EM_ANDAMENTO') {
+                    <span class="badge bg-warning text-dark">Em Andamento</span>
+                  } @else if (item.status === 'RESOLVIDO') {
+                    <span class="badge bg-success">Resolvido</span>
+                  } @else {
+                    <span class="badge bg-secondary">{{ item.status }}</span>
+                  }
+                </td>
+                <td>
+                  <strong>{{ item.titulo }}</strong>
+                  @if (item.descricao && item.descricao !== item.titulo) {
+                    <div class="small text-muted text-truncate" style="max-width: 280px;" [title]="item.descricao">
+                      {{ item.descricao }}
+                    </div>
+                  }
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border me-1">{{ item.tipo }}</span>
+                  @if (item.projeto) {
+                    <small class="d-block text-primary fw-bold">{{ item.projeto.nome }}</small>
+                  } @else if (item.plano_entrega) {
+                    <small class="d-block text-primary fw-bold">{{ item.plano_entrega.nome }}</small>
+                  }
+                </td>
+                <td>{{ item.motivo || '-' }}</td>
+                <td>
+                  <div>{{ item.impacto || '-' }}</div>
+                  @if (item.novo_prazo_proposto) {
+                    <small class="text-danger fw-semibold">Novo prazo: {{ formatarData(item.novo_prazo_proposto) }}</small>
+                  }
+                </td>
+                <td>
+                  <small class="text-muted">{{ item.acao_mitigatoria || 'Nenhuma informada' }}</small>
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    @if (item.status !== 'RESOLVIDO') {
+                      <button class="btn btn-outline-success" (click)="atualizarStatusImpedimento(item.id, 'RESOLVIDO')" title="Marcar como Resolvido">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                    }
+                    <button class="btn btn-outline-danger" (click)="excluirImpedimento(item.id)" title="Remover Ocorrência">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
 
-    <app-v2-pagination class="mt-3 d-block" [page]="page()" [lastPage]="lastPage()" [total]="total()" (pageChange)="onPageChange($event)" />
+  <!-- ── ABA 2: AFASTAMENTOS DE PESSOAL (RH) ────────────────────────────── -->
+  @if (abaAtiva() === 'PESSOAL') {
+    <form [formGroup]="filtros" class="mb-3">
+      <div class="br-card">
+        <div class="card-content">
+          <div class="row g-3 align-items-start mb-3">
+
+            <div class="col-12 col-sm-6 col-md-4">
+              <agente-publico-select
+                label="Agente Público"
+                [searchFn]="agentesSearchFn"
+                [agenteId]="agenteSelecionado()?.id ?? ''"
+                [agenteNome]="agenteSelecionado()?.nome ?? ''"
+                (agenteSelected)="selecionarAgente($event)"
+              ></agente-publico-select>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="w-100">
+                <br-select
+                  label="Motivo"
+                  brTodosSentinel
+                  formControlName="tipo_motivo_afastamento_id"
+                  [options]="tiposOptions()"
+                  (change)="aplicarFiltros()"
+                  class="w-100">
+                </br-select>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-2">
+              <div class="br-input w-100 mb-1">
+                <label>Início</label>
+                <input type="date"
+                      formControlName="data_inicio"
+                      (change)="aplicarFiltros()" />
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-2">
+              <div class="br-input w-100 mb-1">
+                <label>Fim</label>
+                <input type="date"
+                      formControlName="data_fim"
+                      (change)="aplicarFiltros()" />
+              </div>
+            </div>
+
+          </div>
+
+          <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end">
+            <br-button emphasis="secondary" (click)="aplicarFiltros()">
+              <i class="fas fa-search mr-1"></i>Consultar
+            </br-button>
+            <br-button emphasis="tertiary" (click)="limparFiltros()">
+              <i class="fas fa-times mr-1"></i>Limpar
+            </br-button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    @if (carregando()) {
+      <div class="d-flex justify-content-center py-5">
+        <br-loading></br-loading>
+      </div>
+    } @else if (ocorrencias().length === 0) {
+      <div class="br-message info">
+        <div class="content">Nenhum afastamento de pessoal cadastrado.</div>
+      </div>
+    } @else {
+      <div class="br-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Agente Público</th>
+              <th>Motivo</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Horas</th>
+              <th>Observações</th>
+              <th class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (oc of ocorrencias(); track oc.id) {
+              <tr>
+                <td>{{ oc.usuario?.nome ?? '-' }}</td>
+                <td>{{ oc.tipo_motivo_afastamento?.nome ?? '-' }}</td>
+                <td>{{ formatarData(oc.data_inicio) }}</td>
+                <td>{{ formatarData(oc.data_fim) }}</td>
+                <td>{{ oc.horas ?? '-' }}</td>
+                <td>{{ oc.observacoes ?? '-' }}</td>
+                <td class="text-end">
+                  <div class="d-inline-flex gap-2">
+                    @if (podeExcluir(oc)) {
+                    <br-button emphasis="tertiary" shape="circle" (click)="excluir(oc)" title="Excluir">
+                      <i class="fa fa-trash"></i>
+                    </br-button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <app-v2-pagination class="mt-3 d-block" [page]="page()" [lastPage]="lastPage()" [total]="total()" (pageChange)="onPageChange($event)" />
+    }
   }
 </div>
+
+<!-- ── MODAL: NOVO IMPEDIMENTO / DESVIO DE PROJETOS E PLANOS ──────────── -->
+@if (modalNovoImpedimentoAberto()) {
+  <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Registrar Impedimento / Desvio de Prazo</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="fecharModalNovoImpedimento()"></button>
+        </div>
+        <div class="modal-body p-4" [formGroup]="formImpedimento">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Âmbito da Ocorrência *</label>
+              <select class="form-select" formControlName="tipo">
+                <option value="PROJETO">Projeto Estruturante (GT)</option>
+                <option value="PLANO_SETORIAL">Plano de Ação Setorial</option>
+                <option value="PLANO_INDIVIDUAL">Plano de Ação Individual</option>
+                <option value="GERAL">Geral / Institucional</option>
+              </select>
+            </div>
+
+            @if (formImpedimento.value.tipo === 'PROJETO') {
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Projeto Vinculado</label>
+                <select class="form-select" formControlName="projeto_id">
+                  @for (p of projetos(); track p.id) {
+                    <option [value]="p.id">{{ p.nome }}</option>
+                  }
+                </select>
+              </div>
+            }
+
+            <div class="col-12">
+              <label class="form-label fw-bold">Título / Resumo do Impedimento *</label>
+              <input type="text" class="form-control" formControlName="titulo" placeholder="Ex: Atraso no fornecimento de dados pela SEFAZ">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Motivo Principal</label>
+              <select class="form-select" formControlName="motivo">
+                @for (m of motivosImpedimento; track m) {
+                  <option [value]="m">{{ m }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Novo Prazo Estimado</label>
+              <input type="date" class="form-control" formControlName="novo_prazo_proposto">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold">Impacto / Desvio Observado</label>
+              <input type="text" class="form-control" formControlName="impacto" placeholder="Ex: Atraso estimado de 15 dias no marco M-02">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold">Detalhamento / Justificativa</label>
+              <textarea class="form-control" rows="3" formControlName="descricao" placeholder="Explique os fatos que ocasionaram o atraso ou o impedimento..."></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold">Ação Mitigatória Proposta</label>
+              <textarea class="form-control" rows="2" formControlName="acao_mitigatoria" placeholder="O que está sendo feito para superar este obstáculo?"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="fecharModalNovoImpedimento()" [disabled]="salvandoImpedimento()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="salvarImpedimento()" [disabled]="salvandoImpedimento()">
+            @if (salvandoImpedimento()) {
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span> Salvando...
+            } @else {
+              <i class="bi bi-check-lg me-1"></i>Salvar Registro
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
 
 <br-scrim [isOpen]="!!modal()" [disableCloseOnClick]="true">
   <br-modal [show]="!!modal()" [titleText]="modal()?.titulo || ''" size="small" alignFooter="end" (brModalBeforeClose)="fecharModal()">

@@ -15,13 +15,23 @@ class Ocorrencia extends ModelBase
 
   protected $with = [];
 
-  public $fillable = [ /* TYPE; NULL?; DEFAULT?; */ // COMMENT
-    'data_inicio', /* datetime; NOT NULL; */ // Data inicial da consolidacão
-    'data_fim', /* datetime; NOT NULL; */ // Data final da consolidação
-    'descricao', /* text; NOT NULL; */ // Descrição da ocorrência
-    'usuario_id', /* char(36); NOT NULL; */ // Usuário
-    'plano_trabalho_id', /* char(36); NOT NULL; */ // Usuário
-    //'deleted_at', /* timestamp; */
+  public $fillable = [
+    'data_inicio',
+    'data_fim',
+    'descricao',
+    'usuario_id',
+    'plano_trabalho_id',
+    'tipo',
+    'titulo',
+    'motivo',
+    'impacto',
+    'novo_prazo_proposto',
+    'acao_mitigatoria',
+    'status',
+    'projeto_id',
+    'projeto_tarefa_id',
+    'plano_entrega_id',
+    'plano_entrega_entrega_id',
   ];
 
   public $fillable_changes = [];
@@ -41,5 +51,13 @@ class Ocorrencia extends ModelBase
   public function planoTrabalho(): BelongsTo
   {
     return $this->belongsTo(PlanoTrabalho::class);
+  }
+  public function projeto(): BelongsTo
+  {
+    return $this->belongsTo(Projeto::class);
+  }
+  public function planoEntrega(): BelongsTo
+  {
+    return $this->belongsTo(PlanoEntrega::class);
   }
 }

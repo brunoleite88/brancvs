@@ -61,4 +61,24 @@ export class OcorrenciaApiClient extends TenantV2ResourceApiBase {
     return this.http.get<any>(this.resourceUrl('/impacto-consolidacoes'), { params: httpParams })
       .pipe(map(r => r?.data));
   }
+
+  listarProjetosPlanos(params: Record<string, any> = {}): Observable<any> {
+    const httpParams = new HttpParams({ fromObject: params });
+    return this.http.get<any>(this.resourceUrl('/projetos-planos'), { params: httpParams })
+      .pipe(map(r => r?.data));
+  }
+
+  criarProjetoPlano(payload: any): Observable<any> {
+    return this.http.post<any>(this.resourceUrl('/projetos-planos'), payload)
+      .pipe(map(r => r?.data));
+  }
+
+  excluirProjetoPlano(id: string): Observable<void> {
+    return this.http.delete<void>(this.resourceUrl(`/projetos-planos/${id}`));
+  }
+
+  atualizarStatusProjetoPlano(id: string, status: string): Observable<any> {
+    return this.http.patch<any>(this.resourceUrl(`/projetos-planos/${id}/status`), { status })
+      .pipe(map(r => r?.data));
+  }
 }

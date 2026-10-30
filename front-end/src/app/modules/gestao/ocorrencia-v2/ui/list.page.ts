@@ -1,24 +1,26 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { WebcomponentsAngularModule } from '@govbr-ds/webcomponents-angular';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
 import { PaginationV2Component } from 'src/app/v2/components/pagination/pagination.component';
 import { OcorrenciaApiClient, AgenteOption } from '../infra/ocorrencia-api.client';
-import { Ocorrencia, TipoMotivoAfastamento } from '../domain/types';
+import { Ocorrencia, TipoMotivoAfastamento, OcorrenciaProjetoPlano } from '../domain/types';
 import { MessageService } from 'src/app/v2/services/message.service';
 import { SelectOption, TODOS_SENTINEL } from 'src/app/v2/domain/select-option';
 import { SelectTodosSentinelDirective } from 'src/app/v2/domain/select-todos-sentinel.directive';
 import { AgentePublicoSearchFn, AgentePublicoSelectComponent } from './components/agente-publico-select.component';
 import { Page } from 'src/app/v2/domain/pagination';
+import { ProjetoDaoService } from 'src/app/dao/projeto-dao.service';
+import { Projeto } from 'src/app/models/projeto.model';
 
 @Component({
   selector: 'app-ocorrencia-v2-list-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ReactiveFormsModule, WebcomponentsAngularModule, BreadcrumbComponent, PaginationV2Component, SelectTodosSentinelDirective, AgentePublicoSelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, WebcomponentsAngularModule, BreadcrumbComponent, PaginationV2Component, SelectTodosSentinelDirective, AgentePublicoSelectComponent],
   templateUrl: './list.page.html',
 })
 export class OcorrenciaV2ListPage implements OnInit {
@@ -26,7 +28,11 @@ export class OcorrenciaV2ListPage implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly message = inject(MessageService);
+  private readonly projetoDao = inject(ProjetoDaoService);
 
+  readonly abaAtiva = signal<'PROJETOS_PLANOS' | 'PESSOAL'>('PROJETOS_PLANOS');
+
+  // Aba Afastamentos de Pessoal
   readonly ocorrencias = signal<Ocorrencia[]>([]);
   readonly tipos = signal<TipoMotivoAfastamento[]>([]);
   readonly agenteSelecionado = signal<AgenteOption | null>(null);
@@ -34,6 +40,38 @@ export class OcorrenciaV2ListPage implements OnInit {
   readonly page = signal(1);
   readonly lastPage = signal(1);
   readonly total = signal(0);
+
+  // Aba Impedimentos de Projetos e Planos
+  readonly ocorrenciasProjetosPlanos = signal<OcorrenciaProjetoPlano[]>([]);
+  readonly projetos = signal<Projeto[]>([]);
+  readonly carregandoProjetos = signal(false);
+  readonly modalNovoImpedimentoAberto = signal(false);
+  readonly salvandoImpedimento = signal(false);
+
+  readonly filtroTipoProjetoPlano = signal<string>('TODOS');
+  readonly filtroStatusProjetoPlano = signal<string>('TODOS');
+
+  readonly formImpedimento = this.fb.group({
+    titulo: [''],
+    tipo: ['PROJETO'],
+    projeto_id: [''],
+    motivo: ['Atraso de Marco Crítico'],
+    impacto: [''],
+    novo_prazo_proposto: [''],
+    acao_mitigatoria: [''],
+    descricao: [''],
+  });
+
+  readonly motivosImpedimento = [
+    'Atraso de Marco Crítico',
+    'Dependência de Órgão Externo / Terceiros',
+    'TI / Infraestrutura Tecnológica',
+    'Aguardando Deliberação Superior / Gabinete',
+    'Complexidade Jurídica Imprevista',
+    'Redirecionamento de Prioridades',
+    'Falta de Quórum / Equipe',
+    'Outros',
+  ];
 
   tiposOptions(): SelectOption[] {
     const atual = this.filtros.controls.tipo_motivo_afastamento_id.value;
@@ -55,7 +93,104 @@ export class OcorrenciaV2ListPage implements OnInit {
 
   ngOnInit(): void {
     this.api.tipos().subscribe(t => this.tipos.set(t));
+    this.carregarProjetosSelect();
     this.carregar();
+    this.carregarImpedimentos();
+  }
+
+  setAba(aba: 'PROJETOS_PLANOS' | 'PESSOAL'): void {
+    this.abaAtiva.set(aba);
+  }
+
+  carregarProjetosSelect(): void {
+    this.projetoDao.query({ where: [] }).asPromise().then(result => {
+      this.projetos.set(result || []);
+      if (result && result.length > 0) {
+        this.formImpedimento.patchValue({ projeto_id: result[0].id });
+      }
+    }).catch(() => {});
+  }
+
+  carregarImpedimentos(): void {
+    this.carregandoProjetos.set(true);
+    const params: Record<string, any> = {};
+    if (this.filtroTipoProjetoPlano() !== 'TODOS') params['tipo'] = this.filtroTipoProjetoPlano();
+    if (this.filtroStatusProjetoPlano() !== 'TODOS') params['status'] = this.filtroStatusProjetoPlano();
+
+    this.api.listarProjetosPlanos(params).subscribe({
+      next: (res: any) => {
+        this.ocorrenciasProjetosPlanos.set(res?.data ?? []);
+        this.carregandoProjetos.set(false);
+      },
+      error: () => {
+        this.carregandoProjetos.set(false);
+      }
+    });
+  }
+
+  abrirModalNovoImpedimento(): void {
+    this.formImpedimento.reset({
+      tipo: 'PROJETO',
+      projeto_id: this.projetos().length > 0 ? this.projetos()[0].id : '',
+      motivo: 'Atraso de Marco Crítico',
+      titulo: '',
+      impacto: '',
+      novo_prazo_proposto: '',
+      acao_mitigatoria: '',
+      descricao: '',
+    });
+    this.modalNovoImpedimentoAberto.set(true);
+  }
+
+  fecharModalNovoImpedimento(): void {
+    this.modalNovoImpedimentoAberto.set(false);
+  }
+
+  salvarImpedimento(): void {
+    if (!this.formImpedimento.value.titulo) {
+      this.message.error('Por favor, informe o título do impedimento/desvio.');
+      return;
+    }
+
+    this.salvandoImpedimento.set(true);
+    this.api.criarProjetoPlano(this.formImpedimento.value).subscribe({
+      next: () => {
+        this.salvandoImpedimento.set(false);
+        this.modalNovoImpedimentoAberto.set(false);
+        this.message.success('Ocorrência de projeto/plano registrada com sucesso!');
+        this.carregarImpedimentos();
+      },
+      error: (e) => {
+        this.salvandoImpedimento.set(false);
+        this.message.error(e?.error?.error || 'Erro ao registrar ocorrência.');
+      }
+    });
+  }
+
+  atualizarStatusImpedimento(id: string, novoStatus: string): void {
+    this.api.atualizarStatusProjetoPlano(id, novoStatus).subscribe({
+      next: () => {
+        this.message.success('Status atualizado com sucesso!');
+        this.carregarImpedimentos();
+      },
+      error: () => {
+        this.message.error('Erro ao atualizar status.');
+      }
+    });
+  }
+
+  excluirImpedimento(id: string): void {
+    if (confirm('Deseja realmente remover esta ocorrência?')) {
+      this.api.excluirProjetoPlano(id).subscribe({
+        next: () => {
+          this.message.success('Ocorrência removida com sucesso!');
+          this.carregarImpedimentos();
+        },
+        error: () => {
+          this.message.error('Erro ao remover ocorrência.');
+        }
+      });
+    }
   }
 
   carregar(): void {
@@ -168,7 +303,8 @@ export class OcorrenciaV2ListPage implements OnInit {
     });
   }
 
-  formatarData(data: string): string {
+  formatarData(data: string | undefined): string {
+    if (!data) return '-';
     return new Date(data.replace(' ', 'T')).toLocaleDateString('pt-BR');
   }
 

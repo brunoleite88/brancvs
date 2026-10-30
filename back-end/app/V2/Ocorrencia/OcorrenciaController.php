@@ -107,4 +107,54 @@ class OcorrenciaController extends Controller
             return response()->json(['error' => 'Ocorreu um erro inesperado.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function indexProjetosPlanos(Request $request): JsonResponse
+    {
+        try {
+            $result = $this->service->indexProjetosPlanos($request->all());
+            return response()->json(['success' => true, 'data' => $result]);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function storeProjetoPlano(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'titulo' => 'required|string|max:256',
+            ]);
+            $ocorrencia = $this->service->storeProjetoPlano($request->all());
+            return response()->json(['success' => true, 'data' => $ocorrencia], Response::HTTP_CREATED);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->getMessage()], $e->status);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function destroyProjetoPlano(string $id): JsonResponse
+    {
+        try {
+            $this->service->destroyProjetoPlano($id);
+            return response()->json(['success' => true], Response::HTTP_NO_CONTENT);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function updateStatusProjetoPlano(Request $request, string $id): JsonResponse
+    {
+        try {
+            $status = $request->input('status', 'RESOLVIDO');
+            $oc = $this->service->updateStatusProjetoPlano($id, $status);
+            return response()->json(['success' => true, 'data' => $oc]);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }
