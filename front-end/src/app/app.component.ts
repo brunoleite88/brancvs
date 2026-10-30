@@ -280,9 +280,9 @@ export class AppComponent implements IAppComponent {
       },
       PORTIFOLIOS: {
         name: this.lex.translate("Projetos Estruturantes"),
-        permition: 'MOD_PROJ',
+        permition: '',
         route: ['gestao', 'projeto'],
-        icon: this.entity.getIcon('Projeto'),
+        icon: 'bi bi-kanban',
       },
       PRODUTOS: {
         name: this.lex.translate("Produtos e Serviços"),
@@ -553,7 +553,7 @@ export class AppComponent implements IAppComponent {
         ],
       },
       Object.assign({}, this.menuSchema.PLANOS_TRABALHOS),
-      this.menuSchema.PORTIFOLIOS,
+      Object.assign({}, this.menuSchema.PORTIFOLIOS),
       Object.assign({}, this.menuSchema.OCORRENCIAS),
       {
         name: this.lex.translate("Institucional"),

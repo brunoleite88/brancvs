@@ -100,8 +100,13 @@ try {
 
   fs.rmSync(path.join(publicDir, 'index.html'), { force: true });
 
-  fs.writeFileSync(angularBladePath, indexContent);
-  console.log("Arquivo angular.blade.php atualizado com sucesso.");
+  const version = Date.now();
+  let bladeContent = indexContent
+    .replace(/(src="[^"]+\.js)(")/gi, `$1?v=${version}$2`)
+    .replace(/(href="[^"]+\.css)(")/gi, `$1?v=${version}$2`);
+
+  fs.writeFileSync(angularBladePath, bladeContent);
+  console.log("Arquivo angular.blade.php atualizado com sucesso (cache-buster v=" + version + ").");
 } catch (error) {
   console.error("Erro ao processar index.html e app.json:", error);
   process.exit(1);
