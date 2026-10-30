@@ -1,0 +1,51 @@
+<grid [dao]="dao" [add]="add" [title]="isModal ? '' : title" [orderBy]="orderBy" [groupBy]="groupBy" [join]="join"
+    [selectable]="selectable" (select)="onSelect($event)"
+    [hasAdd]="true" [hasEdit]="true">
+    <toolbar *ngIf="!selectable"></toolbar>
+    <filter [deleted]="this.auth.hasPermissionTo('MOD_AUDIT_DEL')" [form]="filter" [where]="filterWhere" [submit]="filterSubmit.bind(this)" [collapseChange]="filterCollapseChange.bind(this)" [collapsed]="!selectable && filterCollapsed">
+        <div class="row">
+            <input-text [size]="12" label="Nome do Projeto Estruturante" controlName="nome"
+                [control]="filter!.controls.nome" placeholder="Filtrar por nome do projeto..." [attr.maxlength]=250></input-text>
+        </div>
+    </filter>
+    <columns>
+        <column title="#" [template]="columnNumero">
+            <ng-template let-row="row" #columnNumero>
+                <span class="badge bg-light text-dark border">#{{row.numero}}</span>
+            </ng-template>
+        </column>
+        <column title="Projeto Estruturante" [template]="columnNome">
+            <ng-template let-row="row" #columnNome>
+                <span class="fw-bold text-primary">{{row.nome}}</span><br>
+                <small class="text-secondary">{{row.finalidade || row.descricao}}</small>
+            </ng-template>
+        </column>
+        <column title="Status" [template]="columnStatus">
+            <ng-template let-row="row" #columnStatus>
+                <span class="badge" [ngClass]="getBadgeStatus(row.status)">{{row.status}}</span>
+            </ng-template>
+        </column>
+        <column title="Progresso" [template]="columnProgresso">
+            <ng-template let-row="row" #columnProgresso>
+                <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1" style="height: 12px;">
+                        <div class="progress-bar bg-success" role="progressbar" [style.width.%]="row.progresso || 0"></div>
+                    </div>
+                    <span class="ms-2 small fw-bold">{{row.progresso || 0}}%</span>
+                </div>
+            </ng-template>
+        </column>
+        <column title="Início" [template]="columnInicio">
+            <ng-template let-row="row" #columnInicio>
+                <span>{{dao!.getDateFormatted(row.data_inicio)}}</span>
+            </ng-template>
+        </column>
+        <column title="Término" [template]="columnFim">
+            <ng-template let-row="row" #columnFim>
+                <span>{{dao!.getDateFormatted(row.data_fim)}}</span>
+            </ng-template>
+        </column>
+        <column type="options" [onEdit]="edit" [options]="options"></column>
+    </columns>
+    <pagination [rows]="rowsLimit"></pagination>
+</grid>

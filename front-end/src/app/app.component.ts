@@ -579,7 +579,6 @@ export class AppComponent implements IAppComponent {
           this.menuSchema.RELATORIO_ENTREGAS,
           this.menuSchema.RELATORIO_USUARIOS,
           this.menuSchema.RELATORIO_UNIDADES,
-          this.menuSchema.RELATORIO_CARGA_INDIVIDUAL_SIAPE,
           this.menuSchema.RELATORIO_GERACAO,
         ],
       },
@@ -620,7 +619,6 @@ export class AppComponent implements IAppComponent {
           this.menuSchema.RELATORIO_ENTREGAS,
           this.menuSchema.RELATORIO_USUARIOS,
           this.menuSchema.RELATORIO_UNIDADES,
-          this.menuSchema.RELATORIO_CARGA_INDIVIDUAL_SIAPE,
           this.menuSchema.RELATORIO_GERACAO,
         ],
       },
@@ -645,18 +643,13 @@ export class AppComponent implements IAppComponent {
       },
       Object.assign({}, this.menuSchema.IMPERSONATE),
       {
-        name: this.lex.translate("SIAPE"),
+        name: this.lex.translate("Integrações"),
         permition: "MENU_DEV_ACESSO",
         id: "navbarDropdownDevConsultas",
         menu: [
-          this.menuSchema.DEV_CPF_CONSULTA_SIAPE,
-          this.menuSchema.DEV_UNIDADE_CONSULTA_SIAPE,
-          this.menuSchema.BLACKLIST_SERVIDOR,
-          this.menuSchema.BLACKLIST_UNIDADE,
           this.menuSchema.ROTINAS_INTEGRACAO,
         ],
       },
-      Object.assign({}, this.menuSchema.ENVIOS),
     ];
 
     this.menuContexto = [

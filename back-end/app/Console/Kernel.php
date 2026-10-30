@@ -51,10 +51,10 @@ class Kernel extends ConsoleKernel
             }
         })->dailyAt('03:00')->name('Inativação Usuários Temporários')->withoutOverlapping();
 
+        /* Rotinas de inativação SIAPE desativadas para a PGE-MA
         $schedule->call(function () {
             $tenants = Tenant::all();
             foreach ($tenants as $tenant) {
-                /** @var Tenant $tenant */
                 InativacaoUsuariosSiape::dispatch($tenant->id);
             }
         })->dailyAt('00:05')->name('Inativação Usuários SIAPE')->withoutOverlapping();
@@ -62,10 +62,10 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $tenants = Tenant::all();
             foreach ($tenants as $tenant) {
-                /** @var Tenant $tenant */
                 InativacaoUnidadesSiape::dispatch($tenant->id);
             }
         })->dailyAt('00:15')->name('Inativação Unidades SIAPE')->withoutOverlapping();
+        */
         
         // Job para inativar unidades temporárias às 00:30 diariamente
         $schedule->call(function () {
@@ -125,6 +125,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('db:slow-log:ensure-daily --perm=777')->dailyAt('00:01');
         
         $schedule->command('logs:cleanup')->dailyAt('00:01');
-        $schedule->command('tenants:run siape:prune-relatorios-carga-individual')->dailyAt('00:45');
+        // $schedule->command('tenants:run siape:prune-relatorios-carga-individual')->dailyAt('00:45');
     }
 }

@@ -151,7 +151,7 @@ class LoginController extends Controller
             $entidade = $this->registrarEntidade($request, true);
             $usuario = $this->registrarUsuario($request, self::loggedUser());
             if ($usuario === null) {
-                return response()->json(['error' => 'Usuário inativo no SIAPE. Acesso negado.'], 401);
+                return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
             }
             return response()->json([
                 "success" => true,
@@ -168,7 +168,7 @@ class LoginController extends Controller
                 $entidade = $this->registrarEntidade($request);
                 $usuario = $this->registrarUsuario($request, $usuario);
                 if ($usuario === null) {
-                    return response()->json(['error' => 'Usuário inativo no SIAPE. Acesso negado.'], 401);
+                    return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
                 }
                 return response()->json([
                     "success" => true,
@@ -204,7 +204,7 @@ class LoginController extends Controller
             $entidade = $this->registrarEntidade($request);
             $usuario = $this->registrarUsuario($request, self::loggedUser());
             if ($usuario === null) {
-                return response()->json(['error' => 'Usuário inativo no SIAPE. Acesso negado.'], 401);
+                return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
             }
             return response()->json([
                 'success' => true,
@@ -233,7 +233,7 @@ class LoginController extends Controller
             $entidade = $this->registrarEntidade($request);
             $usuario = $this->registrarUsuario($request, Usuario::where('email', $tokenData['email'])->first());
             if ($usuario === null) {
-                return response()->json(['error' => 'Usuário inativo no SIAPE. Acesso negado.'], 401);
+                return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
             }
             if (Auth::loginUsingId($usuario->id)) {
                 $usuarioService = new UsuarioService();
@@ -268,7 +268,7 @@ class LoginController extends Controller
             $entidade = $this->registrarEntidade($request);
             $usuario = $this->registrarUsuario($request, Usuario::where('email', $tokenData['email'])->first());
             if ($usuario === null) {
-                return response()->json(['error' => 'Usuário inativo no SIAPE. Acesso negado.'], 401);
+                return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
             }
             if (Auth::loginUsingId($usuario->id)) {
                 $usuarioService = new UsuarioService();
@@ -493,7 +493,7 @@ class LoginController extends Controller
             //$email = str_replace("_", "@", $email);
             $usuario = $this->registrarUsuario($request, Usuario::where('email', $email)->first());
             if ($usuario === null) {
-                return response()->json(['error' => 'Usuário inativo no SIAPE. Acesso negado.'], 401);
+                return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
             }
             if (($usuario)) {
                 Auth::loginUsingId($usuario->id);
@@ -602,7 +602,7 @@ class LoginController extends Controller
                 $email = str_replace("_", "@", $email);
                 $usuario = $this->registrarUsuario($request, Usuario::where('cpf', $cpf)->first());
             if ($usuario === null) {
-                return response()->json(['error' => 'Usuário inativo no SIAPE. Acesso negado.'], 401);
+                return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
             }
             if (($usuario)) {
                 Auth::loginUsingId($usuario->id);

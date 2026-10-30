@@ -37,6 +37,126 @@
         </div>
       </div>
     </tab>
+    <tab key="SWOT" label="Análise SWOT / FOFA">
+      <div class="row mt-2">
+        <div class="col-12 mb-2">
+          <div class="alert alert-info py-2" role="alert">
+            <i class="bi bi-info-circle me-1"></i>
+            <strong>Análise de Ambiente Interno e Externo (SWOT / FOFA)</strong> — Registre as forças, fraquezas, oportunidades e ameaças que fundamentam as diretrizes e eixos estratégicos da PGE-MA.
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card border-success h-100 shadow-sm">
+            <div class="card-header bg-success text-white fw-bold">
+              <i class="bi bi-shield-check me-1"></i> Forças (Ambiente Interno)
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Forças e Potencialidades Institucionais" [rows]="6" controlName="swot_forcas" [control]="form!.controls.swot_forcas" placeholder="Ex.: Corpo de procuradores altamente qualificado, especialização das procuradorias..."></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card border-primary h-100 shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold">
+              <i class="bi bi-graph-up-arrow me-1"></i> Oportunidades (Ambiente Externo)
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Oportunidades de Desenvolvimento e Parcerias" [rows]="6" controlName="swot_oportunidades" [control]="form!.controls.swot_oportunidades" placeholder="Ex.: Modernização via financiamento BID/Profisco III, integração tecnológica com SEFAZ e TJMA..."></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card border-warning h-100 shadow-sm">
+            <div class="card-header bg-warning text-dark fw-bold">
+              <i class="bi bi-exclamation-triangle me-1"></i> Fraquezas (Ambiente Interno)
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Pontos Vulneráveis e Desafios Operacionais" [rows]="6" controlName="swot_fraquezas" [control]="form!.controls.swot_fraquezas" placeholder="Ex.: Gargalos no saneamento de RPVs, obsolescência pontual de equipamentos de TI..."></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card border-danger h-100 shadow-sm">
+            <div class="card-header bg-danger text-white fw-bold">
+              <i class="bi bi-shield-slash me-1"></i> Ameaças (Ambiente Externo)
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Riscos e Ameaças Externas" [rows]="6" controlName="swot_ameacas" [control]="form!.controls.swot_ameacas" placeholder="Ex.: Bloqueios judiciais e ordens intempestivas, instabilidade de sistemas externos (PJe)..."></input-textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </tab>
+    <tab key="PESTAL" label="Diagnóstico PESTAL">
+      <div class="row mt-2">
+        <div class="col-12 mb-2">
+          <div class="alert alert-secondary py-2" role="alert">
+            <i class="bi bi-compass me-1"></i>
+            <strong>Diagnóstico Macroambiental PESTAL</strong> — Avaliação contextual nas 6 dimensões estratégicas da PGE-MA.
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header fw-bold bg-light text-primary">
+              <i class="bi bi-bank me-1"></i> Político
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Fatores Políticos e Governamentais" [rows]="4" controlName="pestal_politico" [control]="form!.controls.pestal_politico"></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header fw-bold bg-light text-success">
+              <i class="bi bi-cash-coin me-1"></i> Econômico
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Fatores Econômicos e Fiscais" [rows]="4" controlName="pestal_economico" [control]="form!.controls.pestal_economico"></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header fw-bold bg-light text-info">
+              <i class="bi bi-people me-1"></i> Social
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Fatores Sociais e Cidadania" [rows]="4" controlName="pestal_social" [control]="form!.controls.pestal_social"></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header fw-bold bg-light text-dark">
+              <i class="bi bi-cpu me-1"></i> Tecnológico
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Inovação e IA (MinutIA / SPA)" [rows]="4" controlName="pestal_tecnologico" [control]="form!.controls.pestal_tecnologico"></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header fw-bold bg-light text-success">
+              <i class="bi bi-tree me-1"></i> Ambiental
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Sustentabilidade e Práticas ESG" [rows]="4" controlName="pestal_ambiental" [control]="form!.controls.pestal_ambiental"></input-textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 shadow-sm">
+            <div class="card-header fw-bold bg-light text-secondary">
+              <i class="bi bi-briefcase me-1"></i> Legal / Jurídico
+            </div>
+            <div class="card-body p-2">
+              <input-textarea [size]="12" label="Marco Regulatório e Jurisprudência" [rows]="4" controlName="pestal_legal" [control]="form!.controls.pestal_legal"></input-textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </tab>
     <tab key="OBJETIVOS" label="Elementos">
       <planejamento-list-objetivo #objetivos noPersist [entity]="entity" [disabled]="action == 'consult'" [planejamento_superior_id]="form.controls.planejamento_superior_id.value"></planejamento-list-objetivo>
     </tab>

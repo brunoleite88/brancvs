@@ -260,7 +260,7 @@ class LoginService
         $usuario = $this->registrarUsuario($request, $this->loggedUser());
         
         if (!$usuario) {
-            throw new Exception("Usuário inativo no SIAPE. Acesso negado.");
+            throw new Exception("Usuário inativo ou não cadastrado no sistema. Acesso negado.");
         }
 
         return $this->prepareLoginResponse($request, $usuario, $entidade, $request->session()->get("kind"));
@@ -318,7 +318,7 @@ class LoginService
         $usuario = $this->findUser('email', $tokenData['email']);
 
         if (!$usuario) {
-            throw new Exception("Usuário inativo no SIAPE. Acesso negado.");
+            throw new Exception("Usuário inativo ou não cadastrado no sistema. Acesso negado.");
         }
 
         if (!Auth::loginUsingId($usuario->id)) {
@@ -344,7 +344,7 @@ class LoginService
         $usuario = $this->findUser('email', $tokenData['email']);
 
         if (!$usuario) {
-            throw new Exception("Usuário inativo no SIAPE. Acesso negado.");
+            throw new Exception("Usuário inativo ou não cadastrado no sistema. Acesso negado.");
         }
 
         if (!Auth::loginUsingId($usuario->id)) {
@@ -558,7 +558,7 @@ class LoginService
         $usuario = $this->registrarUsuario($request, $usuario);
         
         if (!$usuario) {
-            throw new Exception("Usuário inativo no SIAPE. Acesso negado.");
+            throw new Exception("Usuário inativo ou não cadastrado no sistema. Acesso negado.");
         }
 
         return $this->prepareLoginResponse($request, $usuario, $entidade, $kind);
@@ -580,7 +580,7 @@ class LoginService
         $usuario = $this->findUser('email', $email);
 
         if (!$usuario) {
-            throw new Exception("Usuário inativo no SIAPE. Acesso negado.");
+            throw new Exception("Usuário inativo ou não cadastrado no sistema. Acesso negado.");
         }
 
         Auth::loginUsingId($usuario->id);
@@ -612,7 +612,7 @@ class LoginService
         $usuario = $this->resolveGovBrUsuario($user);
 
         if (!$usuario) {
-            throw new Exception("Usuário inativo no SIAPE. Acesso negado.");
+            throw new Exception("Usuário inativo ou não cadastrado no sistema. Acesso negado.");
         }
 
         Auth::loginUsingId($usuario->id);

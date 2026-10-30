@@ -59,7 +59,17 @@ export class PlanejamentoFormComponent extends PageFormBase<Planejamento, Planej
       valor_texto: { default: "" },
       resultados_institucionais: { default: [] },
       resultados_texto: { default: "" },
-      utilizar_superior: {default: false}
+      utilizar_superior: {default: false},
+      swot_forcas: { default: "" },
+      swot_fraquezas: { default: "" },
+      swot_oportunidades: { default: "" },
+      swot_ameacas: { default: "" },
+      pestal_politico: { default: "" },
+      pestal_economico: { default: "" },
+      pestal_social: { default: "" },
+      pestal_tecnologico: { default: "" },
+      pestal_ambiental: { default: "" },
+      pestal_legal: { default: "" }
     }, this.cdRef, this.validate);
     this.util = injector.get<UtilService>(UtilService);
   }
@@ -102,6 +112,23 @@ export class PlanejamentoFormComponent extends PageFormBase<Planejamento, Planej
     await this.carregaPlanejamentosSuperiores(entity.unidade_id);
     form.patchValue(this.util.fillForm(formValue, entity));
     this.form.controls.planejamento_superior_id.setValue(entity.planejamento_superior_id);
+
+    if (entity.swot) {
+      let swotObj = typeof entity.swot === 'string' ? JSON.parse(entity.swot) : entity.swot;
+      this.form.controls.swot_forcas.setValue(swotObj.forcas || "");
+      this.form.controls.swot_fraquezas.setValue(swotObj.fraquezas || "");
+      this.form.controls.swot_oportunidades.setValue(swotObj.oportunidades || "");
+      this.form.controls.swot_ameacas.setValue(swotObj.ameacas || "");
+    }
+    if (entity.pestal) {
+      let pestalObj = typeof entity.pestal === 'string' ? JSON.parse(entity.pestal) : entity.pestal;
+      this.form.controls.pestal_politico.setValue(pestalObj.politico || "");
+      this.form.controls.pestal_economico.setValue(pestalObj.economico || "");
+      this.form.controls.pestal_social.setValue(pestalObj.social || "");
+      this.form.controls.pestal_tecnologico.setValue(pestalObj.tecnologico || "");
+      this.form.controls.pestal_ambiental.setValue(pestalObj.ambiental || "");
+      this.form.controls.pestal_legal.setValue(pestalObj.legal || "");
+    }
   }
 
   public initializeData(form: FormGroup) {
@@ -114,6 +141,20 @@ export class PlanejamentoFormComponent extends PageFormBase<Planejamento, Planej
       //this.objetivos!.grid!.confirm();
       let planejamento = this.util.fill(new Planejamento(), this.entity!);
       planejamento = this.util.fillForm(planejamento, this.form!.value);
+      planejamento.swot = {
+        forcas: this.form.controls.swot_forcas.value,
+        fraquezas: this.form.controls.swot_fraquezas.value,
+        oportunidades: this.form.controls.swot_oportunidades.value,
+        ameacas: this.form.controls.swot_ameacas.value
+      };
+      planejamento.pestal = {
+        politico: this.form.controls.pestal_politico.value,
+        economico: this.form.controls.pestal_economico.value,
+        social: this.form.controls.pestal_social.value,
+        tecnologico: this.form.controls.pestal_tecnologico.value,
+        ambiental: this.form.controls.pestal_ambiental.value,
+        legal: this.form.controls.pestal_legal.value
+      };
       planejamento.objetivos = this.objetivos!.items;
       resolve(planejamento);
     });
