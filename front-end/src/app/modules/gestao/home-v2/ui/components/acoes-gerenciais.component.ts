@@ -59,7 +59,7 @@ export class AcoesGerenciaisComponent {
   irParaPlanoTrabalho(): void {
     const id = this.data()?.plano_trabalho_id;
     if (!id) {
-      this.message.info('Sem Plano de Trabalho vigente.');
+      this.message.info('Sem Plano de Ação Individual vigente.');
       return;
     }
     this.router.navigate(['gestao', 'plano-trabalho-v2', 'consultar', id]);

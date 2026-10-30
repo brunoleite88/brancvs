@@ -255,7 +255,7 @@ export class AppComponent implements IAppComponent {
         },
       },
       PLANOS_TRABALHOS: {
-        name: this.lex.translate("Planos de Trabalho"),
+        name: this.lex.translate("Planos de Ação Individuais"),
         permition: 'MOD_PTR',
         route: ['gestao', 'plano-trabalho-v2'],
         icon: this.entity.getIcon('PlanoTrabalho'),
@@ -471,13 +471,13 @@ export class AppComponent implements IAppComponent {
         icon: 'bi bi-file-earmark-arrow-down',
       },
       RELATORIO_PLANO_TRABALHO: {
-        name: this.lex.translate("Planos de Trabalho"),
+        name: this.lex.translate("Planos de Ação Individuais"),
         permition: 'MOD_RELATORIO_PT',
         route: ['relatorios', 'planos-trabalho'],
         icon: this.entity.getIcon('PlanoTrabalho'),
       },
       RELATORIO_PLANO_ENTREGA: {
-        name: this.lex.translate("Planos de Entrega"),
+        name: this.lex.translate("Planos de Ação Setoriais"),
         permition: 'MOD_RELATORIO_PE',
         route: ['relatorios', 'planos-entrega'],
         icon: this.entity.getIcon('PlanoEntrega'),
@@ -542,7 +542,7 @@ export class AppComponent implements IAppComponent {
 
     this.moduloGestao = [
       {
-        name: this.lex.translate("Planos de Entregas"),
+        name: this.lex.translate("Planos de Ação Setoriais"),
         permition: "MENU_GESTAO_ACESSO",
         id: "navbarDropdownGestaoExecucao",
         icon: 'bi bi-list',
