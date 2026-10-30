@@ -316,13 +316,15 @@ export class AuthService {
         return true;
       }).catch(error => {
         this.registerUser(undefined);
-        if (this.fail && kind != "SESSION") this.fail(error?.message || error?.error || error.toString());
+        if (this.fail && kind != "SESSION") { console.error("LOGIN_FAILED:", error); this.fail(error?.error?.message || error?.message || error?.error || (error ? (error.status ? "Erro HTTP " + error.status : String(error)) : "Erro desconhecido ao autenticar")); }
         if (this.gb.refresh) this.gb.refresh();
         return false;
       });
     };
-    this.logging = true;
-    return this.server.get('sanctum/csrf-cookie').toPromise().then(login);
+    if (kind != "SESSION") this.logging = true;
+    return this.server.get('sanctum/csrf-cookie').toPromise().then(login).finally(() => {
+      this.logging = false;
+    });
   }
 
   public async logOut() {

@@ -129,7 +129,11 @@ export class ServerService {
     let xPetrvs: any = {};
     /* Opções de autenticação do usuário */ 
     let token = this.tokenExtractor.getToken() as string;
-    if (token !== null) {
+    if (!token && typeof document !== "undefined") {
+      const match = document.cookie.match(new RegExp('(?:^|; )XSRF-TOKEN=([^;]+)'));
+      if (match) token = decodeURIComponent(match[1]);
+    }
+    if (token) {
       options.headers["X-XSRF-TOKEN"] = token;
     }
     /* Parametros adicionais do Petrvs */

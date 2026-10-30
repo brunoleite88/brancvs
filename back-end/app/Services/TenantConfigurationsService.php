@@ -78,12 +78,30 @@ class TenantConfigurationsService
         $protocol = parse_url($appUrl, PHP_URL_SCHEME);
 
         # Setagem das informações nos configs ###
-        $dominioUrl = $settings['dominio_url'] ?? (request() ? request()->getHost() : 'localhost');
-        config(['app.url' => $protocol . "://" . $dominioUrl]);
-        config(['session.domain' => $dominioUrl]);
+        $requestHost = request() ? request()->getHost() : 'localhost';
+        $requestHttpHost = request() ? request()->getHttpHost() : $requestHost;
+        $dominioUrl = $settings['dominio_url'] ?? $requestHost;
+
+        // Se a requisição veio com porta (ex: localhost:8000), preserva a porta em app.url para não quebrar chamadas de API
+        $appHost = (request() && request()->getPort() && !in_array(request()->getPort(), [80, 443]))
+            ? $dominioUrl . ":" . request()->getPort()
+            : $dominioUrl;
+
+        config(['app.url' => $protocol . "://" . $appHost]);
+        // Para localhost em desenvolvimento, não define session.domain explícito para o Chrome não rejeitar
+        if ($dominioUrl !== 'localhost' && $dominioUrl !== '127.0.0.1') {
+            config(['session.domain' => $dominioUrl]);
+        } else {
+            config(['session.domain' => null]);
+        }
         config(['sanctum.stateful' => [
             $dominioUrl,
-            $dominioUrl . ":" . self::HTTPS_PORT
+            $dominioUrl . ":" . self::HTTPS_PORT,
+            $requestHttpHost,
+            'localhost',
+            'localhost:8000',
+            '127.0.0.1',
+            '127.0.0.1:8000'
         ]]);
         #Petrvs
         config(['petrvs.schemas.base' => $settings['id'] ?? 'pgema']);

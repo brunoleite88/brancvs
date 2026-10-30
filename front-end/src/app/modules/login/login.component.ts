@@ -58,14 +58,13 @@ export class LoginComponent implements OnInit, ModalPage, OnDestroy {
     this.login = this.fh.FormBuilder({
       usuario: { default: "" },
       senha: { default: "" },
-      token: { default: "" }
     }, this.cdRef, this.validate);
   }
 
   public validate = (control: AbstractControl, controlName: string) => {
     let result = null;
 
-    if (['senha', 'token'].indexOf(controlName) >= 0 && !control.value?.length) {
+    if (controlName == 'senha' && !control.value?.length) {
       result = "Obrigatório";
     } else if (controlName == "usuario" && !control.value?.length) {
       result = "Inválido";

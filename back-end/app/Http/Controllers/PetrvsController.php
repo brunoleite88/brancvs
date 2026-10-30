@@ -82,11 +82,16 @@ class PetrvsController extends ControllerBase
     $protocol = parse_url($appUrl, PHP_URL_SCHEME);
     $petrvs_config = config("petrvs");
 
+    $dominioUrl = $tenant["dominio_url"];
+    if ($request->getPort() && !in_array($request->getPort(), [80, 443]) && !str_contains($dominioUrl, ':')) {
+      $dominioUrl .= ':' . $request->getPort();
+    }
+
     $config = json_encode([
-      "api_url" => $protocol . "://" . $tenant["dominio_url"],
+      "api_url" => $protocol . "://" . $dominioUrl,
       "app_env" => config("app.env"),
       "edicao" => $tenant["edition"]?? $petrvs_config["edition"],
-      "entidade" => $tenant["id"],
+      "entidade" => $tenant["entidade"] ?? $petrvs_config["entidade"] ?? $tenant["id"],
       "suporte_url" => $tenant["dominio_url"],
       "logo_url" => null,
       "versao" => $tenant["version"] ?? "3.2.3",
