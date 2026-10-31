@@ -3,8 +3,10 @@
     <toolbar *ngIf="!selectable"></toolbar>
     <filter [deleted]="this.auth.hasPermissionTo('MOD_AUDIT_DEL')" [form]="filter" [where]="filterWhere" [submit]="filterSubmit.bind(this)" [clear]="filterClear.bind(this)" [collapseChange]="filterCollapseChange.bind(this)" [collapsed]="!selectable && filterCollapsed">
         <div class="row">
-            <input-text [size]="12" [label]="lex.translate('Eixo temático')" controlName="nome"
+            <input-text [size]="6" [label]="lex.translate('Eixo temático')" controlName="nome"
                 [control]="filter!.controls.nome" [placeholder]="'Nome ' + lex.translate('eixo temático') + '...'" [attr.maxlength]=250></input-text>
+            <input-search [size]="6" [label]="lex.translate('Planejamento Institucional')" controlName="planejamento_id"
+                [control]="filter!.controls.planejamento_id" [dao]="planejamentoDao"></input-search>
         </div>
     </filter>
     <columns>

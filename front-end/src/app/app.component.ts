@@ -158,7 +158,7 @@ export class AppComponent implements IAppComponent {
         icon: this.entity.getIcon('EixoTematico'),
       },
       ELEMENTOS_PLANEJAMENTO: {
-        name: this.lex.translate("Elementos Institucionais"),
+        name: this.lex.translate("Elementos Estratégicos"),
         permition: 'MOD_TIPO_OBJETIVO',
         route: ['cadastros', 'tipo-objetivo'],
         icon: this.entity.getIcon('TipoObjetivo'),
@@ -291,7 +291,7 @@ export class AppComponent implements IAppComponent {
         icon: this.entity.getIcon('PlanoTrabalhoConsolidacao'),
       },
       PROGRAMAS_GESTAO: {
-        name: this.lex.translate("Regramentos Instituidoras"),
+        name: this.lex.translate("Programas Institucionais"),
         permition: 'MOD_PRGT',
         route: ['gestao', 'programa'],
         icon: this.entity.getIcon('Programa'),

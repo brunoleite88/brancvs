@@ -2,6 +2,7 @@ import { Component, Injector, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { GridComponent } from 'src/app/components/grid/grid.component';
 import { EixoTematicoDaoService } from 'src/app/dao/eixo-tematico-dao.service';
+import { PlanejamentoDaoService } from 'src/app/dao/planejamento-dao.service';
 import { EixoTematico } from 'src/app/models/eixo-tematico.model';
 import { PageListBase } from 'src/app/modules/base/page-list-base';
 
@@ -13,14 +14,17 @@ import { PageListBase } from 'src/app/modules/base/page-list-base';
 })
 export class EixoTematicoListComponent extends PageListBase<EixoTematico, EixoTematicoDaoService> {
   @ViewChild(GridComponent, { static: false }) public grid?: GridComponent;
+  public planejamentoDao: PlanejamentoDaoService;
 
   constructor(public injector: Injector) {
     super(injector, EixoTematico, EixoTematicoDaoService);
+    this.planejamentoDao = injector.get<PlanejamentoDaoService>(PlanejamentoDaoService);
     /* Inicializações */
     this.title = this.lex.translate('Eixos Temáticos');
     this.orderBy = [['nome', 'asc']];
     this.filter = this.fh.FormBuilder({
-      nome: {default: ""}
+      nome: {default: ""},
+      planejamento_id: {default: null}
      });
     // Testa se o usuário possui permissão para consultar eixos temáticos
     if (this.auth.hasPermissionTo("MOD_EXTM")) {
@@ -44,6 +48,7 @@ export class EixoTematicoListComponent extends PageListBase<EixoTematico, EixoTe
 
   public filterClear(filter: FormGroup) {
     filter.controls.nome.setValue("");
+    filter.controls.planejamento_id.setValue(null);
     super.filterClear(filter);
   }
 
@@ -53,6 +58,9 @@ export class EixoTematicoListComponent extends PageListBase<EixoTematico, EixoTe
 
     if(form.nome?.length) {
       result.push(["nome", "like", "%" + form.nome.trim().replace(" ", "%") + "%"]);
+    }
+    if(form.planejamento_id?.length) {
+      result.push(["planejamento_id", "==", form.planejamento_id]);
     }
 
     return result;
