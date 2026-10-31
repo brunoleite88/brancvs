@@ -114,18 +114,7 @@ export class HomeV2Page implements OnInit {
   }
 
   irParaPlanosEntregasVigentes(): void {
-    // Usa o endpoint V2 (mesmo critério do card) para navegar exatamente aos PEs vigentes
-    // das unidades onde o usuário possui atribuição direta.
-    this.homeApi.getPlanosEntregaVigentesIds().subscribe((ids) => {
-      const filter: Record<string, unknown> = { meus_planos: false, principais: false };
-      if (ids.length) {
-        filter['id'] = ids;
-      }
-      this.go.navigate({
-        route: ['gestao', 'plano-entrega'],
-        params: { planejamento: true, filter },
-      });
-    });
+    this.router.navigate(['gestao', 'planejamento']);
   }
 
   irParaLacunasPE(): void {

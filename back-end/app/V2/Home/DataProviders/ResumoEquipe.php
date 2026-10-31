@@ -13,6 +13,7 @@ use App\V2\Home\DTOs\HomeRequestDTO;
 use App\V2\Home\Traits\ResolveUnidades;
 use App\Traits\SqlPlaceholders;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ResumoEquipe
 {
@@ -35,10 +36,17 @@ class ResumoEquipe
     {
         $unidadeIds = $this->resolverUnidades($dto);
 
+        $sgpeMetrics = $this->calcularMetricasSGPE($unidadeIds);
+
         return [
             'unidades' => $this->unidades($unidadeIds),
-            'participantes_pgd' => $this->participantesPGD($unidadeIds),
-            'capacidade_equipe_horas_mensais' => $this->capacidadeEquipe($unidadeIds),
+            'participantes_pgd' => $this->participantesEquipe($unidadeIds),
+            'capacidade_equipe_horas_mensais' => $sgpeMetrics['total'] > 0 ? $sgpeMetrics['total'] : $this->capacidadeEquipe($unidadeIds),
+            'acoes_estrategicas_total' => $sgpeMetrics['total'],
+            'acoes_p1_prazo' => $sgpeMetrics['p1_prazo'],
+            'acoes_p2_presenca' => $sgpeMetrics['p2_presenca'],
+            'acoes_p3_padronizacao' => $sgpeMetrics['p3_padronizacao'],
+            'acoes_outros_eixos' => $sgpeMetrics['outros_eixos'],
         ];
     }
 
@@ -60,20 +68,10 @@ class ResumoEquipe
     }
 
     /**
-     * Indicadores de Agentes Públicos e Participantes.
-     *
-     * UNIVERSO: todos os usuários com qualquer relação (atribuição) na unidade.
-     * AGENTES PÚBLICOS (total): do universo, desconsidera usuários com perfil Consulta.
-     * PARTICIPANTES (quantidade): dos agentes públicos, desconsidera:
-     *   - usuários sem indicação de participante no SIAPE (participa_pgd != 'sim');
-     *   - TODO(#2476): usuários com indicação de participante no SIAPE mas com
-     *     marcação de dispensa de PT. Essa marcação será adicionada após o merge
-     *     da branch #2476; enquanto isso, esses usuários ainda são contados como
-     *     participantes.
-     *
-     * @return array{quantidade: int, total: int, percentual: float}
+     * Indicadores de Integrantes e Agentes Públicos.
+     * Na PGE-MA, todos os agentes públicos ativos nas unidades contam como integrantes.
      */
-    private function participantesPGD(array $unidadeIds): array
+    private function participantesEquipe(array $unidadeIds): array
     {
         $universo = Usuario::query()
             ->with('perfil')
@@ -84,25 +82,66 @@ class ResumoEquipe
             ->get();
 
         $agentesPublicos = $universo->filter(fn ($u) => !$this->isPerfilConsulta($u));
-
-        // TODO(#2476): também desconsiderar participantes com dispensa de PT
-        // (marcação a ser adicionada após o merge da branch #2476).
-        $participantes = $agentesPublicos
-            ->filter(fn ($u) => $u->participa_pgd === self::PARTICIPA_PGD)
-            ->count();
-
         $total = $agentesPublicos->count();
 
+        // Se houver indicação PGD, respeita; caso contrário, todos os agentes ativos na unidade são integrantes
+        $participantesComFlag = $agentesPublicos->filter(fn ($u) => $u->participa_pgd === self::PARTICIPA_PGD)->count();
+        $quantidade = $participantesComFlag > 0 ? $participantesComFlag : $total;
+
         return [
-            'quantidade' => $participantes,
+            'quantidade' => $quantidade,
             'total' => $total,
-            'percentual' => $total > 0 ? round(($participantes / $total) * 100, 1) : 0,
+            'percentual' => $total > 0 ? round(($quantidade / $total) * 100, 1) : 100,
         ];
     }
 
     private function isPerfilConsulta(Usuario $usuario): bool
     {
         return $usuario->perfil?->nivel === PerfilEnum::CONSULTA->value;
+    }
+
+    /**
+     * Extrai as métricas de iniciativas estratégicas do SGPE mapeadas para o escopo de unidades.
+     *
+     * @return array{total: int, p1_prazo: int, p2_presenca: int, p3_padronizacao: int, outros_eixos: int}
+     */
+    private function calcularMetricasSGPE(array $unidadeIds): array
+    {
+        if (!Schema::hasTable('sgpe_iniciativas')) {
+            return [
+                'total' => 0,
+                'p1_prazo' => 0,
+                'p2_presenca' => 0,
+                'p3_padronizacao' => 0,
+                'outros_eixos' => 0,
+            ];
+        }
+
+        $siglas = DB::table('unidades')
+            ->whereIn('id', $unidadeIds)
+            ->pluck('sigla')
+            ->toArray();
+
+        $query = DB::table('sgpe_iniciativas');
+
+        // Se não incluir a Sede (que representa o órgão todo), filtra pelas siglas específicas das unidades no escopo
+        if (!in_array('PGE-MA', $siglas)) {
+            $query->whereIn('sigla_unidade', $siglas);
+        }
+
+        $total = (clone $query)->count();
+        $p1 = (clone $query)->where('pilar_3ps', 'like', '%1º P%')->count();
+        $p2 = (clone $query)->where('pilar_3ps', 'like', '%2º P%')->count();
+        $p3 = (clone $query)->where('pilar_3ps', 'like', '%3º P%')->count();
+        $outros = $total - ($p1 + $p2 + $p3);
+
+        return [
+            'total' => $total,
+            'p1_prazo' => $p1,
+            'p2_presenca' => $p2,
+            'p3_padronizacao' => $p3,
+            'outros_eixos' => max(0, $outros),
+        ];
     }
 
     private function capacidadeEquipe(array $unidadeIds): float

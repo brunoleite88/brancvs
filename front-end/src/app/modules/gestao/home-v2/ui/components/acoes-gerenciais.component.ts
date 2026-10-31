@@ -29,40 +29,24 @@ export class AcoesGerenciaisComponent {
     });
   }
 
+  irParaMeuRelatorio(): void {
+    this.router.navigate(['gestao', 'corregedoria', 'meu-relatorio']);
+  }
+
+  irParaPainelCorregedoria(): void {
+    this.router.navigate(['gestao', 'corregedoria', 'painel']);
+  }
+
   irParaPainelGerencial(): void {
     this.router.navigate(['gestao', 'paineis-gerenciais']);
   }
 
   irParaPlanoEntregas(): void {
-    const id = this.data()?.plano_entregas_id;
-    if (!id) {
-      this.message.info('Sem Plano de Entregas vigente.');
-      return;
-    }
-    const filter = {
-      unidade_id: this.unidadeId(),
-      meus_planos: true,
-      principais: false,
-      data_filtro: 'VIGENTE',
-      data_filtro_inicio: new Date().toISOString(),
-      data_filtro_fim: new Date().toISOString(),
-    };
-    this.router.navigate(['gestao', 'plano-entrega'], {
-      queryParams: {
-        planejamento: true,
-        filter: '[object Object]',
-        '_$filter$_': JSON.stringify(filter),
-      },
-    });
+    this.router.navigate(['gestao', 'planejamento']);
   }
 
   irParaPlanoTrabalho(): void {
-    const id = this.data()?.plano_trabalho_id;
-    if (!id) {
-      this.message.info('Sem Plano de Ação Individual vigente.');
-      return;
-    }
-    this.router.navigate(['gestao', 'plano-trabalho-v2', 'consultar', id]);
+    this.router.navigate(['gestao', 'corregedoria', 'meu-relatorio']);
   }
 
   private fetch(unidadeId: string): void {

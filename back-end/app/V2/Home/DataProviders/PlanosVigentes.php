@@ -11,6 +11,8 @@ use App\Models\Usuario;
 use App\Repository\UnidadeRepository;
 use App\V2\Home\DTOs\HomeRequestDTO;
 use App\V2\Home\Traits\ResolveUnidades;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PlanosVigentes
 {
@@ -48,7 +50,8 @@ class PlanosVigentes
      */
     private function indicadorUnidadesComPE(array $unidadesEscopo): array
     {
-        $total = $this->unidadesExecutorasQuery($unidadesEscopo)->count();
+        $unidades = $this->unidadesExecutorasQuery($unidadesEscopo)->get(['id', 'sigla']);
+        $total = $unidades->count();
 
         if ($total === 0) {
             return ['quantidade' => 0, 'total' => 0, 'percentual' => 0.0];
@@ -56,13 +59,33 @@ class PlanosVigentes
 
         $hoje = now()->toDateString();
 
-        $quantidade = $this->unidadesExecutorasQuery($unidadesEscopo)
+        // 1. Unidades com Plano de Entrega ativo (legado / padrão)
+        $comPE = Unidade::query()
+            ->whereIn('id', $unidades->pluck('id'))
             ->whereHas('planosEntrega', function ($q) use ($hoje) {
                 $q->where('status', StatusEnum::ATIVO->value)
                     ->where('data_inicio', '<=', $hoje)
                     ->where('data_fim', '>=', $hoje);
             })
-            ->count();
+            ->pluck('id')
+            ->toArray();
+
+        // 2. Unidades com Planos de Ação Setoriais mapeados no SGPE (PGE-MA)
+        $comSGPE = [];
+        if (Schema::hasTable('sgpe_iniciativas')) {
+            $siglasComSGPE = DB::table('sgpe_iniciativas')
+                ->distinct()
+                ->pluck('sigla_unidade')
+                ->toArray();
+
+            $comSGPE = $unidades
+                ->filter(fn ($u) => in_array($u->sigla, $siglasComSGPE))
+                ->pluck('id')
+                ->toArray();
+        }
+
+        $unidadesAtivas = array_unique(array_merge($comPE, $comSGPE));
+        $quantidade = count($unidadesAtivas);
 
         return [
             'quantidade' => $quantidade,
@@ -90,22 +113,44 @@ class PlanosVigentes
      */
     private function indicadorParticipantesComPT(array $unidadesEscopo): array
     {
-        $total = $this->agentesQuery($unidadesEscopo)->count();
+        $agentes = $this->agentesQuery($unidadesEscopo)->get(['id']);
+        $total = $agentes->count();
 
         if ($total === 0) {
             return ['quantidade' => 0, 'total' => 0, 'percentual' => 0.0];
         }
 
-        $hoje = now()->toDateString();
+        $hoje = now();
+        $hojeStr = $hoje->toDateString();
+        $mes = $hoje->month;
+        $ano = $hoje->year;
 
-        $quantidade = $this->agentesQuery($unidadesEscopo)
-            ->whereHas('planosTrabalho', function ($q) use ($hoje, $unidadesEscopo) {
+        // 1. Participantes com Plano de Trabalho ativo (legado / padrão)
+        $comPT = Usuario::query()
+            ->whereIn('id', $agentes->pluck('id'))
+            ->whereHas('planosTrabalho', function ($q) use ($hojeStr, $unidadesEscopo) {
                 $q->where('status', StatusEnum::ATIVO->value)
-                    ->where('data_inicio', '<=', $hoje)
-                    ->where('data_fim', '>=', $hoje)
+                    ->where('data_inicio', '<=', $hojeStr)
+                    ->where('data_fim', '>=', $hojeStr)
                     ->whereIn('unidade_id', $unidadesEscopo);
             })
-            ->count();
+            ->pluck('id')
+            ->toArray();
+
+        // 2. Participantes com Relatório Mensal de Atividades na competência atual (PGE-MA)
+        $comRelatorio = [];
+        if (Schema::hasTable('relatorios_corregedoria')) {
+            $comRelatorio = DB::table('relatorios_corregedoria')
+                ->whereIn('usuario_id', $agentes->pluck('id'))
+                ->where('ano', $ano)
+                ->where('mes', $mes)
+                ->whereNull('deleted_at')
+                ->pluck('usuario_id')
+                ->toArray();
+        }
+
+        $ativos = array_unique(array_merge($comPT, $comRelatorio));
+        $quantidade = count($ativos);
 
         return [
             'quantidade' => $quantidade,
@@ -115,17 +160,8 @@ class PlanosVigentes
     }
 
     /**
-     * Participantes do PGD dentro do escopo, base para o indicador "sem PT".
-     *
-     * Alinhado ao indicador PARTICIPANTES do ResumoEquipe:
-     *   - usuário com qualquer atribuição na unidade/escopo;
-     *   - não pode ter perfil Consulta;
-     *   - deve ter indicação de participante no SIAPE (participa_pgd = 'sim');
-     *   - TODO(#2476): desconsiderar participantes com marcação de dispensa de PT
-     *     (a ser adicionada após o merge da branch #2476).
-     *
-     * Retorna um builder novo a cada chamada para que os filtros de "quantidade"
-     * não vazem para a contagem de "total".
+     * Integrantes/Agentes dentro do escopo.
+     * Considera agentes ativos vinculados à unidade, com perfil operacional.
      *
      * @param string[] $unidadesEscopo
      * @return \Illuminate\Database\Eloquent\Builder<Usuario>
@@ -133,7 +169,11 @@ class PlanosVigentes
     private function agentesQuery(array $unidadesEscopo): \Illuminate\Database\Eloquent\Builder
     {
         return Usuario::query()
-            ->where('participa_pgd', self::PARTICIPA_PGD)
+            ->where(function ($q) {
+                $q->where('participa_pgd', self::PARTICIPA_PGD)
+                    ->orWhereNull('participa_pgd')
+                    ->orWhere('participa_pgd', '');
+            })
             ->whereHas('perfil', fn ($p) => $p->where('nivel', '!=', PerfilEnum::CONSULTA->value))
             ->whereHas('unidadesIntegrantes', function ($q) use ($unidadesEscopo) {
                 $q->whereIn('unidade_id', $unidadesEscopo)

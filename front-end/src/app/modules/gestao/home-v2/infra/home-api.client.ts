@@ -2,6 +2,15 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { TenantV2ResourceApiBase } from 'src/app/v2/infra/tenant-v2-resource-api.base';
 
+export interface RelatorioMensalInfo {
+  status: string;
+  pendente: boolean;
+  mes: number;
+  ano: number;
+  relatorio_id: string | null;
+  total_atos: number;
+}
+
 export interface PendenciasUsuario {
   assinaturas_pe_pendentes: number;
   assinaturas_pt_pendentes: number;
@@ -9,6 +18,8 @@ export interface PendenciasUsuario {
   registros_execucao_pt_atraso: number;
   avaliacoes_pt_pendentes: number;
   avaliacoes_pe_pendentes: number;
+  relatorio_mensal?: RelatorioMensalInfo;
+  relatorios_aguardando_homologacao?: number;
 }
 
 export interface IndicadorQuantitativo {
@@ -31,6 +42,11 @@ export interface ResumoEquipe {
   unidades: IndicadorQuantitativo;
   participantes_pgd: IndicadorQuantitativo;
   capacidade_equipe_horas_mensais: number;
+  acoes_estrategicas_total?: number;
+  acoes_p1_prazo?: number;
+  acoes_p2_presenca?: number;
+  acoes_p3_padronizacao?: number;
+  acoes_outros_eixos?: number;
 }
 
 export interface Contribuicoes {

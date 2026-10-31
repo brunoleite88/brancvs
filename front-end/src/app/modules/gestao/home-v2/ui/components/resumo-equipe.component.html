@@ -18,38 +18,41 @@
       </div>
     </div>
 
-    <!-- Card: Agentes Públicos -->
+    <!-- Card: Membros e Servidores -->
     <div class="col-md-3">
       <div class="br-card home-card home-resumo-card h-100">
         <div class="card-content p-3">
           <h6 class="fw-bold text-start mb-2">
-            Agentes Públicos: {{ data()!.participantes_pgd.total }}
+            Membros e Servidores: {{ data()!.participantes_pgd.total }}
           </h6>
           <p class="mb-0 small">
-            Participantes do PGD: <strong>{{ data()!.participantes_pgd.quantidade }}</strong> ({{ data()!.participantes_pgd.percentual }}%)
+            Integrantes Ativos: <strong>{{ data()!.participantes_pgd.quantidade }}</strong> ({{ data()!.participantes_pgd.percentual }}%)
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Card: Capacidade da Equipe -->
+    <!-- Card: Ações Estratégicas Mapeadas (SGPE) -->
     <div class="col-md-6">
       <div class="br-card home-card home-resumo-card h-100">
         <div class="card-content p-3">
           <h6 class="fw-bold text-start mb-2">
-            Capacidade da Equipe em PGD (horas mensais): {{ data()!.capacidade_equipe_horas_mensais }}
+            Ações Estratégicas (SGPE): {{ data()!.acoes_estrategicas_total ?? data()!.capacidade_equipe_horas_mensais }}
             <i class="fas fa-info-circle text-muted ml-1"
-               title="Representa a distribuição do esforço da equipe considerando todo o histórico de Planos de Trabalho pactuados na unidade selecionada. Quando a opção Unidades Subordinadas estiver habilitada, também serão considerados os dados das respectivas unidades subordinadas."
-               aria-label="Informação sobre capacidade e contribuições"
+               title="Total de iniciativas e planos de ação mapeados no Planejamento Estratégico (SGPE) para as unidades no escopo e seus 3 Pilares Estruturantes (3 Ps)."
+               aria-label="Informação sobre ações estratégicas do SGPE"
                style="cursor: help;"></i>
           </h6>
-          @if (contribuicoes()) {
-            <ul class="list-unstyled mb-0 small">
-              <li>Contribuições para Entregas da própria unidade: <strong>{{ contribuicoes()!.entregas_propria_unidade_percentual }}%</strong></li>
-              <li>Contribuições para Entregas de outras unidades: <strong>{{ contribuicoes()!.entregas_outras_unidades_percentual }}%</strong></li>
-              <li>Contribuições para Atividades não vinculadas a Entregas: <strong>{{ contribuicoes()!.nao_vinculada_entregas_percentual }}%</strong></li>
-            </ul>
-          }
+          <div class="row small g-1">
+            <div class="col-6">
+              <span class="d-block text-truncate"><strong>1º P (Prazo):</strong> {{ data()!.acoes_p1_prazo ?? 0 }} ações</span>
+              <span class="d-block text-truncate"><strong>2º P (Presença):</strong> {{ data()!.acoes_p2_presenca ?? 0 }} ações</span>
+            </div>
+            <div class="col-6">
+              <span class="d-block text-truncate"><strong>3º P (Padronização):</strong> {{ data()!.acoes_p3_padronizacao ?? 0 }} ações</span>
+              <span class="d-block text-truncate text-muted"><strong>Outros Eixos:</strong> {{ data()!.acoes_outros_eixos ?? 0 }} ações</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ use App\V2\Home\Traits\ResolveUnidades;
 use App\Traits\SqlPlaceholders;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ContribuicoesParticipantes
 {
@@ -59,6 +60,24 @@ class ContribuicoesParticipantes
         SQL, [...$statusAtivos, ...$unidadeIds]);
 
         if (empty($planos)) {
+            if (Schema::hasTable('sgpe_iniciativas')) {
+                $siglas = DB::table('unidades')->whereIn('id', $unidadeIds)->pluck('sigla')->toArray();
+                $query = DB::table('sgpe_iniciativas');
+                if (!in_array('PGE-MA', $siglas)) {
+                    $query->whereIn('sigla_unidade', $siglas);
+                }
+                $totalInic = (clone $query)->count();
+                if ($totalInic > 0) {
+                    $lider = (clone $query)->where('papel_unidade', 'Líder')->count();
+                    $coex = (clone $query)->whereIn('papel_unidade', ['Coexecutor', 'Articulador'])->count();
+                    return [
+                        'entregas_propria_unidade_percentual' => round(($lider / $totalInic) * 100, 1),
+                        'entregas_outras_unidades_percentual' => round(($coex / $totalInic) * 100, 1),
+                        'nao_vinculada_entregas_percentual' => 0.0,
+                    ];
+                }
+            }
+
             return [
                 'entregas_propria_unidade_percentual' => 0,
                 'entregas_outras_unidades_percentual' => 0,

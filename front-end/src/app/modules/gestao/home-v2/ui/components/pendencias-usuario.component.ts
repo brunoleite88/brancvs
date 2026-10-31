@@ -26,6 +26,8 @@ export class PendenciasUsuarioComponent implements OnInit {
   readonly loading = signal(false);
   readonly erro = signal<string | null>(null);
 
+  readonly relatorioMensal = computed(() => this.data()?.relatorio_mensal ?? null);
+
   readonly totalPendenciasPE = computed(() => {
     const d = this.data();
     if (!d) return 0;
@@ -38,7 +40,15 @@ export class PendenciasUsuarioComponent implements OnInit {
     return d.assinaturas_pt_pendentes + d.registros_execucao_pt_atraso + d.avaliacoes_pt_pendentes;
   });
 
+  readonly totalHomologacoesCorregedoria = computed(() => {
+    return this.data()?.relatorios_aguardando_homologacao ?? 0;
+  });
+
   ngOnInit(): void {
+    this.carregarDados();
+  }
+
+  carregarDados(): void {
     this.loading.set(true);
     this.erro.set(null);
     this.homeApi.getPendenciasGlobal().subscribe({
@@ -47,8 +57,23 @@ export class PendenciasUsuarioComponent implements OnInit {
     });
   }
 
+  irParaMeuRelatorio(): void {
+    this.router.navigate(['gestao', 'corregedoria', 'meu-relatorio']);
+  }
+
+  irParaPainelCorregedoria(): void {
+    this.router.navigate(['gestao', 'corregedoria', 'painel']);
+  }
+
+  nomeMes(mes: number): string {
+    const meses = [
+      '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return meses[mes] || '';
+  }
+
   irParaAssinaturasPE(): void {
-    // Usa o endpoint V2 (mesmo critério do card) para navegar exatamente aos PEs aguardando homologação.
     this.homeApi.getPlanosEntregaHomologacaoPendenteIds().subscribe((ids) => {
       const filter: Record<string, unknown> = { status: 'HOMOLOGANDO', meus_planos: false };
       if (ids.length) {
@@ -67,8 +92,6 @@ export class PendenciasUsuarioComponent implements OnInit {
   }
 
   irParaRegistrosExecucaoPE(): void {
-    // Usa o endpoint V2 (mesmo critério do card) para navegar aos PEs com RE em atraso de
-    // TODAS as unidades que o usuário chefia, não apenas uma.
     this.homeApi.getPlanosEntregaRegistroExecucaoAtrasoIds().subscribe((ids) => {
       const filter: Record<string, unknown> = { meus_planos: false };
       if (ids.length) {
@@ -92,7 +115,6 @@ export class PendenciasUsuarioComponent implements OnInit {
   }
 
   irParaAvaliacoesPE(): void {
-    // Usa o endpoint V2 (mesmo critério do card) para navegar exatamente aos PEs em avaliação pendente.
     this.homeApi.getPlanosEntregaAvaliacaoPendenteIds().subscribe((ids) => {
       const filter: Record<string, unknown> = { status: 'CONCLUIDO', meus_planos: false };
       if (ids.length) {
@@ -104,8 +126,6 @@ export class PendenciasUsuarioComponent implements OnInit {
       });
     });
   }
-
-
 
   private salvarFiltrosPT(filtros: Record<string, unknown>): void {
     const userId = this.auth.usuario?.id;
