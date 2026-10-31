@@ -173,7 +173,44 @@
                 <!-- Observação -->
                 <td class="col-obs">
                   @if (isEditavel) {
-                    <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="item.observacao" placeholder="Detalhamento da atividade..."></textarea>
+                    <textarea class="form-control form-control-sm mb-1" rows="2" [(ngModel)]="item.observacao" placeholder="Detalhamento da atividade..."></textarea>
+                    
+                    <!-- Vínculo Opcional a Projeto Estruturante ou Iniciativa do Setor -->
+                    <div class="d-print-none bg-light p-1 rounded border">
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="text-muted fw-bold" style="font-size: 0.72rem;">Vínculo:</span>
+                        <div class="form-check form-check-inline m-0">
+                          <input class="form-check-input" type="radio" [name]="'vinc_tipo_' + $index" value="NENHUM" [(ngModel)]="item.vinculo_tipo" (change)="limparVinculo(item)">
+                          <label class="form-check-label" style="font-size: 0.75rem;">Nenhum</label>
+                        </div>
+                        <div class="form-check form-check-inline m-0">
+                          <input class="form-check-input" type="radio" [name]="'vinc_tipo_' + $index" value="PROJETO" [(ngModel)]="item.vinculo_tipo" (change)="aoMudarTipoVinculo(item)">
+                          <label class="form-check-label" style="font-size: 0.75rem;">Projeto</label>
+                        </div>
+                        <div class="form-check form-check-inline m-0">
+                          <input class="form-check-input" type="radio" [name]="'vinc_tipo_' + $index" value="INICIATIVA" [(ngModel)]="item.vinculo_tipo" (change)="aoMudarTipoVinculo(item)">
+                          <label class="form-check-label" style="font-size: 0.75rem;">Iniciativa</label>
+                        </div>
+                      </div>
+
+                      @if (item.vinculo_tipo === 'PROJETO') {
+                        <select class="form-select form-select-sm" [(ngModel)]="item.vinculo_codigo" (ngModelChange)="aplicarVinculoNaObservacao(item, $event, 'PROJETO')" style="font-size: 0.75rem;">
+                          <option value="">Selecione o Projeto Estruturante do setor...</option>
+                          @for (p of projetos(); track p.codigo) {
+                            <option [value]="p.codigo">[{{ p.codigo }}] {{ p.titulo }}</option>
+                          }
+                        </select>
+                      }
+
+                      @if (item.vinculo_tipo === 'INICIATIVA') {
+                        <select class="form-select form-select-sm" [(ngModel)]="item.vinculo_codigo" (ngModelChange)="aplicarVinculoNaObservacao(item, $event, 'INICIATIVA')" style="font-size: 0.75rem;">
+                          <option value="">Selecione a Iniciativa do setor...</option>
+                          @for (inic of iniciativas(); track inic.id) {
+                            <option [value]="inic.codigo">[{{ inic.codigo }}] {{ inic.titulo }}</option>
+                          }
+                        </select>
+                      }
+                    </div>
                   } @else {
                     <span style="white-space: pre-wrap;">{{ item.observacao || '-' }}</span>
                   }

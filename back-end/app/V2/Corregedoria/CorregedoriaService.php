@@ -116,6 +116,9 @@ class CorregedoriaService
                     $ato->ato = $atoItem['ato'];
                     $ato->data_ato = !empty($atoItem['data_ato']) ? $atoItem['data_ato'] : now()->format('Y-m-d');
                     $ato->observacao = $atoItem['observacao'] ?? null;
+                    $ato->vinculo_tipo = $atoItem['vinculo_tipo'] ?? 'NENHUM';
+                    $ato->vinculo_codigo = $atoItem['vinculo_codigo'] ?? null;
+                    $ato->vinculo_descricao = $atoItem['vinculo_descricao'] ?? null;
                     $ato->save();
                 }
             });
@@ -197,5 +200,59 @@ class CorregedoriaService
         $relatorio->save();
 
         return $relatorio->load(['usuario:id,nome,email,matricula', 'unidade:id,nome,sigla', 'atos']);
+    }
+
+    public function obterOpcoesVinculo(?string $unidadeSiglaOrId): array
+    {
+        $sigla = $unidadeSiglaOrId ?? '';
+        if (!empty($unidadeSiglaOrId) && Str::isUuid($unidadeSiglaOrId)) {
+            $unidade = Unidade::find($unidadeSiglaOrId);
+            $sigla = $unidade?->sigla ?? '';
+        }
+
+        // 1. Iniciativas da Unidade
+        $iniciativasQuery = DB::table('sgpe_iniciativas');
+        if (!empty($sigla) && !in_array($sigla, ['PGE-MA', 'PGE', 'SEDE'])) {
+            $iniciativasQuery->where(function ($q) use ($sigla) {
+                $q->where('sigla_unidade', $sigla)
+                  ->orWhere('unidades_parceiras', 'LIKE', "%{$sigla}%");
+            });
+        }
+        $iniciativas = $iniciativasQuery->select([
+            'id',
+            'kr_codigo as codigo',
+            'acao as titulo',
+            'subacao as descricao',
+            'eixo',
+            'objetivo',
+            'prazo',
+            'pilar_3ps',
+            'sigla_unidade'
+        ])->orderBy('ordem')->get();
+
+        // 2. Projetos Estruturantes (10 GTs)
+        $projetosQuery = DB::table('sgpe_projetos');
+        if (!empty($sigla) && !in_array($sigla, ['PGE-MA', 'PGE', 'SEDE'])) {
+            $projetosQuery->where(function ($q) use ($sigla) {
+                $q->where('unidades_participantes', 'LIKE', "%{$sigla}%")
+                  ->orWhere('lider', 'LIKE', "%{$sigla}%")
+                  ->orWhere('unidades_participantes', 'LIKE', '%41 Unidades%');
+            });
+        }
+        $projetos = $projetosQuery->select([
+            'id',
+            'codigo',
+            'titulo',
+            'tipo',
+            'lider',
+            'prazo',
+            'objetivo'
+        ])->orderBy('codigo')->get();
+
+        return [
+            'unidade_sigla' => $sigla,
+            'projetos' => $projetos,
+            'iniciativas' => $iniciativas,
+        ];
     }
 }

@@ -69,6 +69,19 @@ class CorregedoriaController extends Controller
         }
     }
 
+    public function opcoesVinculo(Request $request): JsonResponse
+    {
+        try {
+            $unidade = $request->input('unidade') ?? $request->input('unidade_id');
+            $result = $this->service->obterOpcoesVinculo($unidade);
+
+            return response()->json(['success' => true, 'data' => $result]);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function index(Request $request): JsonResponse
     {
         try {

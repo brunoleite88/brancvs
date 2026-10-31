@@ -10,6 +10,37 @@ export interface RelatorioAto {
   ato: string;
   data_ato: string;
   observacao: string;
+  vinculo_tipo?: 'NENHUM' | 'INICIATIVA' | 'PROJETO';
+  vinculo_codigo?: string;
+  vinculo_descricao?: string;
+}
+
+export interface OpcaoVinculoProjeto {
+  id: number;
+  codigo: string;
+  titulo: string;
+  tipo: string;
+  lider: string;
+  prazo: string;
+  objetivo?: string;
+}
+
+export interface OpcaoVinculoIniciativa {
+  id: number;
+  codigo: string;
+  titulo: string;
+  descricao?: string;
+  eixo: string;
+  objetivo: string;
+  prazo: string;
+  pilar_3ps: string;
+  sigla_unidade: string;
+}
+
+export interface OpcoesVinculoResponse {
+  unidade_sigla: string;
+  projetos: OpcaoVinculoProjeto[];
+  iniciativas: OpcaoVinculoIniciativa[];
 }
 
 export interface RelatorioCabecalho {
@@ -68,6 +99,15 @@ export class CorregedoriaApiClient extends TenantV2ResourceApiBase {
   getUnidades(): Observable<{ id: string; nome: string; sigla: string }[]> {
     return this.http.get<any>(this.resourceUrl('/unidades'))
       .pipe(map(r => r?.data ?? []));
+  }
+
+  getOpcoesVinculo(unidade?: string): Observable<OpcoesVinculoResponse> {
+    let params = new HttpParams();
+    if (unidade) {
+      params = params.set('unidade', unidade);
+    }
+    return this.http.get<any>(this.resourceUrl('/opcoes-vinculo'), { params })
+      .pipe(map(r => r?.data));
   }
 
   analisarRelatorio(id: string, status: string, observacoes?: string): Observable<RelatorioCorregedoria> {

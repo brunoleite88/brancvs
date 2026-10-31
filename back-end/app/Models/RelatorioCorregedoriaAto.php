@@ -16,6 +16,9 @@ class RelatorioCorregedoriaAto extends ModelBase
         'ato',
         'data_ato',
         'observacao',
+        'vinculo_tipo',
+        'vinculo_codigo',
+        'vinculo_descricao',
     ];
 
     public function relatorio(): BelongsTo

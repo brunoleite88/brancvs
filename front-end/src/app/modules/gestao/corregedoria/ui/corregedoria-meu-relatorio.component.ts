@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CorregedoriaApiClient, RelatorioCorregedoria, RelatorioAto, RelatorioCabecalho } from '../infra/corregedoria-api.client';
+import { CorregedoriaApiClient, RelatorioCorregedoria, RelatorioAto, RelatorioCabecalho, OpcaoVinculoProjeto, OpcaoVinculoIniciativa } from '../infra/corregedoria-api.client';
 import { AuthService } from 'src/app/services/auth.service';
 import { MessageService } from 'src/app/v2/services/message.service';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
@@ -25,6 +25,9 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
   readonly relatorio = signal<RelatorioCorregedoria | null>(null);
   readonly carregando = signal(true);
   readonly salvando = signal(false);
+
+  readonly projetos = signal<OpcaoVinculoProjeto[]>([]);
+  readonly iniciativas = signal<OpcaoVinculoIniciativa[]>([]);
 
   readonly modalCabecalhoAberto = signal(false);
   readonly cabecalhoEdit = signal<RelatorioCabecalho>({});
@@ -80,7 +83,34 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
         if (!res.cabecalho) {
           res.cabecalho = this.obterCabecalhoPadrao(res);
         }
+
+        // Mapeia o vinculo_tipo existente nos atos ou detecta pelo prefixo [CODIGO]
+        if (res.atos) {
+          res.atos.forEach(a => {
+            if (!a.vinculo_tipo || a.vinculo_tipo === 'NENHUM') {
+              const match = (a.observacao || '').match(/^\[([A-Za-z0-9_.\-]+)\]/);
+              if (match) {
+                const cod = match[1];
+                if (cod.startsWith('GT-')) {
+                  a.vinculo_tipo = 'PROJETO';
+                  a.vinculo_codigo = cod;
+                } else if (cod.includes('.KR') || cod.startsWith('E')) {
+                  a.vinculo_tipo = 'INICIATIVA';
+                  a.vinculo_codigo = cod;
+                } else {
+                  a.vinculo_tipo = 'NENHUM';
+                }
+              } else {
+                a.vinculo_tipo = 'NENHUM';
+              }
+            }
+          });
+        }
+
         this.relatorio.set(res);
+        // Carrega opções de vínculo estratégico da unidade do servidor
+        this.carregarOpcoesVinculo(res.unidade?.sigla || res.unidade_id);
+
         // Se atos estiver vazio, adiciona a primeira linha automaticamente
         if (!res.atos || res.atos.length === 0) {
           this.adicionarAto();
@@ -94,6 +124,71 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
         this.message.error(e?.error?.error || 'Erro ao carregar relatório da corregedoria.');
       }
     });
+  }
+
+  carregarOpcoesVinculo(unidade?: string): void {
+    this.api.getOpcoesVinculo(unidade).subscribe({
+      next: (dados) => {
+        if (dados) {
+          this.projetos.set(dados.projetos || []);
+          this.iniciativas.set(dados.iniciativas || []);
+          this.cd.markForCheck();
+        }
+      },
+      error: (err) => {
+        console.error('Erro ao carregar opções de vínculo:', err);
+      }
+    });
+  }
+
+  aoMudarTipoVinculo(item: RelatorioAto): void {
+    if (item.vinculo_tipo === 'NENHUM') {
+      this.limparVinculo(item);
+    } else {
+      item.vinculo_codigo = '';
+      item.vinculo_descricao = '';
+    }
+  }
+
+  limparVinculo(item: RelatorioAto): void {
+    const codAntigo = item.vinculo_codigo;
+    item.vinculo_tipo = 'NENHUM';
+    item.vinculo_codigo = '';
+    item.vinculo_descricao = '';
+
+    // Remove prefixo [COD] da observação se existir
+    if (codAntigo && item.observacao) {
+      const regex = new RegExp(`^\\[${codAntigo}\\]\\s*`, 'i');
+      item.observacao = item.observacao.replace(regex, '').trim();
+    }
+  }
+
+  aplicarVinculoNaObservacao(item: RelatorioAto, codigoSelecionado: string, tipo: 'PROJETO' | 'INICIATIVA'): void {
+    if (!codigoSelecionado) {
+      this.limparVinculo(item);
+      return;
+    }
+
+    item.vinculo_tipo = tipo;
+    item.vinculo_codigo = codigoSelecionado;
+
+    // Busca descrição para salvar como metadado
+    if (tipo === 'PROJETO') {
+      const p = this.projetos().find(x => x.codigo === codigoSelecionado);
+      item.vinculo_descricao = p?.titulo || '';
+    } else {
+      const i = this.iniciativas().find(x => x.codigo === codigoSelecionado);
+      item.vinculo_descricao = i?.titulo || '';
+    }
+
+    // Aplica o prefixo [CODIGO] na observação conforme solicitado pelo usuário
+    const prefixo = `[${codigoSelecionado}]`;
+    let texto = (item.observacao || '').trim();
+
+    // Remove prefixo anterior entre colchetes no início se houver
+    texto = texto.replace(/^\[[A-Za-z0-9_.\-]+\]\s*/, '').trim();
+
+    item.observacao = texto ? `${prefixo} ${texto}` : `${prefixo} `;
   }
 
   abrirModalCabecalho(): void {
@@ -214,6 +309,9 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
       ato: '',
       data_ato: dtFormatada,
       observacao: '',
+      vinculo_tipo: 'NENHUM',
+      vinculo_codigo: '',
+      vinculo_descricao: '',
     });
     this.relatorio.set({ ...rel, atos: novosAtos });
   }
