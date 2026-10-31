@@ -5,6 +5,7 @@ use App\V2\PainelGerencial\AlinhamentoDesempenho\AlinhamentoDesempenhoController
 use App\V2\PainelGerencial\Conformidade\ConformidadeController as ConformidadeV2;
 use App\V2\PainelGerencial\Modalidades\ModalidadesController as ModalidadesV2;
 use App\V2\PainelGerencial\PainelGerencialController as PainelGerencialV2;
+use App\V2\PainelGerencial\Projetos\ProjetosController as ProjetosV2;
 use Illuminate\Support\Facades\Route;
 
 Route::get('painel-gerencial/unidade-inicial', [PainelGerencialV2::class, 'unidadeInicial']);
@@ -15,6 +16,9 @@ Route::get('painel-gerencial/alinhamento-desempenho/avaliacoes-plano-trabalho', 
 Route::get('painel-gerencial/modalidades/teletrabalho-substituicao', [ModalidadesV2::class, 'teletrabalhoSubstituicao']);
 Route::get('painel-gerencial/modalidades/teletrabalho-discricionario', [ModalidadesV2::class, 'teletrabalhoDiscricionario']);
 Route::get('painel-gerencial/modalidades/por-unidade', [ModalidadesV2::class, 'modalidadesPorUnidade']);
+
+Route::get('painel-gerencial/projetos', [ProjetosV2::class, 'index']);
+Route::get('painel-gerencial/projetos/indicador', [ProjetosV2::class, 'indicadorPorUnidade']);
 
 Route::get('painel-gerencial/conformidade/registro-execucao-pe', [ConformidadeV2::class, 'registroExecucaoPE']);
 Route::get('painel-gerencial/conformidade/avaliacao-pe', [ConformidadeV2::class, 'avaliacaoPE']);

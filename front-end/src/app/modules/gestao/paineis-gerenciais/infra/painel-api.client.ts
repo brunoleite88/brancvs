@@ -53,6 +53,31 @@ export interface SerieAdesao {
   serie: SerieAdesaoItem[];
 }
 
+export interface ProjetoResumoItem {
+  id: string;
+  codigo: string;
+  titulo: string;
+  tipo: string;
+  lider: string;
+  unidades_participantes: string;
+  status: string;
+  prazo: string;
+  objetivo: string;
+  krs_vinculados: string;
+  progresso: number;
+}
+
+export interface ProjetosPainelResponse {
+  totais: {
+    total: number;
+    em_execucao: number;
+    em_implantacao: number;
+    em_elaboracao: number;
+    media_progresso: number;
+  };
+  projetos: ProjetoResumoItem[];
+}
+
 export interface UnidadeHistorica {
   id: string;
   sigla: string;
@@ -122,6 +147,20 @@ export class PainelApiClient extends TenantV2ResourceApiBase {
   getModalidadesPorUnidade(filtros: FiltrosPainel): Observable<Indicador> {
     return this.http
       .get<{ data: Indicador }>(this.resourceUrl('/modalidades/por-unidade'), {
+        params: this.filtrosToParams(filtros),
+      })
+      .pipe(map(r => r.data));
+  }
+
+  getProjetosPainel(): Observable<ProjetosPainelResponse> {
+    return this.http
+      .get<{ data: ProjetosPainelResponse }>(this.resourceUrl('/projetos'))
+      .pipe(map(r => r.data));
+  }
+
+  getProjetosIndicador(filtros: FiltrosPainel): Observable<Indicador> {
+    return this.http
+      .get<{ data: Indicador }>(this.resourceUrl('/projetos/indicador'), {
         params: this.filtrosToParams(filtros),
       })
       .pipe(map(r => r.data));

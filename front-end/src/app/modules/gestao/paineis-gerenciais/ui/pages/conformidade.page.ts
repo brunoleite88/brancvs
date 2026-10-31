@@ -33,24 +33,24 @@ export class ConformidadePage implements OnInit {
 
   readonly textos = {
     registroExecucaoPE: {
-      titulo: 'Registro de execução dos Planos de Entregas por unidade organizacional',
-      info: 'Apresenta a distribuição percentual da situação dos registros de execução dos Planos de Entregas por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Cumprimento de Prazos das Ações nos Planos Setoriais',
+      info: 'Apresenta a distribuição percentual da tempestividade e cumprimento das ações previstas nos Planos Setoriais por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada e as seguintes detalham suas subordinadas.',
     },
     avaliacaoPE: {
-      titulo: 'Avaliação dos Planos de Entregas por unidade organizacional',
-      info: 'Apresenta a distribuição percentual da situação das avaliações dos Planos de Entregas por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Homologação e Validação dos Planos de Ação Setoriais',
+      info: 'Apresenta a situação de homologação dos Planos de Ação Setoriais por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada e as seguintes detalham suas subordinadas.',
     },
     registroExecucaoPT: {
-      titulo: 'Registro de execução dos Planos de Trabalho por unidade organizacional',
-      info: 'Apresenta a distribuição percentual da situação dos registros de execução dos períodos avaliativos dos Planos de Trabalho por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Regularidade dos Relatórios Mensais de Atividades',
+      info: 'Apresenta a situação de envio e tempestividade dos Relatórios Mensais de Atividades por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada e as seguintes detalham suas subordinadas.',
     },
     avaliacaoPT: {
-      titulo: 'Avaliação dos Planos de Trabalho por unidade organizacional',
-      info: 'Apresenta a distribuição percentual da situação das avaliações dos períodos avaliativos dos Planos de Trabalho por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Homologação dos Relatórios Periódicos de Atividades',
+      info: 'Apresenta a situação das avaliações e homologações dos relatórios de atividades pelas chefias imediatas. A primeira linha do gráfico apresenta os dados da unidade selecionada e as seguintes detalham suas subordinadas.',
     },
     unidadesExecutorasPE: {
-      titulo: 'Existência de Plano de Entregas vigente nas Unidades Executoras',
-      info: 'Apresenta a distribuição percentual das Unidades Executoras que possuem e que não possuem Plano de Entregas vigente, por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Existência de Plano de Ação Setorial vigente por Unidade',
+      info: 'Apresenta a distribuição percentual das Unidades da PGE-MA que possuem e que não possuem Plano de Ação Setorial vigente. A primeira linha do gráfico apresenta os dados da unidade selecionada e as seguintes detalham suas subordinadas.',
     },
   };
 

@@ -22,10 +22,15 @@ export const routes: Routes = [
           import('./ui/paineis-gerenciais.page').then(m => m.PaineisGerenciaisPage),
       },
       {
-        path: 'alinhamento-desempenho',
-        data: { breadcrumb: 'Alinhamento e Avaliações' },
+        path: 'metas-entregas',
+        data: { breadcrumb: 'Metas e Entregas' },
         loadComponent: () =>
           import('./ui/pages/alinhamento-desempenho.page').then(m => m.AlinhamentoDesempenhoPage),
+      },
+      {
+        path: 'alinhamento-desempenho',
+        redirectTo: 'metas-entregas',
+        pathMatch: 'full',
       },
       {
         path: 'conformidade',
@@ -34,10 +39,15 @@ export const routes: Routes = [
           import('./ui/pages/conformidade.page').then(m => m.ConformidadePage),
       },
       {
-        path: 'modalidades',
-        data: { breadcrumb: 'Modalidades' },
+        path: 'projetos',
+        data: { breadcrumb: 'Projetos' },
         loadComponent: () =>
-          import('./ui/pages/modalidades.page').then(m => m.ModalidadesPage),
+          import('./ui/pages/projetos-painel.page').then(m => m.ProjetosPainelPage),
+      },
+      {
+        path: 'modalidades',
+        redirectTo: 'projetos',
+        pathMatch: 'full',
       },
       // {
       //   path: 'gestao-pgd',

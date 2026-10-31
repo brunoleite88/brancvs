@@ -1,0 +1,56 @@
+.summary-card {
+  border-left-width: 4px !important;
+  background-color: #ffffff;
+  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.project-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.metadata-box {
+  background-color: #f8fafc !important;
+  border: 1px solid #edf2f7;
+}
+
+.badge-execucao {
+  background-color: #198754;
+  color: #ffffff;
+}
+
+.badge-implantacao {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-elaboracao {
+  background-color: #6c757d;
+  color: #ffffff;
+}
+
+@keyframes spin-anim {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  display: inline-block;
+  animation: spin-anim 1s linear infinite;
+}

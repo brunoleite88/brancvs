@@ -33,16 +33,16 @@ export class AlinhamentoDesempenhoPage implements OnInit {
 
   readonly textos = {
     alinhamento: {
-      titulo: 'Alinhamento institucional das Entregas por nível estratégico',
-      info: 'Apresenta a distribuição percentual das entregas de acordo com seu nível de alinhamento institucional, considerando entregas vinculadas ao Planejamento Institucional, à Cadeia de Valor, a ambos e entregas sem vinculação. São consideradas vinculadas ao Planejamento Institucional as entregas cujo encadeamento alcance o nível mais alto do planejamento (nível 1). São consideradas vinculadas à Cadeia de Valor as entregas cujo encadeamento alcance, no mínimo, o terceiro nível de processo (nível 3). A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Alinhamento Institucional das Ações por Unidade',
+      info: 'Apresenta a distribuição percentual das ações e entregas de acordo com seu nível de alinhamento institucional, considerando ações vinculadas aos Objetivos Estratégicos Institucionais da PGE-MA (Ciclo 2026–2030), à Cadeia de Valor ou demandas rotineiras da própria unidade. A primeira linha do gráfico apresenta os dados da unidade selecionada, e as seguintes detalham suas subordinadas.',
     },
     avaliacoesPE: {
-      titulo: 'Notas das avaliações dos Planos de Entregas por Unidade organizacional',
-      info: 'Apresenta a distribuição percentual das notas atribuídas aos Planos de Entregas por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Execução das Ações nos Planos de Ação Setoriais',
+      info: 'Apresenta a distribuição percentual da execução e cumprimento das ações previstas nos Planos Setoriais por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada e as seguintes detalham suas subordinadas.',
     },
     avaliacoesPT: {
-      titulo: 'Notas das avaliações dos Planos de Trabalho de acordo com as Unidades',
-      info: 'Apresenta a distribuição percentual das notas atribuídas aos períodos avaliativos dos Planos de Trabalho por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada, considerando as informações da própria unidade e as informações de todas as suas unidades subordinadas.',
+      titulo: 'Execução das Atividades e Demandas Setoriais por Unidade',
+      info: 'Apresenta a distribuição percentual da execução das atividades programadas por unidade organizacional. A primeira linha do gráfico apresenta os dados da unidade selecionada e as seguintes detalham suas subordinadas.',
     },
   };
 
@@ -131,7 +131,7 @@ export class AlinhamentoDesempenhoPage implements OnInit {
 
     this.pdfPainel.imprimir(
       {
-        painel: 'Alinhamento e Avaliações',
+        painel: 'Metas e Entregas',
         tipoConsulta: this.tipoConsultaLabel(),
         unidade: this.unidadeLabel(),
         periodo: this.periodoLabel() || undefined,

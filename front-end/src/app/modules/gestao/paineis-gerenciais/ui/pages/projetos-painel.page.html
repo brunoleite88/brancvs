@@ -1,0 +1,217 @@
+<app-breadcrumb></app-breadcrumb>
+
+<div class="container-fluid px-4 py-3">
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+      <h2 class="mb-1">Painel de Projetos Estruturantes</h2>
+      <p class="text-muted small mb-0">
+        Monitoramento executivo dos 10 Grupos de Trabalho (GTs) e iniciativas estratégicas da PGE-MA
+      </p>
+    </div>
+    <div>
+      <button class="btn btn-sm btn-outline-primary" (click)="carregarDados()" [disabled]="carregando()">
+        <i class="bi bi-arrow-clockwise me-1" [class.spin]="carregando()"></i> Atualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Cards de Totais / Indicadores de Cabeçalho -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-primary">
+        <div class="card-body py-3">
+          <div class="text-muted small fw-semibold text-uppercase">Total de Projetos</div>
+          <div class="fs-2 fw-bold text-primary mt-1">
+            {{ dados()?.totais?.total ?? 10 }}
+          </div>
+          <div class="small text-muted">Projetos Estruturantes (GTs)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-success">
+        <div class="card-body py-3">
+          <div class="text-muted small fw-semibold text-uppercase">Execução Prioritária</div>
+          <div class="fs-2 fw-bold text-success mt-1">
+            {{ dados()?.totais?.em_execucao ?? 0 }}
+          </div>
+          <div class="small text-muted">Em andamento na PGE-MA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-warning">
+        <div class="card-body py-3">
+          <div class="text-muted small fw-semibold text-uppercase">Implantação / Validação</div>
+          <div class="fs-2 fw-bold text-warning mt-1">
+            {{ dados()?.totais?.em_implantacao ?? 0 }}
+          </div>
+          <div class="small text-muted">Aguardando atos ou reuniões</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-secondary">
+        <div class="card-body py-3">
+          <div class="text-muted small fw-semibold text-uppercase">Elaboração / Portarias</div>
+          <div class="fs-2 fw-bold text-secondary mt-1">
+            {{ dados()?.totais?.em_elaboracao ?? 0 }}
+          </div>
+          <div class="small text-muted">Em estruturação normativa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-6 col-lg-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control border-start-0"
+              placeholder="Buscar por código, título, líder ou KR..."
+              [ngModel]="filtroTexto()"
+              (ngModelChange)="filtroTexto.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-7 d-flex justify-content-md-end gap-1 flex-wrap">
+          <div class="btn-group btn-group-sm" role="group">
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="filtroStatus() === 'TODOS'"
+              [class.btn-outline-secondary]="filtroStatus() !== 'TODOS'"
+              (click)="filtroStatus.set('TODOS')"
+            >
+              Todos ({{ dados()?.projetos?.length ?? 0 }})
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-success]="filtroStatus() === 'EXECUCAO'"
+              [class.btn-outline-secondary]="filtroStatus() !== 'EXECUCAO'"
+              (click)="filtroStatus.set('EXECUCAO')"
+            >
+              Em Execução ({{ dados()?.totais?.em_execucao ?? 0 }})
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-warning]="filtroStatus() === 'IMPLANTACAO'"
+              [class.btn-outline-secondary]="filtroStatus() !== 'IMPLANTACAO'"
+              (click)="filtroStatus.set('IMPLANTACAO')"
+            >
+              Implantação ({{ dados()?.totais?.em_implantacao ?? 0 }})
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [class.btn-secondary]="filtroStatus() === 'ELABORACAO'"
+              [class.btn-outline-secondary]="filtroStatus() !== 'ELABORACAO'"
+              (click)="filtroStatus.set('ELABORACAO')"
+            >
+              Elaboração ({{ dados()?.totais?.em_elaboracao ?? 0 }})
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando projetos...</span>
+      </div>
+      <div class="text-muted mt-2 small">Carregando portfólio de projetos da PGE-MA...</div>
+    </div>
+  }
+
+  <!-- Lista de Projetos (Grid de Cards) -->
+  @if (!carregando()) {
+    <div class="row g-3">
+      @for (proj of projetosFiltrados(); track proj.codigo) {
+        <div class="col-12 col-lg-6">
+          <div class="card h-100 project-card shadow-sm border-0">
+            <div class="card-body d-flex flex-column">
+              <!-- Top Badges -->
+              <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                <div class="d-flex align-items-center gap-1">
+                  <span class="badge bg-primary text-white fw-semibold">{{ proj.codigo }}</span>
+                  <span class="badge bg-light text-dark border">{{ proj.tipo }}</span>
+                </div>
+                <span class="badge" [ngClass]="getStatusClass(proj.status)">
+                  {{ proj.status }}
+                </span>
+              </div>
+
+              <!-- Título do Projeto -->
+              <h5 class="card-title fw-bold text-dark mb-2">
+                {{ proj.titulo }}
+              </h5>
+
+              <!-- Objetivo -->
+              <p class="text-muted small flex-grow-1 mb-3">
+                {{ proj.objetivo }}
+              </p>
+
+              <!-- Metadados (Líder, Participantes, Prazo) -->
+              <div class="metadata-box p-2 rounded mb-3 bg-light small">
+                <div class="d-flex align-items-center mb-1 text-truncate">
+                  <i class="bi bi-person-badge text-primary me-2"></i>
+                  <strong>Líder:</strong>&nbsp;<span class="text-truncate">{{ proj.lider }}</span>
+                </div>
+                <div class="d-flex align-items-center mb-1 text-truncate">
+                  <i class="bi bi-people text-secondary me-2"></i>
+                  <strong>Participantes:</strong>&nbsp;<span class="text-truncate">{{ proj.unidades_participantes }}</span>
+                </div>
+                <div class="d-flex align-items-center text-truncate">
+                  <i class="bi bi-calendar3 text-danger me-2"></i>
+                  <strong>Prazo:</strong>&nbsp;<span class="text-truncate">{{ proj.prazo }}</span>
+                </div>
+              </div>
+
+              <!-- Rodapé do Card: KRs e Ação -->
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto flex-wrap gap-2">
+                <div class="small text-muted">
+                  <span class="fw-semibold">KRs:</span>
+                  <span class="badge bg-secondary-subtle text-secondary ms-1">{{ proj.krs_vinculados }}</span>
+                </div>
+
+                <button class="btn btn-sm btn-outline-primary" (click)="acessarProjeto(proj)">
+                  <i class="bi bi-folder2-open me-1"></i> Detalhes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (projetosFiltrados().length === 0) {
+        <div class="col-12">
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-folder-x fs-1 d-block mb-2"></i>
+            Nenhum projeto encontrado com os filtros selecionados.
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="text-muted small mt-4 text-end">
+    {{ origemDados }}
+  </div>
+</div>
