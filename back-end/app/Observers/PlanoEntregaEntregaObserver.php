@@ -43,6 +43,8 @@ class PlanoEntregaEntregaObserver
             PlanoEntregaEnvioService::processar(tenant('id'), $planoEntregaEntrega->planoEntrega, 'PlanoEntregaEntrega');
         }catch(EnvioNaoAgendadoException $e) {
             Log::info("Envio do {$planoEntregaEntrega->planoEntrega->identificacaoEnvio()} não agendado: " . $e->getMessage());
+        }catch(\Throwable $e) {
+            Log::warning("Falha no agendamento de envio PGD (RabbitMQ offline): " . $e->getMessage());
         }
     }
 }
