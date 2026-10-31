@@ -14,8 +14,6 @@ import { PendenciasUsuarioComponent } from './components/pendencias-usuario.comp
 import { PlanosVigentesComponent } from './components/planos-vigentes.component';
 import { AcoesGerenciaisComponent } from './components/acoes-gerenciais.component';
 import { ResumoEquipeComponent } from './components/resumo-equipe.component';
-import { EmFeriasComponent } from './components/em-ferias.component';
-import { AniversariantesComponent } from './components/aniversariantes.component';
 import { AtalhoCardComponent } from './components/atalho-card.component';
 
 export interface SelectOption {
@@ -37,8 +35,6 @@ export interface SelectOption {
     PlanosVigentesComponent,
     AcoesGerenciaisComponent,
     ResumoEquipeComponent,
-    EmFeriasComponent,
-    AniversariantesComponent,
     AtalhoCardComponent,
   ],
   templateUrl: './home.page.html',
@@ -55,7 +51,7 @@ export class HomeV2Page implements OnInit {
 
   readonly unidadeOptions = signal<SelectOption[]>([]);
   readonly selectedUnidadeId = signal<string>('');
-  readonly subordinadas = signal(false);
+  readonly subordinadas = signal(true);
   readonly exibeToggleSubordinadas = computed(() => {
     return !this.auth.isUsuarioParticipante() && !this.auth.isUsuarioConsulta();
   });

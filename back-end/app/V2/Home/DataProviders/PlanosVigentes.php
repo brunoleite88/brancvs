@@ -70,7 +70,7 @@ class PlanosVigentes
             ->pluck('id')
             ->toArray();
 
-        // 2. Unidades com Planos de Ação Setoriais mapeados no SGPE (PGE-MA)
+        // 2. Unidades com Planos de Ação Setoriais mapeados (PGE-MA)
         $comSGPE = [];
         if (Schema::hasTable('sgpe_iniciativas')) {
             $siglasComSGPE = DB::table('sgpe_iniciativas')
@@ -84,7 +84,13 @@ class PlanosVigentes
                 ->toArray();
         }
 
-        $unidadesAtivas = array_unique(array_merge($comPE, $comSGPE));
+        // 3. Unidade Sede (PGE-MA) detentora do Planejamento Institucional
+        $comPlanejamento = $unidades
+            ->filter(fn ($u) => $u->sigla === 'PGE-MA' || DB::table('planejamentos')->where('unidade_id', $u->id)->whereNull('deleted_at')->exists())
+            ->pluck('id')
+            ->toArray();
+
+        $unidadesAtivas = array_unique(array_merge($comPE, $comSGPE, $comPlanejamento));
         $quantidade = count($unidadesAtivas);
 
         return [
