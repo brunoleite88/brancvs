@@ -716,8 +716,17 @@ body {
 }
 
 @media print {    
-  .hidden-print {
+  .hidden-print,
+  [vw],
+  [vw-access-button],
+  [vw-plugin-wrapper],
+  .vw-plugin-wrapper,
+  div[vw],
+  .vp-container,
+  .vlibras-widget {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
   }
   .modal-content {
     border: 0 !important;

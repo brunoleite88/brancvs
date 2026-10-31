@@ -145,6 +145,18 @@
   body {
     background: #fff !important;
   }
+  ::ng-deep [vw],
+  ::ng-deep [vw-access-button],
+  ::ng-deep .vw-plugin-wrapper,
+  ::ng-deep div[vw],
+  [vw],
+  [vw-access-button],
+  .vw-plugin-wrapper,
+  div[vw] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
   .relatorio-documento {
     border: none !important;
     box-shadow: none !important;
