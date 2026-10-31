@@ -89,7 +89,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 		this.unidadeSelecionada = this.auth.unidade!;
 		this.code = "MOD_PLANE";
 		/* Inicializações */
-		this.title = this.lex.translate("Planos de Entregas");
+		this.title = "Planos de Ação Setoriais";
 		this.filter = this.fh.FormBuilder(
 			{
 				agrupar: {default: true},
@@ -1037,7 +1037,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 				novoStatus: planoEntrega.status,
 				onClick: this.dao!.arquivar.bind(this.dao),
 			},
-			title: "Arquivar Plano de Entregas",
+			title: "Arquivar Plano de Ação Setorial",
 			modalClose: (modalResult) => {
 				if (modalResult) {
 					(this.grid?.query || this.query!)
@@ -1158,7 +1158,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 				novoStatus: "CANCELADO",
 				onClick: this.dao!.cancelarPlano.bind(this.dao),
 			},
-			title: "Cancelar Plano de Entregas",
+			title: "Cancelar Plano de Ação Setorial",
 			modalClose: (modalResult) => {
 				if (modalResult) {
 					(this.grid?.query || this.query!)
@@ -1179,7 +1179,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 				novoStatus: "CONCLUIDO",
 				onClick: this.dao!.concluir.bind(this.dao),
 			},
-			title: "Concluir Plano de Entregas",
+			title: "Concluir Plano de Ação Setorial",
 			modalClose: (modalResult) => {
 				if (modalResult) {
 					(this.grid?.query || this.query!)
@@ -1200,7 +1200,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 				novoStatus: planoEntrega.status,
 				onClick: this.dao!.arquivar.bind(this.dao),
 			},
-			title: "Desarquivar Plano de Entregas",
+			title: "Desarquivar Plano de Ação Setorial",
 			modalClose: (modalResult) => {
 				if (modalResult) {
 					(this.grid?.query || this.query!)
@@ -1221,7 +1221,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 				novoStatus: "ATIVO",
 				onClick: this.dao!.homologar.bind(this.dao),
 			},
-			title: "Homologar Plano de Entregas",
+			title: "Homologar Plano de Ação Setorial",
 			modalClose: (modalResult) => {
 				if (modalResult) {
 					(this.grid?.query || this.query!)
@@ -1263,7 +1263,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 				novoStatus: "ATIVO",
 				onClick: this.dao!.reativar.bind(this.dao),
 			},
-			title: "Reativar Plano de Entregas",
+			title: "Reativar Plano de Ação Setorial",
 			modalClose: (modalResult) => {
 				if (modalResult) {
 					(this.grid?.query || this.query!)
@@ -1305,7 +1305,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 				novoStatus: "SUSPENSO",
 				onClick: this.dao!.suspender.bind(this.dao),
 			},
-			title: "Suspender Plano de Entregas",
+			title: "Suspender Plano de Ação Setorial",
 			modalClose: (modalResult) => {
 				if (modalResult) {
 					(this.grid?.query || this.query!)

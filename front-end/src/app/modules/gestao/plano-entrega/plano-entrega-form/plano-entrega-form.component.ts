@@ -118,8 +118,8 @@ export class PlanoEntregaFormComponent extends PageFormBase<PlanoEntrega, PlanoE
     } else {
       const entregas = this.form!.controls.entregas.value || [];
       for (let entrega of entregas) {
-        if (entrega.data_inicio < inicio) return "A " + this.lex.translate("entrega") + " '" + entrega.descricao + "' possui data inicial anterior à " + this.lex.translate("do Plano de Entrega") + ": " + this.util.getDateFormatted(inicio);
-        if (entrega.data_fim > fim) return "A " + this.lex.translate("entrega") + " '" + entrega.descricao + "' possui data fim posterior à " + this.lex.translate("do Plano de Entrega") + ": " + this.util.getDateFormatted(fim);
+        if (entrega.data_inicio < inicio) return "A " + this.lex.translate("entrega") + " '" + entrega.descricao + "' possui data inicial anterior à do Plano de Ação Setorial: " + this.util.getDateFormatted(inicio);
+        if (entrega.data_fim > fim) return "A " + this.lex.translate("entrega") + " '" + entrega.descricao + "' possui data fim posterior à do Plano de Ação Setorial: " + this.util.getDateFormatted(fim);
       }
     }
     return undefined;
@@ -216,7 +216,7 @@ export class PlanoEntregaFormComponent extends PageFormBase<PlanoEntrega, PlanoE
   }
 
   public titleEdit = (entity: PlanoEntrega): string => {
-    return "Editando " + this.lex.translate("Plano de Entregas") + ': ' + (entity?.nome || "");
+    return "Editando Plano de Ação Setorial: " + (entity?.nome || "");
   }
 
   public dynamicButtons(row: any): ToolbarButton[] {

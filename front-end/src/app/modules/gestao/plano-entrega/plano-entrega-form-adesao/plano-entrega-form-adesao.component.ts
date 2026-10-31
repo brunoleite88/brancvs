@@ -93,7 +93,7 @@ export class PlanoEntregaFormAdesaoComponent extends PageFormBase<PlanoEntrega, 
   }
 
   public titleEdit = (entity: PlanoEntrega): string => {
-    return "Editando " + this.lex.translate("Plano de Entregas") + ': ' + (entity?.nome || "");
+    return "Editando Plano de Ação Setorial: " + (entity?.nome || "");
   }
 
   public onPlanoEntregaChange(event: Event){

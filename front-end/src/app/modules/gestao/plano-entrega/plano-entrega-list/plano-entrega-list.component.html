@@ -7,7 +7,7 @@
                       labelPosition="left"
                       label="Unidades Subordinadas"
                       (change)="disableMeus()"
-                      labelInfo="Planos de entrega das unidades subordinadas"
+                      labelInfo="Planos de ação setoriais das unidades subordinadas"
                       [control]="filter!.controls.subordinadas"
         >
         </input-switch>
@@ -20,7 +20,7 @@
                               label="Meus"
                               (change)="disableSub()"
                               [control]="filter!.controls.meus_planos"
-                              labelInfo="Planos de entrega das unidades da qual sou integrante (Áreas de trabalho)"
+                              labelInfo="Planos de ação setoriais das unidades da qual sou integrante (Áreas de trabalho)"
                 >
                 </input-switch>
                 <input-search #unidade [size]="5" [control]="filter!.controls.unidade_id" controlName="unidade_id" [dao]="unidadeDao"></input-search>
@@ -35,13 +35,13 @@
 
                               [control]="filter!.controls.meus_planos"
                               (change)="disableSub()"
-                              labelInfo="Planos de entrega das unidade da qual sou integrante (Áreas de trabalho)">
+                              labelInfo="Planos de ação setoriais das unidades da qual sou integrante (Áreas de trabalho)">
 
                 </input-switch>
-                <input-text [size]="3" label="Nome" controlName="nome" [control]="filter!.controls.nome" [placeholder]="'Nome do '+lex.translate('plano de entrega')" [attr.maxlength]=250></input-text>
+                <input-text [size]="3" label="Nome" controlName="nome" [control]="filter!.controls.nome" [placeholder]="'Nome do plano de ação setorial'" [attr.maxlength]=250></input-text>
                 <input-search #unidade [size]="4" [control]="filter!.controls.unidade_id" controlName="unidade_id" [dao]="unidadeDao"></input-search>
                 <input-select [size]="3" label="Status" controlName="status" [control]="filter!.controls.status" [items]="lookup.PLANO_ENTREGA_STATUS" [filter]="avaliacao ? ['CONCLUIDO', 'AVALIADO'] : undefined" itemTodos="- Todos -" [valueTodos]="'TODOS'"></input-select>
-                <input-switch [size]="1" label="Arquivados" controlName="arquivadas" [control]="filter!.controls.arquivadas" labelInfo="Listar também os planos de entregas arquivados"></input-switch>
+                <input-switch [size]="1" label="Arquivados" controlName="arquivadas" [control]="filter!.controls.arquivadas" labelInfo="Listar também os planos de ação setoriais arquivados"></input-switch>
             </div>
             <div class="row">
                 <input-search #planejamento [size]="3" [control]="filter!.controls.planejamento_id" controlName="planejamento_id" [dao]="planejamentoDao"></input-search>

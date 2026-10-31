@@ -69,9 +69,9 @@ export class LexicalService {
     "perfil do menu": {single: "perfil do menu", plural: "perfis do menu", female: false},
     "planejamento": {single: "planejamento", plural: "planejamentos", female: false},
     "planejamento institucional": {single: "planejamento institucional", plural: "planejamentos institucionais", female: false},
-    "plano de trabalho": {single: "plano de ação individual", plural: "planos de ação individuais", female: false},
-    "plano de entrega": {single: "plano de ação setorial", plural: "planos de ação setoriais", female: false},
-    "plano de entregas": {single: "plano de ação setorial", plural: "planos de ação setoriais", female: false},
+    "plano de trabalho": {single: "plano de trabalho", plural: "planos de trabalho", female: false},
+    "plano de entrega": {single: "plano de entrega", plural: "planos de entregas", female: false},
+    "plano de entregas": {single: "plano de entrega", plural: "planos de entregas", female: false},
     "ponto de controle": {single: "ponto de controle", plural: "pontos de controle", female: false},
     "ponto eletrônico": {single: "ponto eletrônico", plural: "pontos eletrônicos", female: false},
     "prazo de distribuição": {single: "prazo de distribuição", plural: "prazos de distribuição", female: false},
@@ -112,9 +112,21 @@ export class LexicalService {
   public vocabulary: Translate = {};
   public cdRef?: ChangeDetectorRef;
 
+  public pgemaOverrides: Translate = {
+    "plano de trabalho": {single: "plano de ação individual", plural: "planos de ação individuais", female: false},
+    "plano de entrega": {single: "plano de ação setorial", plural: "planos de ação setoriais", female: false},
+    "plano de entregas": {single: "plano de ação setorial", plural: "planos de ação setoriais", female: false},
+    "programa de gestão": {single: "programa institucional", plural: "programas institucionais", female: false},
+    "servidor": {single: "agente público", plural: "agentes públicos", female: false},
+    "usuario": {single: "agente público", plural: "agentes públicos", female: false},
+    "modalidade": {single: "projeto", plural: "projetos", female: false},
+  };
+
   constructor(public injector: Injector) {
-    this.vocabulary = this.defaults;
+    this.vocabulary = Object.assign({}, this.defaults, this.pgemaOverrides);
     Object.entries(this.defaults).forEach(x => this.plurals[x[1].plural] = x[0]);
+    this.plurals["planos de entrega"] = "plano de entrega";
+    this.plurals["planos de entregas"] = "plano de entrega";
   }
 
   public loadVocabulary(nomenclatura?: Nomenclatura[]) {
@@ -125,7 +137,7 @@ export class LexicalService {
         single: nome.singular,
         plural: nome.plural,
         female: nome.feminino
-      } : value;
+      } : (this.pgemaOverrides[key] || value);
     });
     this.vocabulary = result;
     if(this.update) this.update();

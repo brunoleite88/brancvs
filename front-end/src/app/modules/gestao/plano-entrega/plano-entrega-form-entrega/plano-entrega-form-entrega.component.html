@@ -33,15 +33,15 @@
         <ng-container *ngIf="this.entrega?.selectedEntity; else naoSelecionou">
           <div class="col-md-12">
             <div class="row g-3">
-              <plano-entrega-valor-meta-input icon="bi bi-graph-up-arrow" [entrega]="entrega?.selectedEntity" [size]="6" [control]="form!.controls.meta" label="Meta" labelInfo="Onde quero chegar ao final da entrega. Evolução total da entrega, podendo ultrapassar o período do plano de entregas"></plano-entrega-valor-meta-input>
-              <input-number [size]="6" label="Parcela da entrega no plano" controlName="progresso_esperado" sufix="%" labelInfo="Quanto vou caminhar nesse plano de entregas. Percentual do total da entrega que será realizado durante a vigência desse plano"></input-number>
-              <plano-entrega-valor-meta-input icon="bi bi-check-lg" [entrega]="entrega?.selectedEntity" [size]="6" [control]="form!.controls.realizado" label="Progresso ao início do plano" [change]="onRealizadoChange.bind(this)" labelInfo="De onde estou saindo nesse plano. Valor correspondente ao progresso verificado no planejamento do plano de entregas"></plano-entrega-valor-meta-input>
+              <plano-entrega-valor-meta-input icon="bi bi-graph-up-arrow" [entrega]="entrega?.selectedEntity" [size]="6" [control]="form!.controls.meta" label="Meta" labelInfo="Onde quero chegar ao final da entrega. Evolução total da entrega, podendo ultrapassar o período do plano de ação setorial"></plano-entrega-valor-meta-input>
+              <input-number [size]="6" label="Parcela da entrega no plano" controlName="progresso_esperado" sufix="%" labelInfo="Quanto vou caminhar nesse plano de ação setorial. Percentual do total da entrega que será realizado durante a vigência desse plano"></input-number>
+              <plano-entrega-valor-meta-input icon="bi bi-check-lg" [entrega]="entrega?.selectedEntity" [size]="6" [control]="form!.controls.realizado" label="Progresso ao início do plano" [change]="onRealizadoChange.bind(this)" labelInfo="De onde estou saindo nesse plano. Valor correspondente ao progresso verificado no planejamento do plano de ação setorial"></plano-entrega-valor-meta-input>
               <input-number [size]="6" label="Progresso já realizado" [stepValue]="0.01" controlName="progresso_realizado" sufix="%" disabled labelInfo="Quanto caminhei no plano atual Evolução já realizada para a meta. No ato da criação do plano, é o percentual de progresso ao início do plano em relação à meta"></input-number>
             </div>
           </div>
         </ng-container>
         <ng-template #naoSelecionou>
-          <input-number [size]="6" label="Parcela da entrega no plano" controlName="progresso_esperado" sufix="%" labelInfo="Quanto vou caminhar nesse plano de entregas. Percentual do total da entrega que será realizado durante a vigência desse plano"></input-number>
+          <input-number [size]="6" label="Parcela da entrega no plano" controlName="progresso_esperado" sufix="%" labelInfo="Quanto vou caminhar nesse plano de ação setorial. Percentual do total da entrega que será realizado durante a vigência desse plano"></input-number>
           <input-number [size]="6" label="Progresso já realizado" [stepValue]="0.01" controlName="progresso_realizado" sufix="%" disabled labelInfo="Quanto caminhei no plano atual Evolução já realizada para a meta. No ato da criação do plano, é o percentual de progresso ao início do plano em relação à meta"></input-number>
         </ng-template>
         <separator [title]="'Caracterização da ' +  lex.translate('entrega')" collapse [collapsed]="false">
