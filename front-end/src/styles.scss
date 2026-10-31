@@ -717,6 +717,18 @@ body {
 
 @media print {    
   .hidden-print,
+  .d-print-none,
+  header.br-header,
+  .br-header,
+  .br-menu,
+  .menu-scrim,
+  .footer,
+  #vlibras-access-wrapper,
+  #vlibras-app-root,
+  div#vlibras-access-wrapper,
+  div#vlibras-app-root,
+  [id*="vlibras"],
+  [class*="vlibras"],
   [vw],
   [vw-access-button],
   [vw-plugin-wrapper],
@@ -727,6 +739,24 @@ body {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -99999px !important;
+    top: -99999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body,
+  .app-shell,
+  .app-content,
+  .app-page-content,
+  .container-fluid {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   .modal-content {
     border: 0 !important;

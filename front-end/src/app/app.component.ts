@@ -121,6 +121,18 @@ export class AppComponent implements IAppComponent {
       .subscribe((event: any) => {
         (window as any).clarity?.('set', 'page', event.urlAfterRedirects);
       });
+
+    // Ocultar widget do VLibras na impressão e exportação em PDF
+    window.addEventListener('beforeprint', () => {
+      document.querySelectorAll('#vlibras-access-wrapper, #vlibras-app-root, [id*="vlibras"], [vw]').forEach(el => {
+        (el as HTMLElement).style.setProperty('display', 'none', 'important');
+      });
+    });
+    window.addEventListener('afterprint', () => {
+      document.querySelectorAll('#vlibras-access-wrapper, #vlibras-app-root, [id*="vlibras"], [vw]').forEach(el => {
+        (el as HTMLElement).style.removeProperty('display');
+      });
+    });
   }
 
   public setMenuVars() {

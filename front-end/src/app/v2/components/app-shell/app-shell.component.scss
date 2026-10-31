@@ -245,3 +245,30 @@ header.br-header {
   display: block;
   margin-top: 0.5rem;
 }
+
+@media print {
+  .app-shell {
+    height: auto !important;
+    display: block !important;
+  }
+  .app-content {
+    overflow: visible !important;
+    display: block !important;
+    height: auto !important;
+  }
+  .app-page-content {
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: transparent !important;
+  }
+  header.br-header {
+    display: none !important;
+  }
+  .br-menu,
+  .menu-scrim,
+  .footer {
+    display: none !important;
+  }
+}

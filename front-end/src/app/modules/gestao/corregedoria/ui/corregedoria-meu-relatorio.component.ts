@@ -380,6 +380,9 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
   }
 
   imprimir(): void {
+    document.querySelectorAll('#vlibras-access-wrapper, #vlibras-app-root, [id*="vlibras"], [vw]').forEach(el => {
+      (el as HTMLElement).style.setProperty('display', 'none', 'important');
+    });
     window.print();
   }
 

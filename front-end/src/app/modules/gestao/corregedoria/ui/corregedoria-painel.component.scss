@@ -112,10 +112,18 @@
   body {
     background: #fff !important;
   }
+  ::ng-deep #vlibras-access-wrapper,
+  ::ng-deep #vlibras-app-root,
+  ::ng-deep [id*="vlibras"],
+  ::ng-deep [class*="vlibras"],
   ::ng-deep [vw],
   ::ng-deep [vw-access-button],
   ::ng-deep .vw-plugin-wrapper,
   ::ng-deep div[vw],
+  #vlibras-access-wrapper,
+  #vlibras-app-root,
+  [id*="vlibras"],
+  [class*="vlibras"],
   [vw],
   [vw-access-button],
   .vw-plugin-wrapper,
@@ -123,6 +131,11 @@
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+    position: absolute !important;
+    left: -99999px !important;
+    top: -99999px !important;
+    width: 0 !important;
+    height: 0 !important;
   }
   .modal-dialog {
     max-width: 100% !important;

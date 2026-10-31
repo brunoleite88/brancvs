@@ -134,6 +134,9 @@ export class CorregedoriaPainelComponent implements OnInit {
   }
 
   imprimirModal(): void {
+    document.querySelectorAll('#vlibras-access-wrapper, #vlibras-app-root, [id*="vlibras"], [vw]').forEach(el => {
+      (el as HTMLElement).style.setProperty('display', 'none', 'important');
+    });
     window.print();
   }
 
