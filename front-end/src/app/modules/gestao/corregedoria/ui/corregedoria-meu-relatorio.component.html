@@ -34,14 +34,14 @@
           <div class="col-auto">
             <select class="form-select form-select-sm" [ngModel]="mesSelecionado()" (ngModelChange)="mudarPeriodo($event, anoSelecionado())">
               @for (m of meses; track m.valor) {
-                <option [value]="m.valor">{{ m.nome }}</option>
+                <option [ngValue]="m.valor">{{ m.nome }}</option>
               }
             </select>
           </div>
           <div class="col-auto">
             <select class="form-select form-select-sm" [ngModel]="anoSelecionado()" (ngModelChange)="mudarPeriodo(mesSelecionado(), $event)">
               @for (a of anos; track a) {
-                <option [value]="a">{{ a }}</option>
+                <option [ngValue]="a">{{ a }}</option>
               }
             </select>
           </div>

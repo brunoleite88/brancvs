@@ -1,21 +1,24 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CorregedoriaApiClient, RelatorioCorregedoria } from '../infra/corregedoria-api.client';
 import { MessageService } from 'src/app/v2/services/message.service';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
+import { BreadcrumbService } from 'src/app/v2/components/breadcrumb/breadcrumb.service';
 
 @Component({
   selector: 'app-corregedoria-painel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, BreadcrumbComponent],
+  providers: [BreadcrumbService, CorregedoriaApiClient],
   templateUrl: './corregedoria-painel.component.html',
   styleUrls: ['./corregedoria-painel.component.scss'],
 })
 export class CorregedoriaPainelComponent implements OnInit {
   private readonly api = inject(CorregedoriaApiClient);
   private readonly message = inject(MessageService);
+  private readonly cd = inject(ChangeDetectorRef);
 
   readonly relatorios = signal<RelatorioCorregedoria[]>([]);
   readonly carregando = signal(true);
@@ -68,9 +71,11 @@ export class CorregedoriaPainelComponent implements OnInit {
       next: (res) => {
         this.relatorios.set(res?.data ?? []);
         this.carregando.set(false);
+        this.cd.markForCheck();
       },
       error: () => {
         this.carregando.set(false);
+        this.cd.markForCheck();
         this.message.error('Erro ao carregar relatórios da Corregedoria.');
       }
     });
