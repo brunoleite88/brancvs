@@ -1,8 +1,8 @@
 .relatorio-documento {
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   color: #000;
-  max-width: 1050px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 
   .header-box {
     border: 1.5px solid #000;
@@ -66,24 +66,24 @@
     border-collapse: collapse;
     width: 100%;
 
+    th, td {
+      border: 1px solid #000;
+      font-size: 12px;
+      color: #000;
+    }
+
     th {
       background-color: #e0e0e0 !important;
-      color: #000;
       font-weight: bold;
       text-align: center;
       vertical-align: middle;
-      border: 1px solid #000;
-      font-size: 12px;
-      padding: 6px 8px;
+      padding: 7px 8px;
       letter-spacing: 0.3px;
     }
 
     td {
-      border: 1px solid #000;
       vertical-align: middle;
-      font-size: 12px;
-      padding: 5px 8px;
-      color: #000;
+      padding: 6px 8px;
       background-color: #fff;
     }
 
@@ -96,18 +96,18 @@
     }
 
     .col-processo {
-      width: 185px;
-      min-width: 180px;
+      width: 180px;
+      min-width: 170px;
     }
 
     .col-ato {
-      width: 250px;
-      min-width: 240px;
+      width: 240px;
+      min-width: 220px;
     }
 
     .col-data {
-      width: 135px;
-      min-width: 130px;
+      width: 130px;
+      min-width: 125px;
       text-align: center;
     }
 
@@ -116,8 +116,8 @@
     }
 
     .col-acao {
-      width: 70px;
-      min-width: 65px;
+      width: 85px;
+      min-width: 80px;
       text-align: center;
     }
 
@@ -138,6 +138,10 @@
 }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
   body {
     background: #fff !important;
   }
@@ -145,6 +149,8 @@
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
     max-width: 100% !important;
   }
   .header-box {
@@ -153,10 +159,41 @@
   .table-cabecalho .logo-cell {
     border-right: 1.5px solid #000 !important;
   }
-  .tabela-atividades th {
-    background-color: #e0e0e0 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  .tabela-atividades {
+    width: 100% !important;
+    table-layout: fixed !important;
+
+    th, td {
+      border: 1px solid #000 !important;
+    }
+    th {
+      background-color: #e0e0e0 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .col-num {
+      width: 5% !important;
+      min-width: 0 !important;
+    }
+    .col-processo {
+      width: 20% !important;
+      min-width: 0 !important;
+    }
+    .col-ato {
+      width: 24% !important;
+      min-width: 0 !important;
+    }
+    .col-data {
+      width: 14% !important;
+      min-width: 0 !important;
+    }
+    .col-obs {
+      width: 37% !important;
+      min-width: 0 !important;
+    }
+    .col-acao {
+      display: none !important;
+    }
   }
   .destaque-amarelo {
     background-color: #ffff00 !important;
