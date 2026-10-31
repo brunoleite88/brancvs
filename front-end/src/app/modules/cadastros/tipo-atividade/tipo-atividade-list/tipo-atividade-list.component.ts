@@ -53,6 +53,32 @@ export class TipoAtividadeListComponent extends PageListBase<TipoAtividade, Tipo
     return result;
   }
 
+  public getEtiquetas(row: any): any[] {
+    if (Array.isArray(row?.etiquetas)) return row.etiquetas;
+    if (typeof row?.etiquetas === 'string') {
+      try {
+        const parsed = JSON.parse(row.etiquetas);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  public getChecklist(row: any): any[] {
+    if (Array.isArray(row?.checklist)) return row.checklist;
+    if (typeof row?.checklist === 'string') {
+      try {
+        const parsed = JSON.parse(row.checklist);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+
   public getReportEtiquetas(row: TipoAtividade): string {
     let result = "";
     row.etiquetas.forEach(element => {
