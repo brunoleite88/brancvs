@@ -1,0 +1,98 @@
+<div class="br-card home-card h-100">
+  <div class="card-content p-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <h6 class="fw-bold mb-0 text-start">
+        <i class="bi bi-calendar-event text-primary me-2" aria-hidden="true"></i>
+        Agenda de Marcos e Prazos
+        <i class="fas fa-info-circle text-muted ms-1"
+           title="Sincroniza e acompanha os prazos de fechamento dos relatórios da Corregedoria, marcos dos Projetos Estruturantes e iniciativas prioritárias das unidades no escopo."
+           aria-hidden="true"
+           style="cursor: help;"></i>
+      </h6>
+
+      @if (data()) {
+        <div class="btn-group btn-group-sm" role="group" aria-label="Filtro de marcos">
+          <button type="button" class="btn btn-sm"
+            [class.btn-primary]="filtroSelecionado() === 'TODOS'"
+            [class.btn-outline-secondary]="filtroSelecionado() !== 'TODOS'"
+            (click)="setFiltro('TODOS')">
+            Todos ({{ data()!.itens.length }})
+          </button>
+          <button type="button" class="btn btn-sm"
+            [class.btn-warning]="filtroSelecionado() === 'ATENCAO'"
+            [class.btn-outline-warning]="filtroSelecionado() !== 'ATENCAO'"
+            (click)="setFiltro('ATENCAO')">
+            Atenção ({{ data()!.total_atencao }})
+          </button>
+          <button type="button" class="btn btn-sm"
+            [class.btn-info]="filtroSelecionado() === 'PROXIMOS'"
+            [class.btn-outline-info]="filtroSelecionado() !== 'PROXIMOS'"
+            (click)="setFiltro('PROXIMOS')">
+            Próximos ({{ data()!.total_proximos }})
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="d-flex justify-content-center py-4">
+        <span class="br-loading small" role="progressbar"></span>
+      </div>
+    } @else if (data()) {
+      @if (itensExibidos().length > 0) {
+        <div style="max-height: 320px; overflow-y: auto;" class="pe-1">
+          <div class="list-group list-group-flush">
+            @for (item of itensExibidos(); track item.id) {
+              <div class="list-group-item px-2 py-2 border rounded mb-2 bg-light-subtle d-flex flex-column gap-1">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div class="d-flex flex-wrap align-items-center gap-1">
+                    @if (item.categoria === 'VENCIDO') {
+                      <span class="badge bg-danger">VENCIDO</span>
+                    } @else if (item.categoria === 'VENCENDO') {
+                      <span class="badge bg-warning text-dark">A VENCER / ATENÇÃO</span>
+                    } @else {
+                      <span class="badge bg-info text-dark">MARCO</span>
+                    }
+                    <span class="badge bg-white text-dark border">{{ item.unidade }}</span>
+                    @if (item.pilar) {
+                      <span class="badge bg-white text-secondary border small">{{ item.pilar }}</span>
+                    }
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 flex-shrink-0" (click)="navegar(item)">
+                    Acessar
+                  </button>
+                </div>
+
+                <div class="fw-semibold text-dark small mt-1">
+                  {{ item.titulo }}
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted mt-1">
+                  <span>
+                    <i class="bi bi-flag me-1" aria-hidden="true"></i>
+                    Status: <strong class="text-secondary">{{ item.status }}</strong>
+                  </span>
+                  <span>
+                    <i class="bi bi-clock me-1 text-primary" aria-hidden="true"></i>
+                    Prazo: <strong class="text-dark">{{ item.prazo }}</strong>
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="d-flex flex-column align-items-center justify-content-center text-muted py-4">
+          <i class="bi bi-calendar-check text-success mb-2" style="font-size: 2.2rem;" aria-hidden="true"></i>
+          <span class="fw-semibold text-secondary">Nenhum compromisso pendente para o filtro selecionado.</span>
+          <span class="small text-muted">Todos os prazos e marcos das iniciativas estão regulares.</span>
+        </div>
+      }
+    } @else if (erro()) {
+      <div class="text-center text-muted small py-3">
+        <i class="fas fa-exclamation-triangle mb-2" aria-hidden="true"></i>
+        <p class="mb-0">{{ erro() }}</p>
+      </div>
+    }
+  </div>
+</div>

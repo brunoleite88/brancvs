@@ -59,6 +59,24 @@ export interface AniversarianteItem {
   nome: string;
 }
 
+export interface AgendaItem {
+  id: string;
+  tipo: string;
+  categoria: 'VENCIDO' | 'VENCENDO' | 'PROXIMO';
+  titulo: string;
+  unidade: string;
+  prazo: string;
+  status: string;
+  pilar: string;
+  rota: string[];
+}
+
+export interface AgendaMarcosResponse {
+  total_atencao: number;
+  total_proximos: number;
+  itens: AgendaItem[];
+}
+
 export interface EmFeriasItem {
   nome: string;
   data_inicio: string;
@@ -107,6 +125,12 @@ export class HomeApiClient extends TenantV2ResourceApiBase {
 
   getContribuicoes(unidadeId: string, subordinadas: boolean): Observable<Contribuicoes> {
     return this.http.get<{ data: Contribuicoes }>(this.resourceUrl('/contribuicoes'), { params: this.params(unidadeId, subordinadas) }).pipe(
+      map(r => r.data),
+    );
+  }
+
+  getAgendaMarcos(unidadeId: string, subordinadas: boolean): Observable<AgendaMarcosResponse> {
+    return this.http.get<{ data: AgendaMarcosResponse }>(this.resourceUrl('/agenda-marcos'), { params: this.params(unidadeId, subordinadas) }).pipe(
       map(r => r.data),
     );
   }

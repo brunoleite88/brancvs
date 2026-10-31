@@ -14,6 +14,7 @@ import { PendenciasUsuarioComponent } from './components/pendencias-usuario.comp
 import { PlanosVigentesComponent } from './components/planos-vigentes.component';
 import { AcoesGerenciaisComponent } from './components/acoes-gerenciais.component';
 import { ResumoEquipeComponent } from './components/resumo-equipe.component';
+import { AgendaMarcosComponent } from './components/agenda-marcos.component';
 import { AtalhoCardComponent } from './components/atalho-card.component';
 
 export interface SelectOption {
@@ -35,6 +36,7 @@ export interface SelectOption {
     PlanosVigentesComponent,
     AcoesGerenciaisComponent,
     ResumoEquipeComponent,
+    AgendaMarcosComponent,
     AtalhoCardComponent,
   ],
   templateUrl: './home.page.html',

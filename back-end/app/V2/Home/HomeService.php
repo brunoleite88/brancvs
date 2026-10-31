@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\V2\Home;
 
+use App\V2\Home\DataProviders\AgendaMarcos;
 use App\V2\Home\DataProviders\AniversariantesDoDia;
 use App\V2\Home\DataProviders\ContribuicoesParticipantes;
 use App\V2\Home\DataProviders\EmFeriasHoje;
@@ -26,6 +27,7 @@ class HomeService
         private readonly AniversariantesDoDia $aniversariantes,
         private readonly EmFeriasHoje $emFeriasHoje,
         private readonly MeusPlanosVigentes $meusPlanosVigentes,
+        private readonly AgendaMarcos $agendaMarcos,
     ) {}
 
     public function getPendencias(array $data): array
@@ -73,6 +75,13 @@ class HomeService
         $dto = $this->buildDTO($data);
 
         return $this->contribuicoes->getData($dto);
+    }
+
+    public function getAgendaMarcos(array $data): array
+    {
+        $dto = $this->buildDTO($data);
+
+        return $this->agendaMarcos->getData($dto);
     }
 
     public function getMeusPlanosVigentes(array $data): array

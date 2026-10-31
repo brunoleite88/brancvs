@@ -88,6 +88,24 @@ class HomeController extends Controller
         }
     }
 
+    public function agendaMarcos(Request $request): JsonResponse
+    {
+        try {
+            $data = HomeRequestValidator::index($request);
+            $result = $this->service->getAgendaMarcos($data);
+
+            return response()->json(['success' => true, 'data' => $result]);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->getMessage()], $e->status);
+        } catch (IBaseException $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getCode());
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json(['error' => 'Ocorreu um erro inesperado.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function aniversariantes(Request $request): JsonResponse
     {
         try {

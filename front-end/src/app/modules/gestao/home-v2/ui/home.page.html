@@ -78,9 +78,16 @@
           </div>
 
           <!-- Unidades + Agentes Públicos + Capacidade da Equipe -->
-          <div class="row flex-grow-1">
+          <div class="row mb-3">
             <div class="col-12 d-flex flex-column mb-0">
               <home-resumo-equipe class="w-100" [unidadeId]="selectedUnidadeId()" [subordinadas]="subordinadas()" />
+            </div>
+          </div>
+
+          <!-- Agenda de Marcos e Prazos Prioritários -->
+          <div class="row">
+            <div class="col-12">
+              <home-agenda-marcos class="w-100 d-block" [unidadeId]="selectedUnidadeId()" [subordinadas]="subordinadas()" />
             </div>
           </div>
         }
