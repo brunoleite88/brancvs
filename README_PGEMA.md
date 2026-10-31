@@ -40,9 +40,21 @@ composer install --ignore-platform-reqs
 ```
 *Ajuste no `.env` o `DB_PORT`, `DB_USERNAME` e `DB_PASSWORD` conforme seu banco local.*
 
-### 3. Inicializar Bancos e Migrações
-Certifique-se de que o MariaDB/MySQL e o Redis estejam em execução.
+### 3. Inicializar Bancos de Dados
 
+Certifique-se de que o MariaDB/MySQL esteja em execução.
+
+#### Opção A (Recomendada e Instantânea - Estado Idêntico com SGPE):
+Para ter **exatamente o mesmo estado** desta máquina (com todas as 42 unidades da PGE-MA, gestores reais, 41 Planos de Ação Setoriais, 1.164 ações/entregas vinculadas ao Planejamento 2026–2030, usuário Administrador e configurações):
+```bash
+# Na raiz do projeto ou dentro de back-end:
+gunzip -c back-end/database/dumps/pge_ma_complete_setup.sql.gz | mysql -u root -p
+```
+*Pronto! Os bancos `petrvs` e `tenantpgema` são criados e totalmente povoados de forma instantânea.*
+
+---
+
+#### Opção B (Inicialização Manual via Migrations e Seeders):
 ```bash
 # 3.1 Migrar banco central
 php artisan migrate --force
@@ -76,8 +88,9 @@ php artisan tenants:migrate --tenants=pgema
 # 3.4 Executar seeders obrigatórios no tenant
 php artisan tenants:seed --tenants=pgema
 
-# 3.5 Criar usuário Super Admin (caso necessário)
-php artisan tinker
+# 3.5 Executar seeder dos Planos de Ação e Gestores da PGE-MA (SGPE)
+php artisan db:seed --class=PgemaPlanosAcaoSeeder
+```
 ```
 No Tinker:
 ```php
