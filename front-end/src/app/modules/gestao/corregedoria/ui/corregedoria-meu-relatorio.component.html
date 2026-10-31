@@ -3,25 +3,25 @@
     <app-breadcrumb />
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
-        <h2 class="mb-0 fw-bold"><i class="bi bi-file-earmark-person me-2 text-primary"></i>Meu Relatório Mensal de Atividades</h2>
+        <h2 class="mb-0 fw-bold">Meu Relatório Mensal de Atividades</h2>
         <small class="text-muted">Acompanhamento e consolidação de tarefas para a Corregedoria-Geral da PGE-MA</small>
       </div>
 
       <!-- Barra de Ações Superiores -->
       <div class="d-flex gap-2">
         <button class="btn btn-outline-secondary" (click)="imprimir()">
-          <i class="bi bi-printer me-1"></i>Imprimir / Salvar PDF
+          Imprimir / Salvar PDF
         </button>
 
         @if (isEditavel) {
           <button class="btn btn-outline-dark" (click)="abrirModalCabecalho()">
-            <i class="bi bi-pencil-square me-1"></i>Editar Cabeçalho e Logo
+            Editar Cabeçalho e Logo
           </button>
           <button class="btn btn-outline-primary" (click)="salvarRascunho()" [disabled]="salvando()">
-            <i class="bi bi-save me-1"></i>Salvar Rascunho
+            Salvar Rascunho
           </button>
           <button class="btn btn-success fw-bold" (click)="assinar()" [disabled]="salvando()">
-            <i class="bi bi-pen-fill me-1"></i>Consolidar e Assinar
+            Consolidar e Assinar
           </button>
         }
       </div>
@@ -32,7 +32,7 @@
       <div class="card-body p-3">
         <div class="row g-3 align-items-center">
           <div class="col-auto">
-            <span class="fw-bold"><i class="bi bi-calendar3 me-2 text-primary"></i>Competência:</span>
+            <span class="fw-bold">Competência:</span>
           </div>
           <div class="col-auto">
             <select class="form-select form-select-sm" [ngModel]="mesSelecionado()" (ngModelChange)="mudarPeriodo($event, anoSelecionado())">
@@ -64,7 +64,7 @@
 
     @if (relatorio()?.status === 'RETIFICACAO') {
       <div class="alert alert-warning mb-4 shadow-sm" role="alert">
-        <h6 class="alert-heading fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Retificação Solicitada pela Corregedoria:</h6>
+        <h6 class="alert-heading fw-bold">Retificação Solicitada pela Corregedoria:</h6>
         <p class="mb-0">{{ relatorio()?.observacoes_corregedoria }}</p>
       </div>
     }
@@ -79,65 +79,72 @@
     <div class="bg-white p-4 p-md-5 rounded shadow-sm border relatorio-documento">
 
       <!-- Cabeçalho Oficial -->
-      <div class="border border-dark p-3 mb-4 position-relative">
+      <div class="header-box mb-4 position-relative">
         @if (isEditavel) {
           <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2 d-print-none" (click)="abrirModalCabecalho()" title="Personalizar cabeçalho e logo">
-            <i class="bi bi-gear-fill me-1"></i>Editar Cabeçalho
+            Editar Cabeçalho
           </button>
         }
-        <div class="d-flex align-items-center">
-          <!-- Brasão / Logo -->
-          @if (relatorio()?.cabecalho?.logo_url !== '') {
-            <div class="me-3 text-center" style="min-width: 80px;">
-              <img [src]="relatorio()?.cabecalho?.logo_url || 'assets/images/brasao_ma.png'" 
-                   alt="Logo Cabeçalho" 
-                   [style.height]="(relatorio()?.cabecalho?.altura_logo || 68) + 'px'" 
-                   style="object-fit: contain;" 
-                   onerror="this.src='assets/images/icon_blue.png'">
-            </div>
-          }
-          <!-- Textos Institucionais -->
-          <div class="flex-grow-1 font-monospace">
-            <div class="fw-bold fs-6">{{ relatorio()?.cabecalho?.ente || 'ESTADO DO MARANHÃO' }}</div>
-            <div class="fw-bold fs-6">{{ relatorio()?.cabecalho?.orgao || 'PROCURADORIA GERAL DO ESTADO' }}</div>
-            <div class="fw-bold fs-5 text-uppercase mt-1">{{ relatorio()?.cabecalho?.titulo || 'RELATÓRIO DE ATIVIDADES' }}</div>
-            <div class="fw-bold mt-1 text-uppercase bg-warning-subtle px-1 d-inline-block">
-              {{ relatorio()?.cabecalho?.subtitulo || relatorio()?.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO' }} / {{ relatorio()?.usuario?.nome || auth.usuario?.nome }} / {{ mesExtenso }} - {{ anoSelecionado() }}
-            </div>
-            <div class="fw-bold mt-1">
-              FÉRIAS/LICENÇA/AFASTAMENTO: 
-              @if (isEditavel) {
-                <input type="text" class="form-control form-control-sm d-inline-block w-50 ms-1 fw-bold bg-warning-subtle" [(ngModel)]="relatorio()!.afastamentos_texto">
-              } @else {
-                <span class="bg-warning-subtle px-1">{{ relatorio()?.afastamentos_texto || 'N/A' }}</span>
+        <table class="table-cabecalho w-100 mb-0">
+          <tbody>
+            <tr>
+              @if (relatorio()?.cabecalho?.logo_url !== '') {
+                <td class="logo-cell text-center align-middle">
+                  <img [src]="relatorio()?.cabecalho?.logo_url || 'assets/images/brasao_ma.png'" 
+                       alt="Brasão Maranhão / Logo PGE" 
+                       [style.height]="(relatorio()?.cabecalho?.altura_logo || 68) + 'px'" 
+                       style="object-fit: contain;" 
+                       onerror="this.src='assets/images/icon_blue.png'">
+                </td>
               }
-            </div>
-          </div>
-        </div>
+              <td class="text-cell align-middle">
+                <div class="fw-bold line-ente">{{ relatorio()?.cabecalho?.ente || 'ESTADO DO MARANHÃO' }}</div>
+                <div class="fw-bold line-orgao">{{ relatorio()?.cabecalho?.orgao || 'PROCURADORIA GERAL DO ESTADO' }}</div>
+                <div class="fw-bold line-titulo">{{ relatorio()?.cabecalho?.titulo || 'RELATÓRIO DE ATIVIDADES' }}</div>
+                <div class="fw-bold fst-italic line-subtitulo mt-1">
+                  {{ relatorio()?.cabecalho?.subtitulo || relatorio()?.unidade?.nome || 'PROCURADORIA-GERAL ADJUNTA PARA ASSUNTOS ESTRATÉGICOS' }} / 
+                  <span class="destaque-amarelo">{{ relatorio()?.usuario?.nome || auth.usuario?.nome }}</span> / 
+                  {{ mesExtenso }} - {{ anoSelecionado() }}
+                </div>
+                <div class="fw-bold fst-italic line-afastamento mt-1">
+                  FÉRIAS/LICENÇA/AFASTAMENTO: 
+                  @if (isEditavel) {
+                    <input type="text" 
+                           class="form-control form-control-sm d-inline-block fw-bold fst-italic destaque-amarelo-input" 
+                           [(ngModel)]="relatorio()!.afastamentos_texto" 
+                           placeholder="N/A">
+                  } @else {
+                    <span class="destaque-amarelo">{{ relatorio()?.afastamentos_texto || 'N/A' }}</span>
+                  }
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Tabela de Atos Realizados -->
       <div class="table-responsive mb-3">
-        <table class="table table-bordered border-dark table-sm align-middle mb-0">
-          <thead class="table-secondary border-dark text-center fw-bold">
+        <table class="tabela-atividades mb-0">
+          <thead>
             <tr>
-              <th style="width: 50px;">N.º</th>
-              <th style="width: 170px;">PROCESSO</th>
-              <th style="width: 260px;">ATO</th>
-              <th style="width: 140px;">DATA DO ATO</th>
-              <th>OBSERVAÇÃO</th>
+              <th class="col-num">N.º</th>
+              <th class="col-processo">PROCESSO</th>
+              <th class="col-ato">ATO</th>
+              <th class="col-data">DATA DO ATO</th>
+              <th class="col-obs">OBSERVAÇÃO</th>
               @if (isEditavel) {
-                <th class="d-print-none text-center" style="width: 50px;">AÇÃO</th>
+                <th class="col-acao d-print-none">AÇÃO</th>
               }
             </tr>
           </thead>
           <tbody>
             @for (item of relatorio()?.atos; track $index) {
               <tr>
-                <td class="text-center fw-bold">{{ $index + 1 }}.</td>
+                <td class="col-num">{{ $index + 1 }}.</td>
                 
                 <!-- Processo -->
-                <td>
+                <td class="col-processo">
                   @if (isEditavel) {
                     <input type="text" class="form-control form-control-sm" [(ngModel)]="item.processo" placeholder="Nº do processo">
                   } @else {
@@ -146,7 +153,7 @@
                 </td>
 
                 <!-- Ato -->
-                <td>
+                <td class="col-ato">
                   @if (isEditavel) {
                     <input type="text" class="form-control form-control-sm" [(ngModel)]="item.ato" list="listaAtos" placeholder="Descrição do ato">
                   } @else {
@@ -155,16 +162,16 @@
                 </td>
 
                 <!-- Data do Ato -->
-                <td>
+                <td class="col-data">
                   @if (isEditavel) {
-                    <input type="date" class="form-control form-control-sm" [(ngModel)]="item.data_ato">
+                    <input type="date" class="form-control form-control-sm text-center" [(ngModel)]="item.data_ato">
                   } @else {
-                    <span class="text-center d-block">{{ formatarData(item.data_ato) }}</span>
+                    <span>{{ formatarData(item.data_ato) }}</span>
                   }
                 </td>
 
                 <!-- Observação -->
-                <td>
+                <td class="col-obs">
                   @if (isEditavel) {
                     <textarea class="form-control form-control-sm" rows="2" [(ngModel)]="item.observacao" placeholder="Detalhamento da atividade..."></textarea>
                   } @else {
@@ -174,9 +181,9 @@
 
                 <!-- Remover Linha -->
                 @if (isEditavel) {
-                  <td class="d-print-none text-center">
-                    <button class="btn btn-sm btn-outline-danger" (click)="removerAto($index)" title="Excluir Linha">
-                      <i class="bi bi-trash"></i>
+                  <td class="col-acao d-print-none">
+                    <button class="btn btn-sm btn-outline-danger py-0 px-2" (click)="removerAto($index)" title="Excluir Linha">
+                      Excluir
                     </button>
                   </td>
                 }
@@ -197,7 +204,7 @@
       @if (isEditavel) {
         <div class="d-print-none mb-4">
           <button class="btn btn-sm btn-outline-primary" (click)="adicionarAto()">
-            <i class="bi bi-plus-lg me-1"></i>Adicionar Linha de Atividade
+            Adicionar Linha de Atividade
           </button>
         </div>
       }
@@ -205,19 +212,16 @@
       <!-- Bloco de Assinatura Digital e Certificado -->
       @if (relatorio()?.status === 'CONCLUIDO_ASSINADO' || relatorio()?.status === 'HOMOLOGADO') {
         <div class="border border-success p-3 rounded bg-success-subtle mt-4">
-          <div class="d-flex align-items-center">
-            <i class="bi bi-shield-fill-check fs-2 text-success me-3"></i>
-            <div>
-              <div class="fw-bold text-success">DOCUMENTO CONSOLIDADO E ASSINADO DIGITALMENTE</div>
-              <div class="small text-muted">
-                Assinante: <strong>{{ relatorio()?.usuario?.nome }}</strong> (Matrícula: {{ relatorio()?.usuario?.matricula || '-' }})
-              </div>
-              <div class="small text-muted">
-                Data da Assinatura: <strong>{{ relatorio()?.data_assinatura | date:'dd/MM/yyyy HH:mm:ss' }}</strong>
-              </div>
-              <div class="small font-monospace text-break mt-1">
-                Hash de Autenticidade (SHA-256): <span class="fw-bold">{{ relatorio()?.assinatura_hash }}</span>
-              </div>
+          <div>
+            <div class="fw-bold text-success">DOCUMENTO CONSOLIDADO E ASSINADO DIGITALMENTE</div>
+            <div class="small text-muted">
+              Assinante: <strong>{{ relatorio()?.usuario?.nome }}</strong> (Matrícula: {{ relatorio()?.usuario?.matricula || '-' }})
+            </div>
+            <div class="small text-muted">
+              Data da Assinatura: <strong>{{ relatorio()?.data_assinatura | date:'dd/MM/yyyy HH:mm:ss' }}</strong>
+            </div>
+            <div class="small font-monospace text-break mt-1">
+              Hash de Autenticidade (SHA-256): <span class="fw-bold">{{ relatorio()?.assinatura_hash }}</span>
             </div>
           </div>
         </div>
@@ -234,7 +238,7 @@
       <div class="modal-content shadow-lg border-0">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title fw-bold">
-            <i class="bi bi-pencil-square me-2"></i>Personalizar Cabeçalho do Relatório e Logotipo
+            Personalizar Cabeçalho do Relatório e Logotipo
           </h5>
           <button type="button" class="btn-close btn-close-white" (click)="fecharModalCabecalho()"></button>
         </div>
@@ -247,13 +251,13 @@
                 @if (cabecalhoEdit().logo_url) {
                   <img [src]="cabecalhoEdit().logo_url" alt="Preview Logo" [style.height]="(cabecalhoEdit().altura_logo || 68) + 'px'" style="max-width: 100%; object-fit: contain;">
                 } @else {
-                  <span class="text-muted small"><i class="bi bi-image me-1"></i>Sem logotipo (somente texto)</span>
+                  <span class="text-muted small">Sem logotipo (somente texto)</span>
                 }
               </div>
 
               <!-- Upload de Arquivo -->
               <div class="mb-3 text-start">
-                <label class="form-label small fw-bold"><i class="bi bi-upload me-1"></i>Carregar Nova Imagem / Logo:</label>
+                <label class="form-label small fw-bold">Carregar Nova Imagem / Logo:</label>
                 <input type="file" class="form-control form-control-sm" accept="image/*" (change)="onUploadLogo($event)">
                 <small class="text-muted" style="font-size: 0.75rem;">PNG, JPG, SVG, WebP (máx 2MB)</small>
               </div>
@@ -308,11 +312,11 @@
         </div>
         <div class="modal-footer bg-light">
           <button type="button" class="btn btn-outline-secondary me-auto" (click)="restaurarCabecalhoPadrao()">
-            <i class="bi bi-arrow-counterclockwise me-1"></i>Restaurar Padrão
+            Restaurar Padrão
           </button>
           <button type="button" class="btn btn-secondary" (click)="fecharModalCabecalho()">Cancelar</button>
           <button type="button" class="btn btn-primary fw-bold" (click)="salvarCabecalho()">
-            <i class="bi bi-check-lg me-1"></i>Aplicar e Salvar Cabeçalho
+            Aplicar e Salvar Cabeçalho
           </button>
         </div>
       </div>

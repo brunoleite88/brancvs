@@ -3,12 +3,12 @@
     <app-breadcrumb />
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
-        <h2 class="mb-0 fw-bold"><i class="bi bi-shield-shaded me-2 text-primary"></i>Painel da Corregedoria-Geral</h2>
+        <h2 class="mb-0 fw-bold">Painel da Corregedoria-Geral</h2>
         <small class="text-muted">Auditoria e acompanhamento dos relatórios mensais de atividades dos servidores da PGE-MA</small>
       </div>
       <div>
         <button class="btn btn-primary" (click)="carregarRelatorios()">
-          <i class="fas fa-sync-alt me-1"></i>Atualizar Dados
+          Atualizar Dados
         </button>
       </div>
     </div>
@@ -34,7 +34,7 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label class="form-label small fw-bold mb-1"><i class="bi bi-building me-1"></i>Unidade / Setor:</label>
+            <label class="form-label small fw-bold mb-1">Unidade / Setor:</label>
             <select class="form-select form-select-sm" [ngModel]="filtroUnidadeId()" (ngModelChange)="filtroUnidadeId.set($event); carregarRelatorios()">
               <option value="">Todas as Unidades / Setores</option>
               @for (u of unidades(); track u.id) {
@@ -54,7 +54,7 @@
           </div>
           <div class="col-md-2 text-end pt-3">
             <button class="btn btn-sm btn-outline-secondary w-100" (click)="filtroMes.set(0); filtroStatus.set('TODOS'); filtroUnidadeId.set(''); carregarRelatorios()">
-              <i class="fas fa-times me-1"></i>Limpar
+              Limpar
             </button>
           </div>
         </div>
@@ -67,11 +67,8 @@
       <div class="spinner-border text-primary" role="status"></div>
     </div>
   } @else if (relatorios().length === 0) {
-    <div class="alert alert-info d-flex align-items-center" role="alert">
-      <i class="bi bi-info-circle-fill fs-4 me-3"></i>
-      <div>
-        <strong>Nenhum relatório encontrado para os filtros selecionados.</strong>
-      </div>
+    <div class="alert alert-info" role="alert">
+      <strong>Nenhum relatório encontrado para os filtros selecionados.</strong>
     </div>
   } @else {
     <div class="table-responsive bg-white rounded shadow-sm border mb-4">
@@ -113,9 +110,7 @@
               </td>
               <td>
                 @if (rel.status === 'CONCLUIDO_ASSINADO' || rel.status === 'HOMOLOGADO') {
-                  <span class="text-success small fw-bold">
-                    <i class="bi bi-check-circle-fill me-1"></i>Assinado
-                  </span>
+                  <span class="text-success small fw-bold">Assinado</span>
                   <div class="text-muted" style="font-size: 0.75rem;">
                     {{ rel.data_assinatura | date:'dd/MM/yyyy HH:mm' }}
                   </div>
@@ -125,7 +120,7 @@
               </td>
               <td class="text-end">
                 <button class="btn btn-sm btn-outline-primary" (click)="visualizar(rel)">
-                  <i class="bi bi-eye me-1"></i>Auditar / Ver
+                  Auditar / Ver
                 </button>
               </td>
             </tr>
@@ -143,7 +138,7 @@
       <div class="modal-content shadow">
         <div class="modal-header bg-dark text-white d-print-none">
           <h5 class="modal-title">
-            <i class="bi bi-file-earmark-check me-2"></i>Auditoria de Relatório Mensal — Corregedoria-Geral
+            Auditoria de Relatório Mensal — Corregedoria-Geral
           </h5>
           <button type="button" class="btn-close btn-close-white" (click)="fecharModal()"></button>
         </div>
@@ -151,52 +146,58 @@
 
           <!-- Documento no Padrão Timbrado -->
           <div class="bg-white p-4 p-md-5 rounded shadow-sm border relatorio-documento">
-            <!-- Cabeçalho Oficial -->
-            <div class="border border-dark p-3 mb-4">
-              <div class="d-flex align-items-center">
-                @if (relatorioSelecionado()?.cabecalho?.logo_url !== '') {
-                  <div class="me-3 text-center" style="min-width: 80px;">
-                    <img [src]="relatorioSelecionado()?.cabecalho?.logo_url || 'assets/images/brasao_ma.png'" 
-                         alt="Brasão / Logo" 
-                         [style.height]="(relatorioSelecionado()?.cabecalho?.altura_logo || 68) + 'px'" 
-                         style="object-fit: contain;" 
-                         onerror="this.src='assets/images/icon_blue.png'">
-                  </div>
-                }
-                <div class="flex-grow-1 font-monospace">
-                  <div class="fw-bold fs-6">{{ relatorioSelecionado()?.cabecalho?.ente || 'ESTADO DO MARANHÃO' }}</div>
-                  <div class="fw-bold fs-6">{{ relatorioSelecionado()?.cabecalho?.orgao || 'PROCURADORIA GERAL DO ESTADO' }}</div>
-                  <div class="fw-bold fs-5 text-uppercase mt-1">{{ relatorioSelecionado()?.cabecalho?.titulo || 'RELATÓRIO DE ATIVIDADES' }}</div>
-                  <div class="fw-bold mt-1 text-uppercase bg-warning-subtle px-1 d-inline-block">
-                    {{ relatorioSelecionado()?.cabecalho?.subtitulo || relatorioSelecionado()?.unidade?.nome }} / {{ relatorioSelecionado()?.usuario?.nome }} / {{ getNomeMes(relatorioSelecionado()!.mes).toUpperCase() }} - {{ relatorioSelecionado()?.ano }}
-                  </div>
-                  <div class="fw-bold mt-1">
-                    FÉRIAS/LICENÇA/AFASTAMENTO: <span class="bg-warning-subtle px-1">{{ relatorioSelecionado()?.afastamentos_texto || 'N/A' }}</span>
-                  </div>
-                </div>
-              </div>
+            <!-- Cabeçalho Oficial (Padrão PGE-MA / Corregedoria-Geral) -->
+            <div class="header-box mb-4">
+              <table class="table-cabecalho w-100 mb-0">
+                <tbody>
+                  <tr>
+                    @if (relatorioSelecionado()?.cabecalho?.logo_url !== '') {
+                      <td class="logo-cell text-center align-middle">
+                        <img [src]="relatorioSelecionado()?.cabecalho?.logo_url || 'assets/images/brasao_ma.png'" 
+                             alt="Brasão Maranhão / Logo PGE" 
+                             [style.height]="(relatorioSelecionado()?.cabecalho?.altura_logo || 68) + 'px'" 
+                             style="object-fit: contain;" 
+                             onerror="this.src='assets/images/icon_blue.png'">
+                      </td>
+                    }
+                    <td class="text-cell align-middle">
+                      <div class="fw-bold line-ente">{{ relatorioSelecionado()?.cabecalho?.ente || 'ESTADO DO MARANHÃO' }}</div>
+                      <div class="fw-bold line-orgao">{{ relatorioSelecionado()?.cabecalho?.orgao || 'PROCURADORIA GERAL DO ESTADO' }}</div>
+                      <div class="fw-bold line-titulo">{{ relatorioSelecionado()?.cabecalho?.titulo || 'RELATÓRIO DE ATIVIDADES' }}</div>
+                      <div class="fw-bold fst-italic line-subtitulo mt-1">
+                        {{ relatorioSelecionado()?.cabecalho?.subtitulo || relatorioSelecionado()?.unidade?.nome || 'PROCURADORIA-GERAL ADJUNTA PARA ASSUNTOS ESTRATÉGICOS' }} / 
+                        <span class="destaque-amarelo">{{ relatorioSelecionado()?.usuario?.nome }}</span> / 
+                        {{ getNomeMes(relatorioSelecionado()!.mes).toUpperCase() }} - {{ relatorioSelecionado()?.ano }}
+                      </div>
+                      <div class="fw-bold fst-italic line-afastamento mt-1">
+                        FÉRIAS/LICENÇA/AFASTAMENTO: <span class="destaque-amarelo">{{ relatorioSelecionado()?.afastamentos_texto || 'N/A' }}</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             <!-- Tabela de Atos Realizados -->
             <div class="table-responsive mb-4">
-              <table class="table table-bordered border-dark table-sm align-middle mb-0">
-                <thead class="table-secondary border-dark text-center fw-bold">
+              <table class="tabela-atividades mb-0">
+                <thead>
                   <tr>
-                    <th style="width: 50px;">N.º</th>
-                    <th style="width: 180px;">PROCESSO</th>
-                    <th style="width: 260px;">ATO</th>
-                    <th style="width: 140px;">DATA DO ATO</th>
-                    <th>OBSERVAÇÃO</th>
+                    <th class="col-num">N.º</th>
+                    <th class="col-processo">PROCESSO</th>
+                    <th class="col-ato">ATO</th>
+                    <th class="col-data">DATA DO ATO</th>
+                    <th class="col-obs">OBSERVAÇÃO</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (item of relatorioSelecionado()?.atos; track $index) {
                     <tr>
-                      <td class="text-center fw-bold">{{ $index + 1 }}.</td>
-                      <td>{{ item.processo || '-' }}</td>
-                      <td class="fw-semibold">{{ item.ato }}</td>
-                      <td class="text-center">{{ formatarData(item.data_ato) }}</td>
-                      <td style="white-space: pre-wrap;">{{ item.observacao || '-' }}</td>
+                      <td class="col-num">{{ $index + 1 }}.</td>
+                      <td class="col-processo">{{ item.processo || '-' }}</td>
+                      <td class="col-ato fw-semibold">{{ item.ato }}</td>
+                      <td class="col-data">{{ formatarData(item.data_ato) }}</td>
+                      <td class="col-obs" style="white-space: pre-wrap;">{{ item.observacao || '-' }}</td>
                     </tr>
                   }
                 </tbody>
@@ -206,19 +207,16 @@
             <!-- Bloco de Assinatura Digital e Certificado -->
             @if (relatorioSelecionado()?.status === 'CONCLUIDO_ASSINADO' || relatorioSelecionado()?.status === 'HOMOLOGADO') {
               <div class="border border-success p-3 rounded bg-success-subtle">
-                <div class="d-flex align-items-center">
-                  <i class="bi bi-shield-fill-check fs-2 text-success me-3"></i>
-                  <div>
-                    <div class="fw-bold text-success">DOCUMENTO CONSOLIDADO E ASSINADO DIGITALMENTE</div>
-                    <div class="small text-muted">
-                      Assinante: <strong>{{ relatorioSelecionado()?.usuario?.nome }}</strong>
-                    </div>
-                    <div class="small text-muted">
-                      Data da Assinatura: <strong>{{ relatorioSelecionado()?.data_assinatura | date:'dd/MM/yyyy HH:mm:ss' }}</strong>
-                    </div>
-                    <div class="small font-monospace text-break mt-1">
-                      Hash de Autenticidade (SHA-256): <span class="fw-bold">{{ relatorioSelecionado()?.assinatura_hash }}</span>
-                    </div>
+                <div>
+                  <div class="fw-bold text-success">DOCUMENTO CONSOLIDADO E ASSINADO DIGITALMENTE</div>
+                  <div class="small text-muted">
+                    Assinante: <strong>{{ relatorioSelecionado()?.usuario?.nome }}</strong>
+                  </div>
+                  <div class="small text-muted">
+                    Data da Assinatura: <strong>{{ relatorioSelecionado()?.data_assinatura | date:'dd/MM/yyyy HH:mm:ss' }}</strong>
+                  </div>
+                  <div class="small font-monospace text-break mt-1">
+                    Hash de Autenticidade (SHA-256): <span class="fw-bold">{{ relatorioSelecionado()?.assinatura_hash }}</span>
                   </div>
                 </div>
               </div>
@@ -235,16 +233,16 @@
         </div>
         <div class="modal-footer d-print-none bg-white">
           <button type="button" class="btn btn-outline-secondary" (click)="imprimirModal()">
-            <i class="bi bi-printer me-1"></i>Imprimir
+            Imprimir
           </button>
           <button type="button" class="btn btn-secondary" (click)="fecharModal()">Fechar</button>
 
           @if (relatorioSelecionado()?.status === 'CONCLUIDO_ASSINADO') {
             <button type="button" class="btn btn-outline-warning" (click)="solicitarRetificacao(relatorioSelecionado()!)">
-              <i class="bi bi-arrow-counterclockwise me-1"></i>Solicitar Retificação
+              Solicitar Retificação
             </button>
             <button type="button" class="btn btn-success" (click)="homologar(relatorioSelecionado()!)">
-              <i class="bi bi-check-circle-fill me-1"></i>Homologar Relatório
+              Homologar Relatório
             </button>
           }
         </div>
