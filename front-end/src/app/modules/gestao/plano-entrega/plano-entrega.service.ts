@@ -12,27 +12,33 @@ export class PlanoEntregaService {
   constructor(public lookup: LookupService) { }
 
   public getValorMeta(entrega: HasMetaRealizado): string {   
+    if (!entrega) return "-";
+    if (typeof (entrega as any).meta === "number") return (entrega as any).meta + "";
+    if (typeof (entrega as any).meta === "string") return (entrega as any).meta;
     let result = "";
     switch (entrega.entrega?.tipo_indicador) {
-      case "PORCENTAGEM": result = entrega.meta.porcentagem + " %"; break;
-      case "QUANTIDADE": result = entrega.meta.quantitativo + ""; break;
-      case "VALOR": result = entrega.meta.valor + ""; break;
-      case "QUALITATIVO": result = this.lookup.getValue(entrega.entrega.lista_qualitativos || [], entrega.meta.qualitativo); break;
-      default: result = "Indicador desconhecido";
+      case "PORCENTAGEM": result = (entrega.meta?.porcentagem != null) ? entrega.meta.porcentagem + " %" : "-"; break;
+      case "QUANTIDADE": result = (entrega.meta?.quantitativo != null) ? entrega.meta.quantitativo + "" : "-"; break;
+      case "VALOR": result = (entrega.meta?.valor != null) ? entrega.meta.valor + "" : "-"; break;
+      case "QUALITATIVO": result = (entrega.meta?.qualitativo != null) ? (this.lookup.getValue(entrega.entrega?.lista_qualitativos || [], entrega.meta.qualitativo) || "-") : "-"; break;
+      default: result = (entrega.meta?.quantitativo ?? entrega.meta?.porcentagem ?? entrega.meta?.valor ?? "-") + "";
     }
-    return result;
+    return result || "-";
   }
 
   public getValorRealizado(entrega: HasMetaRealizado): string {
+    if (!entrega) return "-";
+    if (typeof (entrega as any).realizado === "number") return (entrega as any).realizado + "";
+    if (typeof (entrega as any).realizado === "string") return (entrega as any).realizado;
     let result = "";
     switch (entrega.entrega?.tipo_indicador) {
-      case "PORCENTAGEM": result = entrega.realizado.porcentagem + " %"; break;
-      case "QUANTIDADE": result = entrega.realizado.quantitativo + ""; break;
-      case "VALOR": result = entrega.realizado.valor + ""; break;
-      case "QUALITATIVO": result = this.lookup.getValue(entrega.entrega.lista_qualitativos || [], entrega.realizado.qualitativo); break;
-      default: result = "Indicador desconhecido";
+      case "PORCENTAGEM": result = (entrega.realizado?.porcentagem != null) ? entrega.realizado.porcentagem + " %" : "-"; break;
+      case "QUANTIDADE": result = (entrega.realizado?.quantitativo != null) ? entrega.realizado.quantitativo + "" : "-"; break;
+      case "VALOR": result = (entrega.realizado?.valor != null) ? entrega.realizado.valor + "" : "-"; break;
+      case "QUALITATIVO": result = (entrega.realizado?.qualitativo != null) ? (this.lookup.getValue(entrega.entrega?.lista_qualitativos || [], entrega.realizado.qualitativo) || "-") : "-"; break;
+      default: result = (entrega.realizado?.quantitativo ?? entrega.realizado?.porcentagem ?? entrega.realizado?.valor ?? "-") + "";
     }
-    return result;
+    return result || "-";
   }
 
   public getValor(entregaValor: EntregaValor): any {

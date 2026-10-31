@@ -53,7 +53,7 @@
         </ng-template>
     </filter>
     <columns>
-        <column *ngIf="!selectable" type="expand" icon="bi bi-list-check" [align]="'center'" [hint]="lex.translate('Entrega')" [template]="columnEntregas" [expandTemplate]="columnExpandedEntregas">
+        <column *ngIf="!selectable" type="expand" icon="bi bi-list-check" [align]="'center'" [hint]="lex.translate('Entrega')" [width]="50" [template]="columnEntregas" [expandTemplate]="columnExpandedEntregas">
             <ng-template let-row="row" #columnEntregas>
                 <span *ngIf="row.entregas?.length" class="badge rounded-pill bg-light text-dark"><i class="bi bi-list-check"></i> {{row.entregas?.length}}</span>
             </ng-template>
@@ -61,7 +61,7 @@
                 <plano-entrega-list-entrega [parent]="this" [disabled]="avaliacao || !botaoAtendeCondicoes(BOTAO_ALTERAR, row)" [entity]="row" [execucao]="execucao" [cdRef]="cdRef" [planejamentoId]="row.planejamento_id" [cadeiaValorId]="row.cadeia_valor_id" [unidadeId]="row.unidade_id"></plano-entrega-list-entrega>
             </ng-template>
         </column>
-        <column [titleTemplate]="titleIdNumeroStatus" [template]="columnNumero">
+        <column [titleTemplate]="titleIdNumeroStatus" [template]="columnNumero" [width]="65">
             <ng-template let-header="header" #titleIdNumeroStatus>
                 <order by="numero" [header]="header">#ID</order>
             </ng-template>
@@ -69,38 +69,38 @@
                 <small class="micro-text fw-ligh">#{{row.numero}}</small>
             </ng-template>
         </column>
-        <column [titleTemplate]="titleNomeProgramaUnidade" [template]="columnNome">
+        <column [titleTemplate]="titleNomeProgramaUnidade" [template]="columnNome" [minWidth]="220" [maxWidth]="350">
             <ng-template let-header="header" #titleNomeProgramaUnidade>
                 <order by="nome" [header]="header">Nome</order><br>
                 Programa{{ !filter!.controls.agrupar.value ? ' - Unidade' : ''}}
             </ng-template>
             <ng-template let-row="row" #columnNome>
-                <span class="text-break text-wrap" [style.max-width.px]="400">{{row.nome || ""}}</span><br>
+                <span class="text-break text-wrap" [style.max-width.px]="340">{{row.nome || ""}}</span><br>
                 <badge *ngIf="row.programa" [icon]="entityService.getIcon('Programa')" [label]="row.programa.nome" color="light"></badge>
                 <badge *ngIf="!filter!.controls.agrupar.value && row.unidade" color="secondary" [icon]="entityService.getIcon(lex.translate('unidade'))" [label]="row.unidade.sigla"></badge>
             </ng-template>
         </column>
-        <column title="Início" [template]="columnInicio" orderBy="data_inicio">
+        <column title="Início" [template]="columnInicio" orderBy="data_inicio" [width]="105">
             <ng-template let-row="row" #columnInicio>
                 <span> {{dao!.getDateFormatted(row.data_inicio)}}</span>
             </ng-template>
         </column>
-        <column title="Fim" [template]="columnFim" orderBy="data_fim">
+        <column title="Fim" [template]="columnFim" orderBy="data_fim" [width]="105">
             <ng-template let-row="row" #columnFim>
                 <span> {{dao!.getDateFormatted(row.data_fim)}}</span>
             </ng-template>
         </column>
-        <column [titleTemplate]="titlePlanoCadeia" [template]="columnPlanoCadeia">
+        <column [titleTemplate]="titlePlanoCadeia" [template]="columnPlanoCadeia" [minWidth]="200" [maxWidth]="270">
             <ng-template let-header="header" #titlePlanoCadeia>
                 Planejamento Institucional<br>
                 Cadeia de Valor
             </ng-template>
             <ng-template let-row="row" #columnPlanoCadeia>
-                <badge *ngIf="row.planejamento" [maxWidth]="300" color="light" [icon]="entityService.getIcon('Planejamento')" [label]="row.planejamento?.nome"></badge>
-                <badge *ngIf="row.cadeia_valor" [maxWidth]="300" color="light" [icon]="entityService.getIcon('CadeiaValor')" [label]="row.cadeia_valor?.nome"></badge>
+                <badge *ngIf="row.planejamento" [maxWidth]="260" color="light" [icon]="entityService.getIcon('Planejamento')" [label]="row.planejamento?.nome"></badge>
+                <badge *ngIf="row.cadeia_valor" [maxWidth]="260" color="light" [icon]="entityService.getIcon('CadeiaValor')" [label]="row.cadeia_valor?.nome"></badge>
             </ng-template>
         </column>
-        <column [title]="'Status\nAvaliação'" [template]="columnStatus">
+        <column [title]="'Status\nAvaliação'" [template]="columnStatus" [width]="130" [minWidth]="130">
             <ng-template let-row="row" #columnStatus>
                 <badge [color]="statusColor(row)" [icon]="statusIcon(row)" [label]="statusLabel(row)"></badge><br>
                 <badge *ngIf="row.data_arquivamento" color="warning" icon="bi bi-inboxes" label="Arquivado"></badge>
@@ -108,7 +108,7 @@
                 <avaliar-nota-badge *ngIf="row.avaliacao" [align]="'left'" [tipoAvaliacao]="row.avaliacao.tipo_avaliacao" [nota]="row.avaliacao.nota"></avaliar-nota-badge>
             </ng-template>
         </column>
-        <column type="options" [dynamicOptions]="dynamicOptions.bind(this)" [dynamicButtons]="dynamicButtons.bind(this)"></column>
+        <column type="options" [width]="95" [minWidth]="95" [dynamicOptions]="dynamicOptions.bind(this)" [dynamicButtons]="dynamicButtons.bind(this)"></column>
     </columns>
     <pagination
         [rows]="rowsLimit"

@@ -7,16 +7,16 @@
         </span>
     </ng-template>
     <columns>
-        <column [title]="'Entrega\nDemandante/Destinatário'" [template]="columnEntregaCliente" [editTemplate]="columnEntregaCliente">
+        <column [title]="'Entrega\nDemandante/Destinatário'" [minWidth]="260" [maxWidth]="420" [template]="columnEntregaCliente" [editTemplate]="columnEntregaCliente">
             <ng-template let-row="row" #columnEntregaCliente>
-                <h6>{{row.descricao}}</h6>
+                <h6 class="text-break text-wrap mb-1" [style.max-width.px]="420">{{row.descricao}}</h6>
                 <span class="d-block">
                     <badge *ngIf="row.unidade" color="light" [icon]="entityService.getIcon('Unidade')" [label]="row.unidade.sigla"></badge>
                     <badge *ngIf="row.destinatario?.length" color="light" icon="bi bi-mailbox" [label]="row.destinatario"></badge>
                 </span>
             </ng-template>
         </column>
-        <column [title]="'Etiquetas'" [width]="100" [template]="columnEtiquetas" [editTemplate]="columnEtiquetas" [columnEditTemplate]="selectable ? undefined : columnEtiquetasEdit" [edit]="selectable ? undefined : onColumnEtiquetasEdit.bind(this)" [save]="selectable ? undefined : onColumnEtiquetasSave.bind(this)">
+        <column [title]="'Etiquetas'" [width]="180" [minWidth]="160" [maxWidth]="200" [template]="columnEtiquetas" [editTemplate]="columnEtiquetas" [columnEditTemplate]="selectable ? undefined : columnEtiquetasEdit" [edit]="selectable ? undefined : onColumnEtiquetasEdit.bind(this)" [save]="selectable ? undefined : onColumnEtiquetasSave.bind(this)">
             <ng-template let-row="row" #columnEtiquetas>
                 <badge *ngFor="let etiqueta of row.etiquetas" [lookup]="etiqueta"></badge>
             </ng-template>
@@ -26,13 +26,13 @@
                 </input-multiselect>
             </ng-template>
         </column>
-        <column [title]="'Data Início\nData Fim'" [template]="columnDatas" [editTemplate]="columnDatas">
+        <column [title]="'Data Início\nData Fim'" [width]="105" [minWidth]="100" [template]="columnDatas" [editTemplate]="columnDatas">
             <ng-template let-row="row" #columnDatas>
                 <span *ngIf="row.data_inicio"> {{dao!.getDateFormatted(row.data_inicio)}}</span><br>
                 <span *ngIf="row.data_fim"> {{dao!.getDateFormatted(row.data_fim)}}</span>
             </ng-template>
         </column>
-        <column [title]="'Meta'" [width]="100" [template]="columnMetaRealizado" [editTemplate]="editMetaRealizado" [columnEditTemplate]="isMetaEditavel() ? editMetaRealizado : undefined" [edit]="isMetaEditavel() ? onColumnMetaEdit.bind(this) : undefined" [save]="isMetaEditavel() ? onColumnMetaSave.bind(this) : undefined">
+        <column [title]="'Meta'" [width]="100" [minWidth]="90" [template]="columnMetaRealizado" [editTemplate]="editMetaRealizado" [columnEditTemplate]="isMetaEditavel() ? editMetaRealizado : undefined" [edit]="isMetaEditavel() ? onColumnMetaEdit.bind(this) : undefined" [save]="isMetaEditavel() ? onColumnMetaSave.bind(this) : undefined">
             <ng-template let-row="row" #columnMetaRealizado>
                 <badge icon="bi bi-graph-up-arrow" [textValue]="planoEntregaService.getValorMeta(row)" color="light" hint="Planejada"></badge><br>
                 <badge icon="bi bi-check-lg" [textValue]="planoEntregaService.getValorRealizado(row)" color="light" hint="Realizada"></badge>
@@ -92,14 +92,14 @@
                 </separator>
             </ng-template>
         </column> -->
-        <column [title]="lex.translate('Modelo de Entrega') + '\nComentários'" [template]="columnEntregaCometario" [editTemplate]="columnEntregaCometario"
+        <column [title]="lex.translate('Modelo de Entrega') + '\nComentários'" [width]="150" [minWidth]="140" [maxWidth]="170" [template]="columnEntregaCometario" [editTemplate]="columnEntregaCometario"
         [edit]="selectable ? undefined : onColumnEtiquetasEdit.bind(this)">
             <ng-template let-row="row" #columnEntregaCometario>
                 <badge *ngIf="row.entrega" color="light" icon="bi bi-list-check" [label]="row.entrega?.nome"></badge>
                 <comentarios-widget *ngIf="row.comentarios?.length" [entity]="row" [selectable]="!execucao || !!grid?.editing" origem="PLANO_ENTREGA_ENTREGA" [grid]="grid" [save]="refreshComentarios.bind(this)"></comentarios-widget>
             </ng-template>
         </column>
-        <column type="options" [onEdit]="edit.bind(this)" [dynamicButtons]="dynamicButtons.bind(this)" [dynamicOptions]="dynamicOptions.bind(this)"></column>
+        <column type="options" [width]="135" [minWidth]="130" [onEdit]="edit.bind(this)" [dynamicButtons]="dynamicButtons.bind(this)" [dynamicOptions]="dynamicOptions.bind(this)"></column>
     </columns>
 </grid>
 
