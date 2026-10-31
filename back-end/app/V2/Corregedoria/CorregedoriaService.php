@@ -7,6 +7,7 @@ namespace App\V2\Corregedoria;
 use App\Models\Afastamento;
 use App\Models\RelatorioCorregedoria;
 use App\Models\RelatorioCorregedoriaAto;
+use App\Models\Unidade;
 use App\Models\Usuario;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -178,6 +179,14 @@ class CorregedoriaService
         $page = (int) ($filtros['page'] ?? 1);
 
         return $query->paginate($perPage, ['*'], 'page', $page);
+    }
+
+    public function listarUnidades(): array
+    {
+        return Unidade::select('id', 'nome', 'sigla')
+            ->orderBy('nome', 'asc')
+            ->get()
+            ->toArray();
     }
 
     public function analiseCorregedoria(string $corregedorId, string $relatorioId, string $status, ?string $observacoes): RelatorioCorregedoria

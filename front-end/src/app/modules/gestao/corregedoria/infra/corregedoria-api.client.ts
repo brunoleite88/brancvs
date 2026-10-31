@@ -65,6 +65,11 @@ export class CorregedoriaApiClient extends TenantV2ResourceApiBase {
       .pipe(map(r => r?.data));
   }
 
+  getUnidades(): Observable<{ id: string; nome: string; sigla: string }[]> {
+    return this.http.get<any>(this.resourceUrl('/unidades'))
+      .pipe(map(r => r?.data ?? []));
+  }
+
   analisarRelatorio(id: string, status: string, observacoes?: string): Observable<RelatorioCorregedoria> {
     return this.http.patch<any>(this.resourceUrl(`/relatorios/${id}/analise`), { status, observacoes })
       .pipe(map(r => r?.data));

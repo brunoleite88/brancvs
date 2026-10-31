@@ -57,6 +57,18 @@ class CorregedoriaController extends Controller
         }
     }
 
+    public function unidades(): JsonResponse
+    {
+        try {
+            $result = $this->service->listarUnidades();
+
+            return response()->json(['success' => true, 'data' => $result]);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function index(Request $request): JsonResponse
     {
         try {

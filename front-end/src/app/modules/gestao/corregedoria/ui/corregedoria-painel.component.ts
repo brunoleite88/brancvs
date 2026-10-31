@@ -21,6 +21,7 @@ export class CorregedoriaPainelComponent implements OnInit {
   private readonly cd = inject(ChangeDetectorRef);
 
   readonly relatorios = signal<RelatorioCorregedoria[]>([]);
+  readonly unidades = signal<{ id: string; nome: string; sigla: string }[]>([]);
   readonly carregando = signal(true);
   readonly relatorioSelecionado = signal<RelatorioCorregedoria | null>(null);
   readonly modalVisualizacaoAberto = signal(false);
@@ -28,6 +29,7 @@ export class CorregedoriaPainelComponent implements OnInit {
   readonly filtroMes = signal<number>(10);
   readonly filtroAno = signal<number>(2026);
   readonly filtroStatus = signal<string>('TODOS');
+  readonly filtroUnidadeId = signal<string>('');
 
   readonly meses = [
     { valor: 0, nome: 'Todos os Meses' },
@@ -51,7 +53,17 @@ export class CorregedoriaPainelComponent implements OnInit {
     const hoje = new Date();
     this.filtroMes.set(hoje.getMonth() + 1);
     this.filtroAno.set(hoje.getFullYear() < 2026 ? 2026 : hoje.getFullYear());
+    this.carregarUnidades();
     this.carregarRelatorios();
+  }
+
+  carregarUnidades(): void {
+    this.api.getUnidades().subscribe({
+      next: (list) => {
+        this.unidades.set(list);
+        this.cd.markForCheck();
+      }
+    });
   }
 
   carregarRelatorios(): void {
@@ -65,6 +77,9 @@ export class CorregedoriaPainelComponent implements OnInit {
     }
     if (this.filtroStatus() !== 'TODOS') {
       params['status'] = this.filtroStatus();
+    }
+    if (this.filtroUnidadeId()) {
+      params['unidade_id'] = this.filtroUnidadeId();
     }
 
     this.api.listarRelatorios(params).subscribe({
