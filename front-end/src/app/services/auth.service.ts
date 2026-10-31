@@ -483,7 +483,7 @@ export class AuthService {
    */
   public isLotadoNaLinhaAscendente(unidade: Unidade): boolean {
     let result = false;
-    this.usuario!.areas_trabalho?.map(x => x.unidade_id).forEach(x => { if (unidade.path.split('/').slice(1).includes(x)) result = true; });
+    this.usuario!.areas_trabalho?.map(x => x.unidade_id).forEach(x => { if (!!unidade?.path && unidade.path.split('/').slice(1).includes(x)) result = true; });
     return result;
   }
 

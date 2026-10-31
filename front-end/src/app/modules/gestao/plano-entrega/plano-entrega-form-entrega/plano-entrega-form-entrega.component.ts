@@ -404,12 +404,16 @@ export class PlanoEntregaFormEntregaComponent extends PageFormBase<PlanoEntregaE
   public async carregaEtiquetasUnidadesAscendentes(unidadeAtual: Unidade) {
     let etiquetasUnidades: LookupItem[] = [];
     unidadeAtual = unidadeAtual ? unidadeAtual : this.auth.unidade!;
-    let path = unidadeAtual.path.split("/");
-    let unidades = await this.unidadeDao.query({ where: [["id", "in", path]] }).asPromise();
-    unidades.forEach(un => {
-      etiquetasUnidades = this.util.merge(etiquetasUnidades, un.etiquetas, (a, b) => a.key == b.key);
-    });
-    etiquetasUnidades.forEach(e => e.data = unidadeAtual.id);
+    let path = (unidadeAtual?.path || "").split("/").filter(x => x?.length);
+    if (path.length > 0) {
+      let unidades = await this.unidadeDao.query({ where: [["id", "in", path]] }).asPromise();
+      unidades.forEach(un => {
+        etiquetasUnidades = this.util.merge(etiquetasUnidades, un.etiquetas, (a, b) => a.key == b.key);
+      });
+    }
+    if (unidadeAtual?.id) {
+      etiquetasUnidades.forEach(e => e.data = unidadeAtual.id);
+    }
     return etiquetasUnidades;
   }
 
