@@ -145,15 +145,21 @@
             <!-- Cabeçalho Oficial -->
             <div class="border border-dark p-3 mb-4">
               <div class="d-flex align-items-center">
-                <div class="me-3 text-center" style="min-width: 80px;">
-                  <img src="assets/images/brasao_ma.png" alt="Brasão Maranhão" style="height: 68px; object-fit: contain;" onerror="this.src='assets/images/icon_blue.png'">
-                </div>
+                @if (relatorioSelecionado()?.cabecalho?.logo_url !== '') {
+                  <div class="me-3 text-center" style="min-width: 80px;">
+                    <img [src]="relatorioSelecionado()?.cabecalho?.logo_url || 'assets/images/brasao_ma.png'" 
+                         alt="Brasão / Logo" 
+                         [style.height]="(relatorioSelecionado()?.cabecalho?.altura_logo || 68) + 'px'" 
+                         style="object-fit: contain;" 
+                         onerror="this.src='assets/images/icon_blue.png'">
+                  </div>
+                }
                 <div class="flex-grow-1 font-monospace">
-                  <div class="fw-bold fs-6">ESTADO DO MARANHÃO</div>
-                  <div class="fw-bold fs-6">PROCURADORIA GERAL DO ESTADO</div>
-                  <div class="fw-bold fs-5 text-uppercase mt-1">RELATÓRIO DE ATIVIDADES</div>
+                  <div class="fw-bold fs-6">{{ relatorioSelecionado()?.cabecalho?.ente || 'ESTADO DO MARANHÃO' }}</div>
+                  <div class="fw-bold fs-6">{{ relatorioSelecionado()?.cabecalho?.orgao || 'PROCURADORIA GERAL DO ESTADO' }}</div>
+                  <div class="fw-bold fs-5 text-uppercase mt-1">{{ relatorioSelecionado()?.cabecalho?.titulo || 'RELATÓRIO DE ATIVIDADES' }}</div>
                   <div class="fw-bold mt-1 text-uppercase bg-warning-subtle px-1 d-inline-block">
-                    {{ relatorioSelecionado()?.unidade?.nome }} / {{ relatorioSelecionado()?.usuario?.nome }} / {{ getNomeMes(relatorioSelecionado()!.mes).toUpperCase() }} - {{ relatorioSelecionado()?.ano }}
+                    {{ relatorioSelecionado()?.cabecalho?.subtitulo || relatorioSelecionado()?.unidade?.nome }} / {{ relatorioSelecionado()?.usuario?.nome }} / {{ getNomeMes(relatorioSelecionado()!.mes).toUpperCase() }} - {{ relatorioSelecionado()?.ano }}
                   </div>
                   <div class="fw-bold mt-1">
                     FÉRIAS/LICENÇA/AFASTAMENTO: <span class="bg-warning-subtle px-1">{{ relatorioSelecionado()?.afastamentos_texto || 'N/A' }}</span>

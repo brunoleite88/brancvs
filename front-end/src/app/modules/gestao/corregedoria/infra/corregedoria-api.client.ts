@@ -12,6 +12,15 @@ export interface RelatorioAto {
   observacao: string;
 }
 
+export interface RelatorioCabecalho {
+  logo_url?: string;
+  ente?: string;
+  orgao?: string;
+  titulo?: string;
+  subtitulo?: string;
+  altura_logo?: number;
+}
+
 export interface RelatorioCorregedoria {
   id: string;
   usuario_id: string;
@@ -19,6 +28,7 @@ export interface RelatorioCorregedoria {
   mes: number;
   ano: number;
   afastamentos_texto: string;
+  cabecalho?: RelatorioCabecalho;
   status: 'RASCUNHO' | 'CONCLUIDO_ASSINADO' | 'HOMOLOGADO' | 'RETIFICACAO';
   assinatura_hash?: string;
   data_assinatura?: string;

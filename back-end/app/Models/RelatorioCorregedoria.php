@@ -12,12 +12,18 @@ class RelatorioCorregedoria extends ModelBase
 {
     protected $table = 'relatorios_corregedoria';
 
+    protected $casts = [
+        'cabecalho' => 'array',
+        'data_assinatura' => 'datetime',
+    ];
+
     public $fillable = [
         'usuario_id',
         'unidade_id',
         'mes',
         'ano',
         'afastamentos_texto',
+        'cabecalho',
         'status',
         'assinatura_hash',
         'data_assinatura',

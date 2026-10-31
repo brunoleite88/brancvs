@@ -95,6 +95,9 @@ class CorregedoriaService
         if (isset($data['afastamentos_texto'])) {
             $relatorio->afastamentos_texto = $data['afastamentos_texto'];
         }
+        if (array_key_exists('cabecalho', $data)) {
+            $relatorio->cabecalho = is_array($data['cabecalho']) ? $data['cabecalho'] : json_decode((string) $data['cabecalho'], true);
+        }
         $relatorio->save();
 
         // Atualiza a lista de atos

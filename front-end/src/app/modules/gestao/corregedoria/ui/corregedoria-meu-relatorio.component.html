@@ -14,6 +14,9 @@
         </button>
 
         @if (isEditavel) {
+          <button class="btn btn-outline-dark" (click)="abrirModalCabecalho()">
+            <i class="bi bi-pencil-square me-1"></i>Editar Cabeçalho e Logo
+          </button>
           <button class="btn btn-outline-primary" (click)="salvarRascunho()" [disabled]="salvando()">
             <i class="bi bi-save me-1"></i>Salvar Rascunho
           </button>
@@ -76,19 +79,30 @@
     <div class="bg-white p-4 p-md-5 rounded shadow-sm border relatorio-documento">
 
       <!-- Cabeçalho Oficial -->
-      <div class="border border-dark p-3 mb-4">
+      <div class="border border-dark p-3 mb-4 position-relative">
+        @if (isEditavel) {
+          <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2 d-print-none" (click)="abrirModalCabecalho()" title="Personalizar cabeçalho e logo">
+            <i class="bi bi-gear-fill me-1"></i>Editar Cabeçalho
+          </button>
+        }
         <div class="d-flex align-items-center">
-          <!-- Brasão MA -->
-          <div class="me-3 text-center" style="min-width: 80px;">
-            <img src="assets/images/brasao_ma.png" alt="Brasão Maranhão" style="height: 68px; object-fit: contain;" onerror="this.src='assets/images/icon_blue.png'">
-          </div>
+          <!-- Brasão / Logo -->
+          @if (relatorio()?.cabecalho?.logo_url !== '') {
+            <div class="me-3 text-center" style="min-width: 80px;">
+              <img [src]="relatorio()?.cabecalho?.logo_url || 'assets/images/brasao_ma.png'" 
+                   alt="Logo Cabeçalho" 
+                   [style.height]="(relatorio()?.cabecalho?.altura_logo || 68) + 'px'" 
+                   style="object-fit: contain;" 
+                   onerror="this.src='assets/images/icon_blue.png'">
+            </div>
+          }
           <!-- Textos Institucionais -->
           <div class="flex-grow-1 font-monospace">
-            <div class="fw-bold fs-6">ESTADO DO MARANHÃO</div>
-            <div class="fw-bold fs-6">PROCURADORIA GERAL DO ESTADO</div>
-            <div class="fw-bold fs-5 text-uppercase mt-1">RELATÓRIO DE ATIVIDADES</div>
+            <div class="fw-bold fs-6">{{ relatorio()?.cabecalho?.ente || 'ESTADO DO MARANHÃO' }}</div>
+            <div class="fw-bold fs-6">{{ relatorio()?.cabecalho?.orgao || 'PROCURADORIA GERAL DO ESTADO' }}</div>
+            <div class="fw-bold fs-5 text-uppercase mt-1">{{ relatorio()?.cabecalho?.titulo || 'RELATÓRIO DE ATIVIDADES' }}</div>
             <div class="fw-bold mt-1 text-uppercase bg-warning-subtle px-1 d-inline-block">
-              {{ relatorio()?.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO' }} / {{ relatorio()?.usuario?.nome || auth.usuario?.nome }} / {{ mesExtenso }} - {{ anoSelecionado() }}
+              {{ relatorio()?.cabecalho?.subtitulo || relatorio()?.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO' }} / {{ relatorio()?.usuario?.nome || auth.usuario?.nome }} / {{ mesExtenso }} - {{ anoSelecionado() }}
             </div>
             <div class="fw-bold mt-1">
               FÉRIAS/LICENÇA/AFASTAMENTO: 
@@ -212,3 +226,96 @@
     </div>
   }
 </div>
+
+<!-- ── MODAL: PERSONALIZAÇÃO DO CABEÇALHO E LOGO ── -->
+@if (modalCabecalhoAberto()) {
+  <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.6); z-index: 1050;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-pencil-square me-2"></i>Personalizar Cabeçalho do Relatório e Logotipo
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="fecharModalCabecalho()"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-4">
+            <!-- Coluna da Esquerda: Logotipo -->
+            <div class="col-md-5 text-center border-end pe-md-4">
+              <label class="form-label fw-bold mb-2">Logotipo / Brasão:</label>
+              <div class="p-3 bg-light border rounded mb-3 d-flex align-items-center justify-content-center" style="min-height: 120px;">
+                @if (cabecalhoEdit().logo_url) {
+                  <img [src]="cabecalhoEdit().logo_url" alt="Preview Logo" [style.height]="(cabecalhoEdit().altura_logo || 68) + 'px'" style="max-width: 100%; object-fit: contain;">
+                } @else {
+                  <span class="text-muted small"><i class="bi bi-image me-1"></i>Sem logotipo (somente texto)</span>
+                }
+              </div>
+
+              <!-- Upload de Arquivo -->
+              <div class="mb-3 text-start">
+                <label class="form-label small fw-bold"><i class="bi bi-upload me-1"></i>Carregar Nova Imagem / Logo:</label>
+                <input type="file" class="form-control form-control-sm" accept="image/*" (change)="onUploadLogo($event)">
+                <small class="text-muted" style="font-size: 0.75rem;">PNG, JPG, SVG, WebP (máx 2MB)</small>
+              </div>
+
+              <!-- Presets Rápidos -->
+              <div class="d-flex flex-column gap-1 text-start">
+                <span class="small fw-bold text-muted">Logos Prontos:</span>
+                <div class="btn-group btn-group-sm w-100">
+                  <button type="button" class="btn btn-outline-secondary" (click)="usarLogoPadrao('brasao')">Brasão MA</button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="usarLogoPadrao('pge')">Logo PGE</button>
+                  <button type="button" class="btn btn-outline-danger" (click)="usarLogoPadrao('nenhum')">Remover</button>
+                </div>
+              </div>
+
+              <!-- Altura do Logo -->
+              <div class="mt-3 text-start">
+                <label class="form-label small fw-bold">Altura da Imagem: {{ cabecalhoEdit().altura_logo || 68 }}px</label>
+                <input type="range" class="form-range" min="40" max="110" step="2" [ngModel]="cabecalhoEdit().altura_logo || 68" (ngModelChange)="cabecalhoEdit().altura_logo = $event">
+              </div>
+            </div>
+
+            <!-- Coluna da Direita: Textos do Cabeçalho -->
+            <div class="col-md-7 ps-md-3">
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Ente Federativo (Linha 1):</label>
+                <input type="text" class="form-control form-control-sm font-monospace text-uppercase" [ngModel]="cabecalhoEdit().ente" (ngModelChange)="cabecalhoEdit().ente = $event" placeholder="Ex: ESTADO DO MARANHÃO">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Órgão / Secretaria (Linha 2):</label>
+                <input type="text" class="form-control form-control-sm font-monospace text-uppercase" [ngModel]="cabecalhoEdit().orgao" (ngModelChange)="cabecalhoEdit().orgao = $event" placeholder="Ex: PROCURADORIA GERAL DO ESTADO">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Título do Documento (Linha 3):</label>
+                <input type="text" class="form-control form-control-sm font-monospace text-uppercase" [ngModel]="cabecalhoEdit().titulo" (ngModelChange)="cabecalhoEdit().titulo = $event" placeholder="Ex: RELATÓRIO DE ATIVIDADES">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Setor / Subtítulo Institucional (Linha 4):</label>
+                <input type="text" class="form-control form-control-sm font-monospace text-uppercase" [ngModel]="cabecalhoEdit().subtitulo" (ngModelChange)="cabecalhoEdit().subtitulo = $event" placeholder="Ex: PROCURADORIA-GERAL ADJUNTA PARA ASSUNTOS ESTRATÉGICOS">
+              </div>
+
+              <div class="form-check mt-3 p-2 bg-light rounded border">
+                <input class="form-check-input ms-0 me-2" type="checkbox" id="checkSalvarPadrao" [ngModel]="salvarComoPadrao()" (ngModelChange)="salvarComoPadrao.set($event)">
+                <label class="form-check-label small fw-semibold" for="checkSalvarPadrao">
+                  Salvar este cabeçalho como meu padrão para os próximos meses
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary me-auto" (click)="restaurarCabecalhoPadrao()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Restaurar Padrão
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="fecharModalCabecalho()">Cancelar</button>
+          <button type="button" class="btn btn-primary fw-bold" (click)="salvarCabecalho()">
+            <i class="bi bi-check-lg me-1"></i>Aplicar e Salvar Cabeçalho
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

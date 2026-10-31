@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CorregedoriaApiClient, RelatorioCorregedoria, RelatorioAto } from '../infra/corregedoria-api.client';
+import { CorregedoriaApiClient, RelatorioCorregedoria, RelatorioAto, RelatorioCabecalho } from '../infra/corregedoria-api.client';
 import { AuthService } from 'src/app/services/auth.service';
 import { MessageService } from 'src/app/v2/services/message.service';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
@@ -25,6 +25,10 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
   readonly relatorio = signal<RelatorioCorregedoria | null>(null);
   readonly carregando = signal(true);
   readonly salvando = signal(false);
+
+  readonly modalCabecalhoAberto = signal(false);
+  readonly cabecalhoEdit = signal<RelatorioCabecalho>({});
+  readonly salvarComoPadrao = signal<boolean>(true);
 
   readonly mesSelecionado = signal<number>(10);
   readonly anoSelecionado = signal<number>(2026);
@@ -73,6 +77,9 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
     this.carregando.set(true);
     this.api.getMeuRelatorio(this.mesSelecionado(), this.anoSelecionado()).subscribe({
       next: (res) => {
+        if (!res.cabecalho) {
+          res.cabecalho = this.obterCabecalhoPadrao(res);
+        }
         this.relatorio.set(res);
         // Se atos estiver vazio, adiciona a primeira linha automaticamente
         if (!res.atos || res.atos.length === 0) {
@@ -87,6 +94,97 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
         this.message.error(e?.error?.error || 'Erro ao carregar relatório da corregedoria.');
       }
     });
+  }
+
+  abrirModalCabecalho(): void {
+    const rel = this.relatorio();
+    const atual = rel?.cabecalho || this.obterCabecalhoPadrao(rel);
+    this.cabecalhoEdit.set({
+      logo_url: atual.logo_url || 'assets/images/brasao_ma.png',
+      ente: atual.ente || 'ESTADO DO MARANHÃO',
+      orgao: atual.orgao || 'PROCURADORIA GERAL DO ESTADO',
+      titulo: atual.titulo || 'RELATÓRIO DE ATIVIDADES',
+      subtitulo: atual.subtitulo || rel?.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO',
+      altura_logo: atual.altura_logo || 68,
+    });
+    this.modalCabecalhoAberto.set(true);
+  }
+
+  fecharModalCabecalho(): void {
+    this.modalCabecalhoAberto.set(false);
+  }
+
+  onUploadLogo(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      if (file.size > 2 * 1024 * 1024) {
+        this.message.error('A imagem da logo deve ter no máximo 2MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        this.cabecalhoEdit.update(c => ({ ...c, logo_url: dataUrl }));
+        this.cd.markForCheck();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  usarLogoPadrao(tipo: 'brasao' | 'pge' | 'nenhum'): void {
+    if (tipo === 'brasao') {
+      this.cabecalhoEdit.update(c => ({ ...c, logo_url: 'assets/images/brasao_ma.png' }));
+    } else if (tipo === 'pge') {
+      this.cabecalhoEdit.update(c => ({ ...c, logo_url: 'assets/images/icon_blue.png' }));
+    } else {
+      this.cabecalhoEdit.update(c => ({ ...c, logo_url: '' }));
+    }
+  }
+
+  restaurarCabecalhoPadrao(): void {
+    const rel = this.relatorio();
+    this.cabecalhoEdit.set({
+      logo_url: 'assets/images/brasao_ma.png',
+      ente: 'ESTADO DO MARANHÃO',
+      orgao: 'PROCURADORIA GERAL DO ESTADO',
+      titulo: 'RELATÓRIO DE ATIVIDADES',
+      subtitulo: rel?.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO',
+      altura_logo: 68,
+    });
+  }
+
+  salvarCabecalho(): void {
+    const editado = this.cabecalhoEdit();
+    const rel = this.relatorio();
+    if (!rel) return;
+
+    const atualizado = { ...rel, cabecalho: editado };
+    this.relatorio.set(atualizado);
+
+    if (this.salvarComoPadrao()) {
+      try {
+        localStorage.setItem('pge_corregedoria_cabecalho_padrao', JSON.stringify(editado));
+      } catch {}
+    }
+
+    this.fecharModalCabecalho();
+    this.salvarRascunho();
+  }
+
+  obterCabecalhoPadrao(rel?: RelatorioCorregedoria | null): RelatorioCabecalho {
+    try {
+      const salvo = localStorage.getItem('pge_corregedoria_cabecalho_padrao');
+      if (salvo) return JSON.parse(salvo);
+    } catch {}
+    return {
+      logo_url: 'assets/images/brasao_ma.png',
+      ente: 'ESTADO DO MARANHÃO',
+      orgao: 'PROCURADORIA GERAL DO ESTADO',
+      titulo: 'RELATÓRIO DE ATIVIDADES',
+      subtitulo: rel?.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO',
+      altura_logo: 68,
+    };
   }
 
   mudarPeriodo(mes: number, ano: number): void {
