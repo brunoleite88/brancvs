@@ -53,7 +53,7 @@ export class LacunaPlanoTrabalhoListPage implements OnInit {
   readonly unidadeQuery = this.fb.nonNullable.control('');
 
   readonly lacunaHint =
-    'Período em que o agente público, esteve selecionado como Participante do PGD no Siape, mas não possui Plano de Trabalho em execução ou concluído.';
+    'Período em que o agente público esteve em exercício na unidade, mas sem Plano de Ação Individual ativo ou concluído.';
 
   readonly filters: FormGroup<{
     unidade_id: FormControl<string | null>;

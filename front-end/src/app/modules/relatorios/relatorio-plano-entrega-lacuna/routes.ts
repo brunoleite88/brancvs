@@ -22,8 +22,8 @@ export const routes: Routes = [
     ],
     loadComponent: () => import('./ui/list.page').then((m) => m.RelatorioPlanoEntregaLacunaListPage),
     data: {
-      title: 'Lacunas de Planos de Entrega',
-      breadcrumb: 'Lacunas de Planos de Entrega',
+      title: 'Lacunas de Planos de Ação Setoriais',
+      breadcrumb: 'Lacunas de Planos de Ação Setoriais',
     },
   },
 ];

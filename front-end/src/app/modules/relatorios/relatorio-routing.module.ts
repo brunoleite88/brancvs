@@ -34,7 +34,7 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Relatório de Planos de Trabalho",
+      title: "Relatório de Planos de Ação Individuais",
       permission: "MOD_RELATORIO_PT"
     }
   },
@@ -45,9 +45,9 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Lacunas de Planos de Trabalho",
+      title: "Lacunas de Planos de Ação Individuais",
       permission: "MOD_RELATORIO_PT",
-      breadcrumb: "Lacunas de Planos de Trabalho",
+      breadcrumb: "Lacunas de Planos de Ação Individuais",
       modal: false
     }
   },
@@ -58,7 +58,7 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Relatórios de Planos de Trabalho",
+      title: "Relatórios de Planos de Ação Individuais",
       permission: "MOD_RELATORIO_PT"
     }
   },
@@ -69,8 +69,8 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Relatório de Planos de Entrega",
-      breadcrumb: "Planos de Entrega Cadastrados",
+      title: "Relatório de Planos de Ação Setoriais",
+      breadcrumb: "Planos de Ação Setoriais Cadastrados",
     }
   },
   {
@@ -100,7 +100,7 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Planos de Entrega",
+      title: "Planos de Ação Setoriais",
     }
   },
   {

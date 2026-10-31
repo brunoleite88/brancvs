@@ -1,7 +1,7 @@
 <div class="br-mainpanel">
   <app-breadcrumb />
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Lacunas de Planos de Trabalho</h2>
+    <h2 class="mb-0">Lacunas de Planos de Ação Individuais</h2>
   </div>
 
   <form [formGroup]="filters" class="mb-3">
@@ -66,7 +66,7 @@
           </div>
           <div class="col-12 col-sm-6 col-md-2">
             <div class="br-input w-100">
-              <label>Matrícula Siape</label>
+              <label>Matrícula</label>
               <input type="text" formControlName="matricula" />
             </div>
           </div>
@@ -132,7 +132,7 @@
         <thead>
           <tr>
             <th scope="col">Agente Público</th>
-            <th scope="col">Matrícula Siape</th>
+            <th scope="col">Matrícula</th>
             <th scope="col">Lotação</th>
             <th scope="col" [attr.title]="lacunaHint">
               Lacuna
@@ -150,7 +150,7 @@
                 row.nome_exibicao || row.nome
               }}</a>
             </td>
-            <td data-th="Matrícula Siape">{{ row.matricula || '-' }}</td>
+            <td data-th="Matrícula">{{ row.matricula || '-' }}</td>
             <td data-th="Lotação">{{ row.unidadeHierarquia || row.unidadeNome || '-' }}</td>
             <td data-th="Lacuna">{{ row.lacuna }}</td>
             <td data-th="Quantidade de Dias" class="text-center">{{ row.quantidade_dias }}</td>

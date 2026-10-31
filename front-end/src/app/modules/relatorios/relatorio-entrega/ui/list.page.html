@@ -109,7 +109,7 @@
             <th scope="col" rowspan="2" class="sortable text-center" (click)="onSort('situacao')">
               Situação <i [class]="sortIcon('situacao')"></i>
             </th>
-            <th scope="col" colspan="3" class="text-center group-header">Plano de Entregas</th>
+            <th scope="col" colspan="3" class="text-center group-header">Plano de Ação Setorial</th>
             <th scope="col" colspan="2" class="text-center group-header">Contribuição</th>
           </tr>
           <tr>
@@ -143,18 +143,18 @@
                 class="bi bi-info-circle text-muted ms-1"
                 role="img"
                 (click)="$event.stopPropagation()"
-                title="quantidade de participantes do PGD que contribuíram para a entrega, contabilizado uma única vez por entrega, independentemente da quantidade de Planos de Trabalho por meio dos quais tenha contribuído."
-                aria-label="quantidade de participantes do PGD que contribuíram para a entrega, contabilizado uma única vez por entrega, independentemente da quantidade de Planos de Trabalho por meio dos quais tenha contribuído."></i>
+                title="quantidade de agentes públicos que contribuíram para a entrega, contabilizado uma única vez por entrega, independentemente da quantidade de Planos de Ação Individuais por meio dos quais tenha contribuído."
+                aria-label="quantidade de agentes públicos que contribuíram para a entrega, contabilizado uma única vez por entrega, independentemente da quantidade de Planos de Ação Individuais por meio dos quais tenha contribuído."></i>
               <i [class]="sortIcon('qtd_participantes')"></i>
             </th>
             <th scope="col" class="sortable sub-header" (click)="onSort('qtd_planos_trabalho')">
-              Planos de Trabalho<br />vinculados
+              Planos Individuais<br />vinculados
               <i
                 class="bi bi-info-circle text-muted ms-1"
                 role="img"
                 (click)="$event.stopPropagation()"
-                title="quantidade de Planos de Trabalho em que houve contribuição para a entrega, contabilizado uma única vez por entrega."
-                aria-label="quantidade de Planos de Trabalho em que houve contribuição para a entrega, contabilizado uma única vez por entrega."></i>
+                title="quantidade de Planos de Ação Individuais em que houve contribuição para a entrega, contabilizado uma única vez por entrega."
+                aria-label="quantidade de Planos de Ação Individuais em que houve contribuição para a entrega, contabilizado uma única vez por entrega."></i>
               <i [class]="sortIcon('qtd_planos_trabalho')"></i>
             </th>
           </tr>
@@ -188,7 +188,7 @@
               0
               }
             </td>
-            <td data-th="Planos de Trabalho vinculados" class="text-center">
+            <td data-th="Planos Individuais vinculados" class="text-center">
               @if (row.qtd_planos_trabalho > 0) {
               <a class="link" role="button" (click)="abrirPlanosTrabalho(row)">{{ row.qtd_planos_trabalho }}</a>
               } @else {

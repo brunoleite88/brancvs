@@ -30,12 +30,12 @@ export const RELATORIO_GERACAO_GRUPO = {
 export type RelatorioGeracaoGrupo = (typeof RELATORIO_GERACAO_GRUPO)[keyof typeof RELATORIO_GERACAO_GRUPO];
 
 export const RELATORIO_GERACAO_GRUPO_LABEL: Record<RelatorioGeracaoGrupo, string> = {
-  [RELATORIO_GERACAO_GRUPO.PLANOS_TRABALHO]: 'Planos de Trabalho',
-  [RELATORIO_GERACAO_GRUPO.PLANOS_ENTREGA]: 'Planos de Entrega',
+  [RELATORIO_GERACAO_GRUPO.PLANOS_TRABALHO]: 'Planos de Ação Individuais',
+  [RELATORIO_GERACAO_GRUPO.PLANOS_ENTREGA]: 'Planos de Ação Setoriais',
   [RELATORIO_GERACAO_GRUPO.AGENTES]: 'Agentes Públicos',
   [RELATORIO_GERACAO_GRUPO.UNIDADES]: 'Unidades',
   [RELATORIO_GERACAO_GRUPO.ENTREGAS]: 'Entregas',
-  [RELATORIO_GERACAO_GRUPO.LACUNAS_PLANO_TRABALHO]: 'Lacunas de Planos de Trabalho',
+  [RELATORIO_GERACAO_GRUPO.LACUNAS_PLANO_TRABALHO]: 'Lacunas de Planos de Ação Individuais',
 };
 
 export const RELATORIO_GERACAO_TIPO_GRUPO: Record<RelatorioGeracaoTipo, RelatorioGeracaoGrupo> = {

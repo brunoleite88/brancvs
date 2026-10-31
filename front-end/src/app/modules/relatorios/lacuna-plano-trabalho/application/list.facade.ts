@@ -42,7 +42,7 @@ export class LacunaPlanoTrabalhoListFacade {
           this.lastPage.set(result.lastPage);
         },
         error: () => {
-          this.error.set('Não foi possível carregar as lacunas de Planos de Trabalho. Tente novamente.');
+          this.error.set('Não foi possível carregar as lacunas de Planos de Ação Individuais. Tente novamente.');
         },
       });
   }

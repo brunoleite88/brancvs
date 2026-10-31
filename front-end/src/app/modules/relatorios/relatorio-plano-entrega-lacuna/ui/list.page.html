@@ -2,7 +2,7 @@
   <app-breadcrumb />
   <form [formGroup]="filters">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Lacunas de Planos de Entrega</h2>
+    <h2 class="mb-0">Lacunas de Planos de Ação Setoriais</h2>
     <br-button
       emphasis="secondary"
       type="button"
@@ -96,7 +96,7 @@
                 (blur)="onColumnFilterBlur()" />
             </th>
             <th scope="col">
-              <div>UORG</div>
+              <div>Cód. Unidade</div>
               <input
                 type="text"
                 class="form-control form-control-sm mt-1"
@@ -136,7 +136,7 @@
           <tr>
             <td data-th="Sigla">{{ row.unidadeHierarquia || '-' }}</td>
             <td data-th="Unidade">{{ row.nome }}</td>
-            <td data-th="UORG">{{ row.codigo }}</td>
+            <td data-th="Cód. Unidade">{{ row.codigo }}</td>
             <td
               data-th="Lacuna"
               data-bs-toggle="tooltip"

@@ -79,11 +79,11 @@
             </ng-template>
         </column>
 
-        <column title="Uorg"
+        <column title="Cód. Unidade"
                 [template]="columnUorg"
                 [titleTemplate]="titleUorg"
                 [verticalAlign]="'bottom'"
-                [width]="60"
+                [width]="80"
         >
             <ng-template let-header="header" #titleUorg>
                 <input-text 
@@ -142,13 +142,13 @@
             </ng-template>
         </column>
 
-        <column title="PE Vigente"
+        <column title="Plano Setorial Vigente"
             [template]="columnPEVigente"
             [titleTemplate]="titlePEVigente"
             [verticalAlign]="'bottom'"
             [width]="200"
             [align]="'center'"
-            [titleHint]="'Considera-se apenas os Planos de Entregas Em execução'"
+            [titleHint]="'Considera-se apenas os Planos de Ação Setoriais ativos ou em execução'"
         >
             <ng-template let-header="header" #titlePEVigente>
                 <input-text 

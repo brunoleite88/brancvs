@@ -544,7 +544,7 @@ export class AppComponent implements IAppComponent {
         route: ['relatorios', 'indicadores', 'equipes'],
       },
       INDICADORES_GESTAO: {
-        name: "Gestão do PGD",
+        name: "Gestão Estratégica",
         // permition: 'MOD_IND_GESTAO',
         icon: this.entity.getIcon('Unidade'),
         route: ['relatorios', 'indicadores', 'gestao'],
