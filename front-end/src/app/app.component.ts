@@ -258,7 +258,7 @@ export class AppComponent implements IAppComponent {
         icon: this.entity.getIcon('Planejamento'),
       },
       PLANOS_ENTREGAS: {
-        name: this.lex.translate("Planejamento"),
+        name: this.lex.translate("Elaboração"),
         permition: 'MOD_PENT',
         route: ['gestao', 'plano-entrega'],
         icon: iconMenuPlanosEntregas,
@@ -578,7 +578,7 @@ export class AppComponent implements IAppComponent {
         ],
       },
       {
-        name: this.lex.translate("Institucional"),
+        name: this.lex.translate("Planejamento"),
         permition: "MENU_GESTAO_ACESSO",
         id: "navbarDropdownGestaoPlanejamento",
         menu: [
