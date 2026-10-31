@@ -834,9 +834,9 @@ export class LookupService implements IIndexable {
  // "EMOJI" | "SELECT" | "MULTI_SELECT" | "TEXT" | "TEXT_AREA" | "TIMER" | "DATE_TIME" | "SWITCH" | "NUMBER" | "RATE" | "RADIO" | "CHECK";
 
   public THEMES: LookupItem[] = [
-    { key: 'light', value: "Branco (light)" },
-    { key: 'blue', value: "Azul (oxford)" },
-    { key: 'dark', value: "Preto (dark)" }
+    { key: 'blue', value: "Azul Institucional (PGE-MA)" },
+    { key: 'light', value: "Claro (Light)" },
+    { key: 'dark', value: "Escuro (Dark)" }
   ];
 
   public TIPO_INTEGRACAO: LookupItem[] = [

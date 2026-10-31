@@ -15,49 +15,49 @@ class NotificacoesService
         /* Foi necessário inicializar a variável no construtor devido a um BUG do php */
         $this->notificacoes = [
             "DMD_DISTRIBUICAO" => [
-                "descricao" => "Notificação de distribuição da atividade",
+                "descricao" => "Notificação de distribuição do registro de execução",
                 "destinatarios" => (fn(&$params) => [$params["atividade"]->usuario]),
                 "unidade" => (fn(&$params) => $params["atividade"]->unidade),
                 "validacao" => (fn(&$params) => !empty($params["atividade"]->usuario_id)),
-                "dataset" => [["field" => "atividade_numero", "label" => "Número da atividade"]],
+                "dataset" => [["field" => "atividade_numero", "label" => "Número do registro"]],
                 "datasource" => (fn(&$params) => ["atividade_numero" => $params["atividade"]->numero]),
-                "template" => "Uma nova atividade foi atribuída a você, acesse o PETRVS para visualizá-la! (ID: #{{atividade_numero}})"
+                "template" => "Um novo registro de execução foi atribuído a você, acesse o Sistema PGE-MA para visualizá-lo! (ID: #{{atividade_numero}})"
             ],
             "DMD_MODIFICACAO" => [
-                "descricao" => "Notificação de modificações na atividade",
+                "descricao" => "Notificação de modificações no registro de execução",
                 "destinatarios" => (fn(&$params) => [$params["atividade"]->usuario, $params["atividade"]->atividadente]),
                 "unidade" => (fn(&$params) => $params["atividade"]->unidade),
                 "validacao" => (fn(&$params) => true),
-                "dataset" => [["field" => "atividade_numero", "label" => "Número da atividade"], ["field" => "atividade_responsavel", "label" => "Nome do responsável pela atividade"]],
+                "dataset" => [["field" => "atividade_numero", "label" => "Número do registro"], ["field" => "atividade_responsavel", "label" => "Nome do responsável"]],
                 "datasource" => (fn(&$params) => ["atividade_numero" => $params["atividade"]->numero, "atividade_responsavel" => $params["atividade"]->usuario->nome]),
-                "template" => "A atividade #{{atividade_numero}}, atribuída à {{atividade_responsavel}}, foi atualizada, acesse o PETRVS para visualizá-la!"
+                "template" => "O registro de execução #{{atividade_numero}}, atribuído à {{atividade_responsavel}}, foi atualizado, acesse o Sistema PGE-MA para visualizá-lo!"
             ],         
             "DMD_COMENTARIO" => [
-                "descricao" => "Notificação de comentário na atividade",
+                "descricao" => "Notificação de comentário no registro de execução",
                 "destinatarios" => (fn(&$params) => [$params["atividade"]->usuario, $params["atividade"]->atividadente]),
                 "unidade" => (fn(&$params) => $params["atividade"]->unidade),
                 "validacao" => (fn(&$params) => true),
-                "dataset" => [["field" => "atividade_numero", "label" => "Número da atividade"], ["field" => "atividade_responsavel", "label" => "Nome do responsável pela atividade"]],
+                "dataset" => [["field" => "atividade_numero", "label" => "Número do registro"], ["field" => "atividade_responsavel", "label" => "Nome do responsável"]],
                 "datasource" => (fn(&$params) => ["atividade_numero" => $params["atividade"]->numero, "atividade_responsavel" => $params["atividade"]->usuario->nome]),
-                "template" => "Foi inserido um comentário na atividade #{{atividade_numero}}, atribuída a {{atividade_responsavel}}, acesse o PETRVS para visualizá-la!"
+                "template" => "Foi inserido um comentário no registro de execução #{{atividade_numero}}, atribuído a {{atividade_responsavel}}, acesse o Sistema PGE-MA para visualizá-lo!"
             ],         
             "DMD_CONCLUSAO" => [
-                "descricao" => "Notificação de conclusão da atividade",
+                "descricao" => "Notificação de conclusão do registro de execução",
                 "destinatarios" => (fn(&$params) => [$params["atividade"]->atividadente]),
                 "unidade" => (fn(&$params) => $params["atividade"]->unidade),
                 "validacao" => (fn(&$params) => true),
-                "dataset" => [["field" => "atividade_numero", "label" => "Número da atividade"], ["field" => "atividade_responsavel", "label" => "Nome do responsável pela atividade"]],
+                "dataset" => [["field" => "atividade_numero", "label" => "Número do registro"], ["field" => "atividade_responsavel", "label" => "Nome do responsável"]],
                 "datasource" => (fn(&$params) => ["atividade_numero" => $params["atividade"]->numero, "atividade_responsavel" => $params["atividade"]->usuario->nome]),
-                "template" => "A atividade #{{atividade_numero}}, atribuída à\ao {{atividade_responsavel}}, foi concluída, acesse o PETRVS para visualizá-la!"
+                "template" => "O registro de execução #{{atividade_numero}}, atribuído à\ao {{atividade_responsavel}}, foi concluído, acesse o Sistema PGE-MA para visualizá-lo!"
             ],         
             "DMD_AVALIACAO" => [
-                "descricao" => "Notificação de avaliação da atividade",
+                "descricao" => "Notificação de avaliação do registro de execução",
                 "destinatarios" => (fn(&$params) => [$params["atividade"]->usuario]),
                 "unidade" => (fn(&$params) => $params["atividade"]->unidade),
                 "validacao" => (fn(&$params) => true),
-                "dataset" => [["field" => "atividade_numero", "label" => "Número da atividade"]],
+                "dataset" => [["field" => "atividade_numero", "label" => "Número do registro"]],
                 "datasource" => (fn(&$params) => ["atividade_numero" => $params["atividade"]->numero]),
-                "template" => "Sua atividade #{{atividade_numero}} foi avaliada, acesse o PETRVS para avaliá-la!"
+                "template" => "Seu registro de execução #{{atividade_numero}} foi avaliado, acesse o Sistema PGE-MA para acompanhá-lo!"
             ],
             "PRG_PART_HABILITACAO" => [
                 "descricao" => "Notificação de habilitação do participante",
@@ -66,16 +66,16 @@ class NotificacoesService
                 "validacao" => (fn(&$params) => true),
                 "dataset" => [["field" => "programa_nome", "label" => "Nome do Programa"]],
                 "datasource" => (fn(&$params) => ["programa_nome" => $params["programa"]->nome]),
-                "template" => "Você foi habilitado no programa {{programa_nome}}.  Acesse o PETRVS para continuar o seu trabalho!"
+                "template" => "Você foi habilitado no programa {{programa_nome}}. Acesse o Sistema PGE-MA para continuar o seu trabalho!"
             ],
             "PENT_ALTERACAO" => [
-                "descricao" => "Notificação de alteração no plano de entregas",
+                "descricao" => "Notificação de alteração no plano de ação setorial",
                 "destinatarios" => (fn(&$params) => $params["destinatarios"]),
                 "unidade" => (fn(&$params) => $params["plano_entrega"]->unidade),
                 "validacao" => (fn(&$params) => true),
-                "dataset" => [["field" => "plano_numero", "label" => "Número do plano de entregas"],["field" => "servidor_nome", "label" => "Nome do Servidor"],["field" => "servidor_matricula", "label" => "Matrícula do Servidor"]],
+                "dataset" => [["field" => "plano_numero", "label" => "Número do plano de ação setorial"],["field" => "servidor_nome", "label" => "Nome do Agente Público"],["field" => "servidor_matricula", "label" => "Matrícula do Agente Público"]],
                 "datasource" => (fn(&$params) => ["plano_numero" => $params["plano_entrega"]->numero, "servidor_nome" => $params["servidor"]->nome, "servidor_matricula" => $params["servidor"]->matricula]),
-                "template" => "O plano de entregas #{{ plano_numero }} foi alterado nesta data pelo servidor {{ servidor_nome }}, matricula {{ servidor_matricula }}."
+                "template" => "O plano de ação setorial #{{ plano_numero }} foi alterado nesta data pelo agente público {{ servidor_nome }}, matrícula {{ servidor_matricula }}."
             ]
         ];
     }

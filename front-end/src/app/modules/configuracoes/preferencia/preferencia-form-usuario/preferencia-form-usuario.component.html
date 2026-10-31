@@ -9,14 +9,10 @@
     <editable-form [form]="form!" [noButtons]="isPanel ? 'true' : undefined" (submit)="onSaveData()" (cancel)="onCancel()">
         <div class="row">
             <div *ngIf="!etiquetas" class="col-md-6">
-                <separator transparent [title]="'Preferências de exibição ' + lex.translate('usuário')">
+                <separator transparent title="Tema e Aparência">
                     <div class="row">
-                        <input-switch [size]="12" scale="small" labelPosition="right" [label]="'Ocultar menu lateral do sei no Controle de ' + lex.translate('Processo')" controlName="ocultar_menu_sei"></input-switch>
-                        <input-switch [size]="12" scale="small" labelPosition="right" label="Ocultar o container Petrvs" controlName="ocultar_container_petrvs"></input-switch>
+                        <input-select [size]="12" label="Tema da Interface" icon="bi bi-palette" controlName="theme" [control]="form!.controls.theme" [items]="lookup.THEMES" (change)="onThemeChange($event)"></input-select>
                     </div>
-                </separator>
-                <separator transparent title="Tema">
-                    <input-select controlName="theme" [items]="lookup.THEMES"></input-select>
                 </separator>
             </div>
             <div [class]="etiquetas ? 'col-md-12' : 'col-md-6'">

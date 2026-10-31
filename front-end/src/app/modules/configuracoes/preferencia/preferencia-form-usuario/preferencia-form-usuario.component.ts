@@ -46,7 +46,7 @@ export class PreferenciaFormUsuarioComponent extends PageFormBase<Usuario, Usuar
       etiqueta_texto: {default: ""},
       etiqueta_icone: {default: null},
       etiqueta_cor: {default: null},
-      theme: {default: null},
+      theme: {default: 'blue'},
       ocultar_menu_sei: {default: true},
       ocultar_container_petrvs: {default: false},
     }, this.cdRef, this.validate);
@@ -61,6 +61,13 @@ export class PreferenciaFormUsuarioComponent extends PageFormBase<Usuario, Usuar
     return result;
   }
 
+  public onThemeChange(event?: any) {
+    const selectedTheme = this.form.controls.theme.value || 'blue';
+    document.getElementsByTagName("html")[0].setAttribute("data-bs-theme", selectedTheme);
+    const themeLink = document.getElementById("theme-css") as HTMLLinkElement;
+    if (themeLink) themeLink.href = selectedTheme + ".css";
+  }
+
   ngOnInit(): void {
     super.ngOnInit();
     if(this.urlParams!.get("id")) {
@@ -73,6 +80,9 @@ export class PreferenciaFormUsuarioComponent extends PageFormBase<Usuario, Usuar
     let formValue = Object.assign({}, form.value);
     formValue = this.util.fillForm(formValue, entity.config || {});
     formValue = this.util.fillForm(formValue, entity.notificacoes || {});
+    if (!formValue.theme) {
+      formValue.theme = 'blue';
+    }
     form.patchValue(formValue);
   }
 
@@ -90,10 +100,14 @@ export class PreferenciaFormUsuarioComponent extends PageFormBase<Usuario, Usuar
     return new Promise<boolean>((resolve, reject) => {
       this.notificacoes?.saveData();
       let config = this.util.fill(new UsuarioConfig(), this.form!.value);
+      config.theme = this.form.controls.theme.value || 'blue';
       Promise.all([
         this.auth.updateUsuarioConfig(this.usuarioId!, config),
         this.auth.updateUsuarioNotificacoes(this.usuarioId!, this.entity!.notificacoes)
       ]).then(results => {
+        document.getElementsByTagName("html")[0].setAttribute("data-bs-theme", config.theme);
+        const themeLink = document.getElementById("theme-css") as HTMLLinkElement;
+        if (themeLink) themeLink.href = config.theme + ".css";
         if(this.usuarioId == this.auth.usuario!.id) {
           this.auth.authSession().then(result => resolve(!this.isPanel)).catch(reject);
         } else {
