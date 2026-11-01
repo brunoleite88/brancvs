@@ -50,14 +50,15 @@ Para ter **exatamente o mesmo estado** desta máquina (com todas as 42 unidades 
 # Na raiz do projeto ou dentro de back-end:
 gunzip -c back-end/database/dumps/pge_ma_complete_setup.sql.gz | mysql -u root -p
 ```
-*Pronto! Os bancos `petrvs` e `tenantpgema` são criados e totalmente povoados de forma instantânea.*
+*Pronto! Os bancos `petrvs`, `tenantpgema` e `petrvs_logs` são criados e totalmente povoados de forma instantânea.*
 
 ---
 
 #### Opção B (Inicialização Manual via Migrations e Seeders):
 ```bash
-# 3.1 Migrar banco central
+# 3.1 Migrar banco central e logs
 php artisan migrate --force
+php artisan migrate --path=database/migrations/log
 
 # 3.2 Criar e configurar o tenant PGE-MA (via Tinker)
 php artisan tinker
