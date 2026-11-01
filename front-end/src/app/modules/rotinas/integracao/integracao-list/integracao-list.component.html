@@ -11,7 +11,7 @@
         <div class="row">
             <separator title="Considerar integrações com a atualização solicitada: ">
                 <input-switch scale="small" labelPosition="right" [size]="4" label="de Unidades" controlName="atualizar_unidades" [control]="filter!.controls.atualizar_unidades" ></input-switch>
-                <input-switch scale="small" labelPosition="right" [size]="4" label="de Servidores" controlName="atualizar_servidores" [control]="filter!.controls.atualizar_servidores" ></input-switch>
+                <input-switch scale="small" labelPosition="right" [size]="4" label="de Agentes Públicos" controlName="atualizar_servidores" [control]="filter!.controls.atualizar_servidores" ></input-switch>
                 <input-switch scale="small" labelPosition="right" [size]="4" label="de Gestores" controlName="atualizar_gestores" [control]="filter!.controls.atualizar_gestores" ></input-switch>
             </separator>
         </div>
@@ -38,7 +38,7 @@
         </column>
         <column [titleTemplate]="titleServidores" [template]="columnServidores">
             <ng-template let-header="header" #titleServidores>
-                Solic. alteração<br>de Servidores
+                Solic. alteração<br>de Agentes Públicos
             </ng-template>
             <ng-template let-row="row" #columnServidores>
                 <span>{{ util.getBooleanFormatted(row.atualizar_servidores) }}</span>

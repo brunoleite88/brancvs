@@ -691,14 +691,14 @@ export class AppComponent implements IAppComponent {
         key: "GESTAO",
         permition: "CTXT_GEST",
         icon: "bi bi-clipboard-data",
-        name: this.lex.translate("PGD"),
+        name: "Gestão Estratégica",
         menu: this.moduloGestao,
       },
       {
         key: "EXECUCAO",
         permition: "CTXT_EXEC",
         icon: "bi bi-clipboard-data",
-        name: this.lex.translate("PGD"),
+        name: "Execução",
         menu: this.moduloExecucao,
       },
       {

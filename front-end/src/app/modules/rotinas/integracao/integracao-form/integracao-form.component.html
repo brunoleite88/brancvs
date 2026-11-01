@@ -8,8 +8,8 @@
         </div>
 
         <div class="alert alert-info">
-            <p>Esta rotina é responsável por integrar as informações de unidades, servidores e gestores do SIAPE com o sistema.</p>
-            <p><strong>A rotina somente fará o processamento dos dados já baixados. Caso queira atualizar os dados, faça isso pelo Agendador no Painel Saas.</strong></p>
+            <p>Esta rotina é responsável por integrar e sincronizar as informações de unidades, agentes públicos e gestores com o sistema da PGE-MA.</p>
+            <p><strong>A rotina realiza o processamento dos dados estruturados para carga ou importados dos sistemas corporativos.</strong></p>
         </div>
 
         <div class="row" *ngIf="formDisabled">
@@ -27,7 +27,7 @@
                     <span *ngFor="let falha of falhas_unidades; index as i">{{ '[' + (i+1) + '] ' + falha }}</span>
                 </div>
             </separator>
-            <separator title="SERVIDORES" [collapse]="'collapse'">
+            <separator title="AGENTES PÚBLICOS" [collapse]="'collapse'">
                 <div class="row">
                     <span><strong>Resultado</strong></span>
                     <span>{{ resultado_servidores }}</span>
@@ -60,7 +60,7 @@
             <div class="row">
                 <separator title="Deve ser atualizado pela Rotina de Integração:">
                     <input-switch labelPosition="right" [size]="4" label="Unidades" controlName="atualizar_unidades" [control]="form!.controls.atualizar_unidades" ></input-switch>
-                    <input-switch labelPosition="right" [size]="4" label="Servidores" controlName="atualizar_servidores" [control]="form!.controls.atualizar_servidores" ></input-switch>
+                    <input-switch labelPosition="right" [size]="4" label="Agentes Públicos" controlName="atualizar_servidores" [control]="form!.controls.atualizar_servidores" ></input-switch>
                     <input-switch [disabled]="!this.util.isDeveloper() ? 'disabled' : undefined" labelPosition="right" [size]="4" label="Gestores" controlName="atualizar_gestores" [control]="form!.controls.atualizar_gestores" ></input-switch>
                 </separator>
             </div>
