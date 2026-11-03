@@ -185,11 +185,28 @@ export class AppShellV2Component implements OnInit {
     let items: any[] = [];
     if (hasGestao)       items = [...(app.moduloGestao   || [])];
     else if (hasExecucao) items = [...(app.moduloExecucao || [])];
-    if (this.auth.hasPermissionTo('CTXT_DEV')) {
-      const devItems = (app.moduloDev || []).filter(
-        (item: { route?: string[] }) => !this.isImpersonateMenuItem(item) || this.auth.isAdmin()
-      );
-      items = [...items, ...devItems];
+    if (this.auth.hasPermissionTo('CTXT_DEV') || this.auth.hasPermissionTo('MOD_DEV')) {
+      const devSubmenu: any[] = [];
+      (app.moduloDev || []).forEach((entry: any) => {
+        if (entry.menu && Array.isArray(entry.menu)) {
+          entry.menu.forEach((sub: any) => {
+            if (sub && sub !== '-') devSubmenu.push(sub);
+          });
+        } else if (entry.route) {
+          if (!this.isImpersonateMenuItem(entry) || this.auth.isAdmin()) {
+            devSubmenu.push(entry);
+          }
+        }
+      });
+
+      if (devSubmenu.length > 0) {
+        items.push({
+          name: 'Módulo Desenvolvedor',
+          icon: 'bi bi-code-slash',
+          permition: 'CTXT_DEV',
+          menu: devSubmenu,
+        });
+      }
     }
     return items;
   }
