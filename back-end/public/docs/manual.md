@@ -174,53 +174,147 @@ Localizado na porção central da tela inicial, a **Agenda de Marcos e Prazos** 
 
 ## 4. MÓDULO DE PLANEJAMENTO
 
-Acessado pelo menu lateral em **Gestão > Planejamento**, reúne os alicerces estruturais e organizacionais da PGE-MA.
+Acessado pelo menu lateral em **Gestão > Planejamento** (ou através de **Configurações** para unidades e usuários), reúne os alicerces estruturais, estratégicos e organizacionais da PGE-MA.
 
 ![Menu do Módulo de Planejamento da PGE-MA](prints/03_planejamento_menu.png)
 
+---
+
 ### 4.1. Planejamentos Institucionais (Ciclo 2026–2030)
-Define a visão de futuro, missão institucional, eixos transversais e resultados corporativos globais da advocacia pública maranhense para o quinquênio 2026–2030.
+Define a visão de futuro, a missão institucional, a matriz SWOT/FOFA, os eixos temáticos e os objetivos estratégicos da advocacia pública estadual para o ciclo plurianual da PGE-MA.
+
+#### 4.1.1. Visão em Lista dos Planejamentos Institucionais
+Ao acessar **Gestão > Planejamento**, o sistema apresenta a grade com os planejamentos cadastrados:
 
 ![Lista de Planejamentos Institucionais](prints/09_planejamento_institucional_lista.png)
 
-Ao selecionar o planejamento para consulta ou edição, o gestor tem acesso ao formulário contendo a fundamentação, vigência e metas plurianuais aprovadas pelo Procurador-Geral do Estado:
+Na listagem, o gestor visualiza:
+* **Nome:** *Plano Estratégico Institucional PGE-MA (Ciclo 2026–2030)*;
+* **Período de Vigência:** Data de início (`01/01/2027`) e término planejado (`31/12/2030`);
+* **Unidade Responsável:** *Procuradoria Geral do Estado do Maranhão (Sede)*;
+* **Contador de Objetivos Vinculados:** Badge indicando a existência de **88 objetivos e metas (KRs)** cadastrados;
+* **Ações:** Botão de edição direta (ícone de lápis) e menu de opções com acesso à consulta de informações e trilha de auditoria.
 
-![Formulário de Planejamento Institucional](prints/10_planejamento_institucional_form.png)
+#### 4.1.2. Formulário de Planejamento Institucional (Aba Dados)
+Ao clicar no botão de edição ou em um planejamento, o sistema abre o formulário completo de parametrização:
+
+![Formulário de Planejamento Institucional - Aba Dados](prints/10_planejamento_institucional_form.png)
+
+Campos estruturantes da aba **Dados**:
+* **Nome do Planejamento:** Identificação oficial do ciclo estratégico;
+* **Unidade Gestora:** Vínculo institucional (`PGE-001 - Sede`);
+* **Janela Temporal:** Datas formais de início e conclusão;
+* **Missão Institucional:** *"Promover a defesa judicial e a consultoria jurídica do Estado do Maranhão, orientando a legalidade dos atos administrativos e defendendo o interesse público com integridade e eficiência."*
+* **Visão de Futuro:** *"Ser uma instituição de excelência e referência nacional em advocacia pública, inovação e sustentabilidade institucional até 2030."*
+* **Resultados Institucionais e Valores:** Diretrizes éticas e compromissos públicos que norteiam a atuação funcional de todos os membros e servidores.
+
+#### 4.1.3. Matriz de Diagnóstico Estratégico (Aba Análise SWOT / FOFA)
+Na aba **"Análise SWOT / FOFA"**, o planejamento consolida o diagnóstico estratégico de ambiente interno e externo da PGE-MA:
+
+![Matriz de Análise SWOT / FOFA do Planejamento Institucional](prints/10b_planejamento_institucional_swot.png)
+
+Os quatro quadrantes compreendem:
+1. **Forças (Ambiente Interno - Verde):** Corpo funcional altamente qualificado de Procuradores do Estado e assessores jurídicos; estrutura especializada por matéria (Fiscal, Judicial, Administrativo, Patrimônio e Meio Ambiente); atuação proativa na recuperação da Dívida Ativa; e Escola Superior da Advocacia Pública (ESAP) estruturada com Plano Anual de Capacitação (PAC).
+2. **Oportunidades (Ambiente Externo - Azul):** Modernização tecnológica e fortalecimento institucional via financiamento BID / Profisco III (10 artefatos estruturantes); integração de dados em tempo real com SEFAZ, TJMA e TCE-MA; e adoção de Inteligência Artificial generativa e jurimetria (Projeto MinutIA) para saneamento de demandas repetitivas.
+3. **Fraquezas (Ambiente Interno - Amarelo):** Estoque histórico de precatórios e requisições de pequeno valor (RPVs) demandando saneamento e compensação; gargalos no fluxo de subsídios instrutórios entre secretarias e a PGE; e necessidade de renovação contínua do parque tecnológico descentralizado.
+4. **Ameaças (Ambiente Externo - Vermelho):** Risco de bloqueios judiciais imediatos (SISBAJUD) e pagamentos duplicados de RPVs; e instabilidades de plataformas processuais externas do Poder Judiciário (PJe e portais).
+
+#### 4.1.4. Árvore de Elementos e Objetivos Estratégicos (Aba Elementos)
+Na aba **"Elementos"**, o gestor tem acesso à estrutura hierárquica completa dos objetivos e metas vinculados ao plano, categorizados pelos grandes eixos estratégicos:
+
+![Árvore de Elementos e Objetivos Estratégicos por Eixo](prints/10c_planejamento_institucional_elementos.png)
+
+Principais Eixos e Objetivos parametrizados:
+* **Eixo Estratégico 1 – Incrementar a arrecadação e otimizar a cobrança da dívida ativa:**
+  * *O1:* Reduzir o montante de precatórios e requisições de pequeno valor;
+  * *O2:* Aumentar a arrecadação da dívida ativa;
+  * *O3:* Aproximar a PGE do contribuinte e incentivar a conformidade fiscal;
+  * *O4:* Fortalecer a Identificação e Recuperação de Ativos Fiscais;
+  * *O5:* Ampliar a utilização de ferramentas de inteligência fiscal.
+* **Eixo Estratégico 2 – Eficiência Administrativa e Redução de Custos Operacionais:**
+  * *O1:* Reduzir custos operacionais;
+  * *O2:* Otimizar a gestão de compras, contratos e pessoas.
+* **Eixo Estratégico 3 – Incrementar e executar integralmente o orçamento institucional:**
+  * *O1:* Ampliar fontes de receita e otimizar a execução orçamentária.
+* **Eixo Estratégico 4 – Melhorar a experiência do usuário dos serviços da PGE:**
+  * *O1:* Qualificar o atendimento aos órgãos estaduais e cidadãos.
+* **Eixo Estratégico 5 – Alcançar maior eficiência e resolutividade nos processos internos e externos.**
+
+---
 
 ### 4.2. Regramentos Instituidores e Programas Contínuos
-Este submódulo institucionaliza e acompanha a conformidade de **Programas Contínuos** da PGE-MA.
-* **Exemplo de Aplicação:** Cadastro do *Programa Prazo Zero Perdido*, centralizando as diretrizes de governança de prazos processuais judiciais, matriz de responsabilidades e histórico de portarias regulamentares.
+Este submódulo institucionaliza e acompanha a conformidade de **Programas Contínuos** transversais da PGE-MA.
+* **Exemplo de Aplicação:** Cadastro do *Programa Prazo Zero Perdido*, centralizando as diretrizes de governança de prazos processuais judiciais, matriz de responsabilidades, portarias regulamentares e eventos de capacitação contínua.
+
+---
 
 ### 4.3. Unidades Organizacionais (42 Setores)
-Permite a manutenção e consulta da estrutura organizacional de todas as Procuradorias Especializadas, Regionais, Assessorias, Centro de Estudos e Gabinete.
+Permite a manutenção, navegação e consulta da estrutura organizacional de todas as Procuradorias Especializadas, Regionais, Assessorias, Centro de Estudos e Gabinete.
+
+#### 4.3.1. Listagem Geral de Unidades Organizacionais
+Localizada em **Configurações > Unidades**, exibe a relação completa das 42 unidades ativas na PGE-MA:
 
 ![Lista de Unidades Organizacionais da PGE-MA](prints/11_planejamento_unidades_lista.png)
 
-Ao acessar o formulário de uma unidade, é possível parametrizar sua sigla oficial, denominação, subordinação hierárquica e atributos operacionais:
+A tabela apresenta:
+* **Sigla:** Identificação da unidade (ex.: `SCCF`, `NIRF`, `PCF`, `PA`, `SGRH`, `SCC`, `PT`, `SGA`, `UGAM`, `PRI`, `PGAAJ`);
+* **Nome Institucional:** Denominação completa (ex.: *Procuradoria da Dívida Ativa*, *Procuradoria do Contencioso Fiscal*, *Procuradoria Administrativa*);
+* **Código Funcional:** Código padronizado (`PGE-017`, `PGE-012`, `PGE-016`...);
+* **Cidade:** Município de instalação (São Luís, Imperatriz, Caxias, etc.);
+* **Situação:** Indicadores de regularidade e conformidade funcional.
+
+#### 4.3.2. Formulário de Configuração e Edição de Unidade
+Ao selecionar uma unidade para edição (exemplo: `PDA - Procuradoria da Dívida Ativa`), o formulário permite parametrizar seus dados essenciais:
 
 ![Formulário de Edição e Configuração de Unidade](prints/12_form_unidade_edicao.png)
+
+Campos disponíveis:
+* **Chave Instituidora / Executora:** Define se a unidade pode instituir planejamentos próprios e se executa planos de ação setoriais;
+* **Código:** Código oficial no organograma (`PGE-017`);
+* **Sigla:** Identificador abreviado (`PDA`);
+* **Nome:** Nome por extenso da unidade;
+* **Cidade:** Município sede;
+* **Unidade Pai (Superior Imediata):** Órgão de subordinação direta na hierarquia (`PGE-001 - Sede`);
+* **Instituição:** Vínculo institucional (`PGE-MA`).
+
+---
 
 ### 4.4. Agentes Públicos e Atribuições Funcionais
 Gerencia o cadastro dos membros (Procuradores do Estado), assessores jurídicos e servidores administrativos, associando-os às suas respectivas lotações e competências funcionais.
 
+#### 4.4.1. Listagem de Agentes Públicos
+Acessada em **Configurações > Agentes Públicos**, reúne todos os usuários ativos com filtros por CPF, nome, lotação, nível de acesso e situação cadastral:
+
 ![Gestão de Agentes Públicos da PGE-MA](prints/13_planejamento_agentes_publicos.png)
 
-No formulário do agente público, o gestor define com precisão a atribuição institucional:
-* **Chefia Titular:** Gestor principal com prerrogativa de instituir planos, distribuir ações e homologar relatórios;
-* **Chefia Substituta:** Responsável com poderes equivalentes na ausência do titular;
-* **Lotado:** Membro vinculado à unidade com responsabilidade de execução de ações e envio de relatórios;
-* **Colaborador:** Atuação transversal em projetos e forças-tarefa.
+A grade apresenta Matrícula, CPF, Nome completo, Regramento vigente associado, Nível de Acesso (Perfil) e Situação funcional (Ativo/Inativo).
+
+#### 4.4.2. Formulário de Atribuições e Lotação de Agente Público
+Ao abrir o cadastro de um agente público e acessar a aba **"Atribuições"**, o gestor define o perfil de acesso e os vínculos de autoridade na unidade:
 
 ![Formulário de Atribuições e Lotação de Agente Público](prints/14_form_agente_atribuicoes.png)
 
-### 4.5. Eixos Temáticos e Elementos Estratégicos
-Os Eixos Temáticos e Elementos Estratégicos consolidam os grandes objetivos finalísticos da PGE-MA:
-1. **Eixo I – Gestão Fiscal e Recuperação de Ativos:** Eficiência na cobrança da dívida ativa, integração com SEFAZ e combate à sonegação;
-2. **Eixo II – Modernização e Transformação Digital:** Implantação de soluções de inteligência artificial (MINUTIA), automação PJe-SPA e governança de dados;
-3. **Eixo III – Defesa do Patrimônio, Meio Ambiente e Políticas Públicas:** Segurança jurídica para licitações e contratações estaduais, acordos setoriais e defesa socioambiental;
-4. **Eixo IV – Gestão de Pessoas, Governança e Transparência:** Qualificação contínua via ESAP, integridade institucional, transparência adaptada à LGPD e clima organizacional saudável.
+Configurações de governança:
+* **Nível de Acesso:** Definição do perfil RBAC (ex.: *Administrador Geral*, *Perfil Unidade*, *Perfil Desenvolvedor*);
+* **Vínculo de Lotação:** Associação à unidade organizacional (`PGE-001 - Sede`, Especializada ou Regional);
+* **Regramento Vinculado:** Associação ao *Programa de Gestão e Ação Estratégica PGE-MA (Ciclo 2026–2030)*;
+* **Badges de Atribuição:**
+  * **★ Chefe:** Titular da chefia imediata com poderes de homologação e gestão do plano setorial;
+  * **Chefe Substituto:** Delegação formal de autoridade na ausência do titular;
+  * **Lotado:** Integrante da equipe responsável pelo cumprimento das ações e envio de relatórios correcionais;
+  * **Colaborador:** Atuação transversal temporária em comitês ou projetos.
 
-![Lista de Elementos Estratégicos (Objetivos da PGE-MA)](prints/15_elementos_estrategicos_lista.png)
+---
+
+### 4.5. Eixos Temáticos e Elementos Estratégicos
+Em **Cadastros > Elementos Estratégicos**, o sistema parametriza os tipos de elementos que estruturam o desdobramento do planejamento institucional e da cadeia de valor da PGE-MA:
+
+![Lista de Elementos Estratégicos (Tipos de Objetivos da PGE-MA)](prints/15_elementos_estrategicos_lista.png)
+
+O módulo padroniza:
+* **Objetivos Estratégicos:** Grandes metas corporativas plurianuais que expressam os resultados finalísticos desejados;
+* **Metas (Key Results / KRs):** Indicadores quantitativos de monitoramento contínuo com metas percentuais e prazos definidos;
+* **Elementos da Cadeia de Valor:** Processos finalísticos de suporte e governança da advocacia pública estadual.
 
 ---
 
