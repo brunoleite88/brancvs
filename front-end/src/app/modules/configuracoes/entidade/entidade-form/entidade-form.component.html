@@ -16,7 +16,7 @@
         <input-display *ngIf="form!.controls.abrangencia.value == 'NACIONAL'" [size]="8" label="Âmbito" icon="bi bi-shield-fill-check" value="Nacional"></input-display>
       </div>
     </tab>
-    <tab key="SIAPE" label="Alteraçõe no SIAPE">
+    <!--tab key="SIAPE" label="Alterações no SIAPE">
       <div class="row">
           <input-radio [size]="4" label="Relato de Erros de Lotação" controlName="habilitar_relatos_siape" [items]="lookup.INTEGRACAO_SMTP_HABILITAR_RELATOS"></input-radio>
       </div>
@@ -49,7 +49,7 @@
           </columns>
         </grid>
       </separator>
-    </tab>
+    </tab/-->
     <!--tab key="EXPEDIENTE" label="Expediente">
       <calendar-expediente #expediente [control]="form!.controls.expediente"></calendar-expediente>
     </tab/-->
