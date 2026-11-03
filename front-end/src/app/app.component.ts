@@ -628,6 +628,18 @@ export class AppComponent implements IAppComponent {
         route: ['gestao', 'paineis-gerenciais'],
         permition: 'MOD_PAINEL_GER',
       },
+      {
+        name: this.lex.translate("Configurações"),
+        permition: "MOD_CFG",
+        id: "navbarDropdownConfiguracoes",
+        icon: 'bi bi-gear',
+        menu: [
+          this.menuSchema.ENTIDADES,
+          this.menuSchema.UNIDADES,
+          this.menuSchema.USUARIOS,
+          this.menuSchema.PERFIS,
+        ],
+      },
     ];
 
     this.moduloExecucao = [
@@ -645,6 +657,18 @@ export class AppComponent implements IAppComponent {
         icon: 'bi bi-bar-chart-line',
         route: ['gestao', 'paineis-gerenciais'],
         permition: 'MOD_PAINEL_GER',
+      },
+      {
+        name: this.lex.translate("Configurações"),
+        permition: "MOD_CFG",
+        id: "navbarDropdownConfiguracoes",
+        icon: 'bi bi-gear',
+        menu: [
+          this.menuSchema.ENTIDADES,
+          this.menuSchema.UNIDADES,
+          this.menuSchema.USUARIOS,
+          this.menuSchema.PERFIS,
+        ],
       },
     ];
 
@@ -673,6 +697,18 @@ export class AppComponent implements IAppComponent {
         icon: 'bi bi-bar-chart-line',
         route: ['gestao', 'paineis-gerenciais'],
         permition: 'MOD_PAINEL_GER',
+      },
+      {
+        name: this.lex.translate("Configurações"),
+        permition: "MOD_CFG",
+        id: "navbarDropdownConfiguracoes",
+        icon: 'bi bi-gear',
+        menu: [
+          this.menuSchema.ENTIDADES,
+          this.menuSchema.UNIDADES,
+          this.menuSchema.USUARIOS,
+          this.menuSchema.PERFIS,
+        ],
       },
     ];
 
