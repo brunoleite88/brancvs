@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
+import { AuthService } from 'src/app/services/auth.service';
 import {
   PainelApiClient,
   RepactuacoesResponse,
@@ -18,6 +19,11 @@ import {
 })
 export class RepactuacoesPainelPage implements OnInit {
   private readonly api = inject(PainelApiClient);
+  readonly auth = inject(AuthService);
+
+  readonly podeDeliberar = computed(() => this.auth.hasPermissionTo('MOD_REPACT_DELIBERAR') || this.auth.isAdmin());
+  readonly podeSolicitar = computed(() => this.auth.hasPermissionTo('MOD_REPACT_SOLICITAR') || this.auth.isAdmin());
+  readonly podeEmitirSei = computed(() => this.auth.hasPermissionTo('MOD_SEI_EMITIR_DESPACHO') || this.auth.isAdmin());
 
   readonly carregando = signal(true);
   readonly salvando = signal(false);

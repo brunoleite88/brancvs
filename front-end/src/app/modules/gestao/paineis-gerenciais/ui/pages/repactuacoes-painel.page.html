@@ -12,9 +12,11 @@
       </p>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-sm btn-primary" (click)="abrirModalNova()">
-        <i class="bi bi-plus-circle me-1"></i> Nova Repactuação
-      </button>
+      @if (podeSolicitar()) {
+        <button class="btn btn-sm btn-primary" (click)="abrirModalNova()">
+          <i class="bi bi-plus-circle me-1"></i> Nova Repactuação
+        </button>
+      }
       <button class="btn btn-sm btn-outline-secondary" (click)="imprimir()" [disabled]="carregando()">
         <i class="bi bi-printer me-1"></i> Imprimir Relatório
       </button>
@@ -260,20 +262,24 @@
                     Solicitante: <strong>{{ item.solicitante_nome }}</strong>
                   </span>
                   <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-secondary" (click)="baixarTermoSei(item)" [disabled]="baixandoSeiId() === item.id" title="Exportar minuta do despacho oficial para juntada no SEI-MA">
-                      @if (baixandoSeiId() === item.id) {
-                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                      } @else {
-                        <i class="bi bi-file-earmark-pdf text-danger me-1"></i>
-                      }
-                      Despacho SEI-MA
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="abrirModalParecer(item, 'REJEITAR')">
-                      <i class="bi bi-x-circle me-1"></i> Devolver
-                    </button>
-                    <button class="btn btn-sm btn-success" (click)="abrirModalParecer(item, 'HOMOLOGAR')">
-                      <i class="bi bi-check2-circle me-1"></i> Homologar Ajuste
-                    </button>
+                    @if (podeEmitirSei()) {
+                      <button class="btn btn-sm btn-outline-secondary" (click)="baixarTermoSei(item)" [disabled]="baixandoSeiId() === item.id" title="Exportar minuta do despacho oficial para juntada no SEI-MA">
+                        @if (baixandoSeiId() === item.id) {
+                          <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                        } @else {
+                          <i class="bi bi-file-earmark-pdf text-danger me-1"></i>
+                        }
+                        Despacho SEI-MA
+                      </button>
+                    }
+                    @if (podeDeliberar()) {
+                      <button class="btn btn-sm btn-outline-danger" (click)="abrirModalParecer(item, 'REJEITAR')">
+                        <i class="bi bi-x-circle me-1"></i> Devolver
+                      </button>
+                      <button class="btn btn-sm btn-success" (click)="abrirModalParecer(item, 'HOMOLOGAR')">
+                        <i class="bi bi-check2-circle me-1"></i> Homologar Ajuste
+                      </button>
+                    }
                   </div>
                 </div>
               </div>

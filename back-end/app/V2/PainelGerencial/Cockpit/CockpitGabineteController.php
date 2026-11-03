@@ -22,6 +22,13 @@ class CockpitGabineteController extends Controller
     {
         try {
             $this->painelService->validarAcesso();
+
+            /** @var \App\Models\Usuario|null $usuario */
+            $usuario = \Illuminate\Support\Facades\Auth::user();
+            if ($usuario && !$usuario->hasPermissionTo('MOD_PAINEL_COCKPIT') && !$usuario->is_admin) {
+                return response()->json(['error' => 'Permissão insuficiente para acessar o Cockpit do Gabinete (MOD_PAINEL_COCKPIT).'], Response::HTTP_FORBIDDEN);
+            }
+
             $dados = $this->dataProvider->getDados();
 
             return response()->json([

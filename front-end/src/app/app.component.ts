@@ -304,7 +304,7 @@ export class AppComponent implements IAppComponent {
       },
       PORTIFOLIOS: {
         name: this.lex.translate("Projetos Estruturantes"),
-        permition: '',
+        permition: 'MOD_PROJ',
         route: ['gestao', 'projeto'],
         icon: 'bi bi-kanban',
       },
@@ -620,7 +620,7 @@ export class AppComponent implements IAppComponent {
         name: this.lex.translate("Cockpit do Gabinete"),
         icon: 'bi bi-speedometer2',
         route: ['gestao', 'paineis-gerenciais', 'cockpit-gabinete'],
-        permition: 'MOD_PAINEL_GER',
+        permition: 'MOD_PAINEL_COCKPIT',
       },
       {
         name: this.lex.translate("Painéis Gerenciais"),
@@ -690,7 +690,7 @@ export class AppComponent implements IAppComponent {
         name: this.lex.translate("Cockpit do Gabinete"),
         icon: 'bi bi-speedometer2',
         route: ['gestao', 'paineis-gerenciais', 'cockpit-gabinete'],
-        permition: 'MOD_PAINEL_GER',
+        permition: 'MOD_PAINEL_COCKPIT',
       },
       {
         name: this.lex.translate("Painéis Gerenciais"),

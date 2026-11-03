@@ -26,6 +26,13 @@ class ProjetosController extends Controller
     {
         try {
             $this->painelService->validarAcesso();
+
+            /** @var \App\Models\Usuario|null $usuario */
+            $usuario = \Illuminate\Support\Facades\Auth::user();
+            if ($usuario && !$usuario->hasPermissionTo('MOD_PROJ') && !$usuario->hasPermissionTo('MOD_PROJ_CONS') && !$usuario->is_admin) {
+                return response()->json(['error' => 'Permissão insuficiente para consultar Projetos (MOD_PROJ_CONS).'], Response::HTTP_FORBIDDEN);
+            }
+
             $result = $this->projetosDataProvider->getResumo();
 
             return response()->json(['success' => true, 'data' => $result]);

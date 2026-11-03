@@ -81,6 +81,12 @@ class RepactuacaoController extends Controller
         try {
             $this->painelService->validarAcesso();
 
+            /** @var \App\Models\Usuario|null $usuario */
+            $usuario = Auth::user();
+            if ($usuario && !$usuario->hasPermissionTo('MOD_REPACT_SOLICITAR') && !$usuario->is_admin) {
+                return response()->json(['error' => 'Permissão insuficiente para solicitar repactuação (MOD_REPACT_SOLICITAR).'], Response::HTTP_FORBIDDEN);
+            }
+
             $validated = $request->validate([
                 'plano_entrega_id' => 'nullable|string',
                 'plano_entrega_entrega_id' => 'required|string',
@@ -112,6 +118,12 @@ class RepactuacaoController extends Controller
         try {
             $this->painelService->validarAcesso();
 
+            /** @var \App\Models\Usuario|null $usuario */
+            $usuario = Auth::user();
+            if ($usuario && !$usuario->hasPermissionTo('MOD_REPACT_DELIBERAR') && !$usuario->is_admin) {
+                return response()->json(['error' => 'Permissão insuficiente para deliberar repactuação (MOD_REPACT_DELIBERAR).'], Response::HTTP_FORBIDDEN);
+            }
+
             $parecer = $request->input('parecer');
             $userId = Auth::id() ?? '011fb24b-29d3-45e8-80dd-05357490b9f2';
 
@@ -128,6 +140,12 @@ class RepactuacaoController extends Controller
     {
         try {
             $this->painelService->validarAcesso();
+
+            /** @var \App\Models\Usuario|null $usuario */
+            $usuario = Auth::user();
+            if ($usuario && !$usuario->hasPermissionTo('MOD_REPACT_DELIBERAR') && !$usuario->is_admin) {
+                return response()->json(['error' => 'Permissão insuficiente para deliberar repactuação (MOD_REPACT_DELIBERAR).'], Response::HTTP_FORBIDDEN);
+            }
 
             $request->validate(['parecer' => 'required|string']);
             $parecer = $request->input('parecer');
@@ -147,6 +165,12 @@ class RepactuacaoController extends Controller
         try {
             $this->painelService->validarAcesso();
 
+            /** @var \App\Models\Usuario|null $usuario */
+            $usuario = Auth::user();
+            if ($usuario && !$usuario->hasPermissionTo('MOD_SEI_EMITIR_DESPACHO') && !$usuario->is_admin) {
+                return response()->json(['error' => 'Permissão insuficiente para emitir termos do SEI-MA (MOD_SEI_EMITIR_DESPACHO).'], Response::HTTP_FORBIDDEN);
+            }
+
             $doc = $this->seiService->gerarPdfRepactuacao($id);
 
             return response($doc['pdf'], Response::HTTP_OK)
@@ -162,6 +186,12 @@ class RepactuacaoController extends Controller
     {
         try {
             $this->painelService->validarAcesso();
+
+            /** @var \App\Models\Usuario|null $usuario */
+            $usuario = Auth::user();
+            if ($usuario && !$usuario->hasPermissionTo('MOD_SEI_VINCULAR') && !$usuario->is_admin) {
+                return response()->json(['error' => 'Permissão insuficiente para vincular processo administrativo SEI-MA (MOD_SEI_VINCULAR).'], Response::HTTP_FORBIDDEN);
+            }
 
             $request->validate(['numero_processo_sei' => 'required|string']);
             $numero = $request->input('numero_processo_sei');
