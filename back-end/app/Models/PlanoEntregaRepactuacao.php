@@ -13,6 +13,7 @@ class PlanoEntregaRepactuacao extends ModelBase
         'plano_entrega_entrega_id',
         'unidade_id',
         'ciclo',
+        'numero_processo_sei',
         'tipo',
         'motivo',
         'descricao_ajuste',

@@ -41,6 +41,7 @@ class RepactuacaoDataProvider
                 'u.sigla as unidade_sigla',
                 'u.nome as unidade_nome',
                 'r.ciclo',
+                'r.numero_processo_sei',
                 'r.tipo',
                 'r.motivo',
                 'r.descricao_ajuste',
@@ -153,6 +154,7 @@ class RepactuacaoDataProvider
                     'unidade_sigla' => $r->unidade_sigla,
                     'unidade_nome' => $r->unidade_nome,
                     'ciclo' => $r->ciclo,
+                    'numero_processo_sei' => $r->numero_processo_sei ?? ('PGE-PRO-2026/' . str_pad((string) substr(crc32($r->id), 0, 5), 5, '0', STR_PAD_LEFT)),
                     'tipo' => $r->tipo,
                     'motivo' => $r->motivo,
                     'descricao_ajuste' => $r->descricao_ajuste,
@@ -276,6 +278,7 @@ class RepactuacaoDataProvider
             'plano_entrega_entrega_id' => $dados['plano_entrega_entrega_id'] ?? null,
             'unidade_id' => $dados['unidade_id'],
             'ciclo' => $dados['ciclo'] ?? '2026-T1',
+            'numero_processo_sei' => $dados['numero_processo_sei'] ?? ('PGE-PRO-2026/' . str_pad((string) rand(100, 999), 5, '0', STR_PAD_LEFT)),
             'tipo' => $dados['tipo'] ?? 'PRAZO',
             'motivo' => $dados['motivo'] ?? 'OUTRO',
             'descricao_ajuste' => $dados['descricao_ajuste'],
@@ -291,5 +294,17 @@ class RepactuacaoDataProvider
         ]);
 
         return ['success' => true, 'id' => $id, 'mensagem' => 'Solicitação de repactuação enviada ao Gabinete com sucesso.'];
+    }
+
+    public function vincularSei(string $id, string $numeroProcessoSei): array
+    {
+        DB::connection('tenant')->table('planos_entregas_repactuacoes')
+            ->where('id', $id)
+            ->update([
+                'numero_processo_sei' => $numeroProcessoSei,
+                'updated_at' => Carbon::now(),
+            ]);
+
+        return ['success' => true, 'mensagem' => 'Processo SEI-MA vinculado com sucesso.'];
     }
 }

@@ -25,6 +25,8 @@ Route::get('painel-gerencial/projetos/indicador', [ProjetosV2::class, 'indicador
 
 Route::get('painel-gerencial/repactuacoes', [RepactuacaoV2::class, 'index']);
 Route::get('painel-gerencial/repactuacoes/entregas-unidade/{unidadeId}', [RepactuacaoV2::class, 'entregasPorUnidade']);
+Route::get('painel-gerencial/repactuacoes/{id}/termo-sei', [RepactuacaoV2::class, 'termoSei']);
+Route::post('painel-gerencial/repactuacoes/{id}/vincular-sei', [RepactuacaoV2::class, 'vincularSei']);
 Route::post('painel-gerencial/repactuacoes', [RepactuacaoV2::class, 'store']);
 Route::post('painel-gerencial/repactuacoes/{id}/homologar', [RepactuacaoV2::class, 'homologar']);
 Route::post('painel-gerencial/repactuacoes/{id}/rejeitar', [RepactuacaoV2::class, 'rejeitar']);

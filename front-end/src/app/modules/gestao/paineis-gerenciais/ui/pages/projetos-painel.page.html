@@ -193,6 +193,11 @@
                       <i class="bi bi-cash-coin me-1"></i>{{ proj.fonte_financiamento }}
                     </span>
                   }
+                  @if (proj.numero_processo_sei) {
+                    <span class="badge bg-primary-subtle text-primary border small" title="Processo Administrativo SEI-MA">
+                      <i class="bi bi-folder2-open me-1"></i>{{ proj.numero_processo_sei }}
+                    </span>
+                  }
                 </div>
                 <span class="badge" [ngClass]="getStatusClass(proj.status)">
                   {{ proj.status }}
@@ -473,6 +478,12 @@
               </div>
               <div class="col-md-6">
                 <strong>Prazo Global:</strong> {{ projetoSelecionado()?.prazo }}
+              </div>
+              <div class="col-12 mt-2">
+                <strong>Processo Administrativo SEI-MA:</strong>
+                <span class="badge bg-primary-subtle text-primary border ms-1">
+                  <i class="bi bi-folder2-open me-1"></i>{{ projetoSelecionado()?.numero_processo_sei || 'PGE-PRO-2026/00010' }}
+                </span>
               </div>
               <div class="col-12 mt-2">
                 <strong>Unidades Participantes:</strong> {{ projetoSelecionado()?.unidades_participantes }}

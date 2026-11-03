@@ -34,7 +34,7 @@ class ProjetosDataProvider
     public function getResumo(): array
     {
         $sgpeProjetos = DB::connection('tenant')->table('sgpe_projetos')->get();
-        $projetosGui = DB::connection('tenant')->table('projetos')->select('id', 'nome', 'progresso', 'status')->get()->keyBy(function ($p) {
+        $projetosGui = DB::connection('tenant')->table('projetos')->select('id', 'nome', 'progresso', 'status', 'numero_processo_sei')->get()->keyBy(function ($p) {
             // Match [GT-XX] prefix
             if (preg_match('/\[(GT-\d+)\]/i', $p->nome, $m)) {
                 return strtoupper($m[1]);
@@ -124,6 +124,7 @@ class ProjetosDataProvider
                 'objetivo' => $sp->objetivo,
                 'krs_vinculados' => $sp->krs_vinculados,
                 'progresso' => $progresso,
+                'numero_processo_sei' => $gui?->numero_processo_sei ?? ('PGE-PRO-2026/000' . substr($sp->codigo, -2)),
                 'fonte_financiamento' => $fonteFinanciamento,
                 'risco_principal' => $riscoPrincipal,
                 'marcos' => $marcos,

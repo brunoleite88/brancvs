@@ -21,6 +21,7 @@ export class RepactuacoesPainelPage implements OnInit {
 
   readonly carregando = signal(true);
   readonly salvando = signal(false);
+  readonly baixandoSeiId = signal<string | null>(null);
   readonly dados = signal<RepactuacoesResponse | null>(null);
 
   readonly cicloSelecionado = signal<string>('TODOS');
@@ -44,6 +45,7 @@ export class RepactuacoesPainelPage implements OnInit {
   novaUnidadeId = '';
   novaEntregaId = '';
   novoCiclo = '2026-T1';
+  novoNumeroSei = '';
   novoTipo: 'PRAZO' | 'META' | 'ESCOPO' | 'OUTRO' = 'PRAZO';
   novoMotivo = 'IMPEDIMENTO_ORCAMENTARIO';
   novaDescricaoAjuste = '';
@@ -155,6 +157,7 @@ export class RepactuacoesPainelPage implements OnInit {
     this.novaUnidadeId = '';
     this.novaEntregaId = '';
     this.novoCiclo = '2026-T1';
+    this.novoNumeroSei = '';
     this.novoTipo = 'PRAZO';
     this.novoMotivo = 'IMPEDIMENTO_ORCAMENTARIO';
     this.novaDescricaoAjuste = '';
@@ -198,6 +201,7 @@ export class RepactuacoesPainelPage implements OnInit {
       unidade_id: this.novaUnidadeId,
       plano_entrega_entrega_id: this.novaEntregaId,
       ciclo: this.novoCiclo,
+      numero_processo_sei: this.novoNumeroSei || null,
       tipo: this.novoTipo,
       motivo: this.novoMotivo,
       descricao_ajuste: this.novaDescricaoAjuste,
@@ -216,6 +220,29 @@ export class RepactuacoesPainelPage implements OnInit {
         console.error('Erro ao submeter repactuação:', err);
         this.salvando.set(false);
         alert('Erro ao enviar solicitação de repactuação.');
+      }
+    });
+  }
+
+  baixarTermoSei(rep: RepactuacaoItem): void {
+    this.baixandoSeiId.set(rep.id);
+    this.api.downloadTermoSei(rep.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const sei = (rep.numero_processo_sei || 'SEI-MA').replace(/[\/\s]/g, '_');
+        a.download = `Termo_Repactuacao_${sei}_${rep.ciclo}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.baixandoSeiId.set(null);
+      },
+      error: (err) => {
+        console.error('Erro ao baixar termo SEI:', err);
+        alert('Erro ao gerar documento para o SEI-MA.');
+        this.baixandoSeiId.set(null);
       }
     });
   }

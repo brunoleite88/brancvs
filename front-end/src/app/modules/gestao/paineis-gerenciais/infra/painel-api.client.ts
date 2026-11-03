@@ -75,6 +75,7 @@ export interface ProjetoResumoItem {
   objetivo: string;
   krs_vinculados: string;
   progresso: number;
+  numero_processo_sei?: string;
   fonte_financiamento?: string;
   risco_principal?: string;
   marcos?: ProjetoMarcoItem[];
@@ -151,6 +152,7 @@ export interface RepactuacaoItem {
   unidade_sigla: string;
   unidade_nome: string;
   ciclo: string;
+  numero_processo_sei?: string;
   tipo: 'PRAZO' | 'META' | 'ESCOPO' | 'OUTRO';
   motivo: string;
   descricao_ajuste: string;
@@ -418,5 +420,21 @@ export class PainelApiClient extends TenantV2ResourceApiBase {
 
   rejeitarRepactuacao(id: string, parecer: string): Observable<any> {
     return this.http.post(this.resourceUrl(`/repactuacoes/${id}/rejeitar`), { parecer });
+  }
+
+  getTermoSeiUrl(id: string): string {
+    return this.resourceUrl(`/repactuacoes/${id}/termo-sei`);
+  }
+
+  downloadTermoSei(id: string): Observable<Blob> {
+    return this.http.get(this.resourceUrl(`/repactuacoes/${id}/termo-sei`), {
+      responseType: 'blob',
+    });
+  }
+
+  vincularSei(id: string, numeroProcessoSei: string): Observable<any> {
+    return this.http.post(this.resourceUrl(`/repactuacoes/${id}/vincular-sei`), {
+      numero_processo_sei: numeroProcessoSei,
+    });
   }
 }

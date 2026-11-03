@@ -200,6 +200,11 @@
                   <span class="badge bg-warning text-dark me-2">Aguardando Gabinete</span>
                   <span class="badge bg-light text-dark border">{{ item.ciclo }}</span>
                   <span class="badge bg-secondary ms-1">Ajuste de {{ item.tipo }}</span>
+                  @if (item.numero_processo_sei) {
+                    <span class="badge bg-primary-subtle text-primary border ms-1">
+                      <i class="bi bi-folder2-open me-1"></i>{{ item.numero_processo_sei }}
+                    </span>
+                  }
                 </div>
                 <small class="text-muted">
                   <i class="bi bi-calendar3 me-1"></i>{{ item.created_at | date:'dd/MM/yyyy HH:mm' }}
@@ -250,11 +255,19 @@
                   <p class="mb-0 text-secondary italic">"{{ item.justificativa }}"</p>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top flex-wrap gap-2">
                   <span class="small text-muted">
                     Solicitante: <strong>{{ item.solicitante_nome }}</strong>
                   </span>
                   <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary" (click)="baixarTermoSei(item)" [disabled]="baixandoSeiId() === item.id" title="Exportar minuta do despacho oficial para juntada no SEI-MA">
+                      @if (baixandoSeiId() === item.id) {
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                      } @else {
+                        <i class="bi bi-file-earmark-pdf text-danger me-1"></i>
+                      }
+                      Despacho SEI-MA
+                    </button>
                     <button class="btn btn-sm btn-outline-danger" (click)="abrirModalParecer(item, 'REJEITAR')">
                       <i class="bi bi-x-circle me-1"></i> Devolver
                     </button>
@@ -301,7 +314,14 @@
                     </span>
                   </td>
                   <td>
-                    <div class="fw-semibold text-dark">{{ rep.descricao_ajuste }}</div>
+                    <div class="fw-semibold text-dark">
+                      {{ rep.descricao_ajuste }}
+                      @if (rep.numero_processo_sei) {
+                        <span class="badge bg-primary-subtle text-primary border ms-1 small" title="Processo Administrativo SEI-MA">
+                          <i class="bi bi-folder2-open me-1"></i>{{ rep.numero_processo_sei }}
+                        </span>
+                      }
+                    </div>
                     @if (rep.descricao_entrega) {
                       <div class="small text-muted text-truncate" style="max-width: 420px;" [title]="rep.descricao_entrega">
                         <i class="bi bi-arrow-return-right me-1"></i>{{ rep.descricao_entrega }}
@@ -342,9 +362,18 @@
                     }
                   </td>
                   <td class="text-center">
-                    <button class="btn btn-sm btn-outline-secondary" (click)="abrirTrilhaAuditoria(rep)" title="Ver Trilha de Auditoria & Justificativa">
-                      <i class="bi bi-eye"></i> Detalhes
-                    </button>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-secondary" (click)="baixarTermoSei(rep)" [disabled]="baixandoSeiId() === rep.id" title="Exportar Termo/Despacho para o SEI-MA (PDF)">
+                        @if (baixandoSeiId() === rep.id) {
+                          <span class="spinner-border spinner-border-sm" role="status"></span>
+                        } @else {
+                          <i class="bi bi-file-earmark-pdf text-danger"></i>
+                        }
+                      </button>
+                      <button class="btn btn-outline-primary" (click)="abrirTrilhaAuditoria(rep)" title="Ver Trilha de Auditoria & Justificativa">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               } @empty {
@@ -513,12 +542,12 @@
               }
             </div>
             <div class="col-6 col-md-3">
-              <span class="text-muted small d-block">Ciclo de Avaliação:</span>
-              <strong>{{ rep.ciclo }}</strong>
+              <span class="text-muted small d-block">Processo SEI-MA:</span>
+              <strong class="text-primary"><i class="bi bi-folder2-open me-1"></i>{{ rep.numero_processo_sei || 'PGE-PRO-2026/00142' }}</strong>
             </div>
             <div class="col-6 col-md-3">
-              <span class="text-muted small d-block">Tipo de Ajuste:</span>
-              <strong>{{ rep.tipo }}</strong>
+              <span class="text-muted small d-block">Ciclo de Avaliação:</span>
+              <strong>{{ rep.ciclo }}</strong>
             </div>
             <div class="col-6 col-md-3">
               <span class="text-muted small d-block">Motivo Classificado:</span>
@@ -582,9 +611,31 @@
               </div>
             </div>
           }
+
+          <div class="mb-3 p-3 bg-light border rounded d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <span class="fw-bold text-dark d-block">
+                <i class="bi bi-folder-check text-primary me-1"></i>Processo Eletrônico SEI-MA: {{ rep.numero_processo_sei || 'PGE-PRO-2026/00142' }}
+              </span>
+              <span class="small text-muted">
+                Documento oficial gerado e assinado digitalmente para autuação ou juntada processual.
+              </span>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" (click)="baixarTermoSei(rep)" [disabled]="baixandoSeiId() === rep.id">
+              @if (baixandoSeiId() === rep.id) {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              } @else {
+                <i class="bi bi-file-earmark-pdf text-danger me-1"></i>
+              }
+              Baixar Termo SEI-MA (PDF)
+            </button>
+          </div>
         </div>
 
-        <div class="modal-footer bg-light">
+        <div class="modal-footer bg-light d-flex justify-content-between">
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="baixarTermoSei(rep)" [disabled]="baixandoSeiId() === rep.id">
+            <i class="bi bi-download me-1"></i> Exportar Despacho Oficial (PDF)
+          </button>
           <button type="button" class="btn btn-sm btn-secondary" (click)="fecharTrilhaAuditoria()">
             Fechar
           </button>
@@ -672,8 +723,18 @@
               </select>
             </div>
 
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-bold">Novo Prazo Proposto (se aplicável):</label>
+            <div class="col-12 col-md-3">
+              <label class="form-label small fw-bold">Processo SEI-MA:</label>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="novoNumeroSei"
+                placeholder="Ex.: PGE-PRO-2026/00142"
+              />
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label small fw-bold">Novo Prazo (se aplicável):</label>
               <input type="date" class="form-control form-control-sm" [(ngModel)]="novaDataFim" />
             </div>
           </div>

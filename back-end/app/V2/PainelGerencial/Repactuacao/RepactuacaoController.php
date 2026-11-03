@@ -7,6 +7,7 @@ namespace App\V2\PainelGerencial\Repactuacao;
 use App\Exceptions\Contracts\IBaseException;
 use App\Http\Controllers\Controller;
 use App\V2\PainelGerencial\PainelGerencialService;
+use App\V2\PainelGerencial\Sei\SeiDocumentoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ class RepactuacaoController extends Controller
     public function __construct(
         private readonly PainelGerencialService $painelService,
         private readonly RepactuacaoDataProvider $dataProvider,
+        private readonly SeiDocumentoService $seiService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -132,6 +134,39 @@ class RepactuacaoController extends Controller
             $userId = Auth::id() ?? '011fb24b-29d3-45e8-80dd-05357490b9f2';
 
             $result = $this->dataProvider->rejeitar($id, $parecer, $userId);
+
+            return response()->json($result);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function termoSei(Request $request, string $id)
+    {
+        try {
+            $this->painelService->validarAcesso();
+
+            $doc = $this->seiService->gerarPdfRepactuacao($id);
+
+            return response($doc['pdf'], Response::HTTP_OK)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $doc['filename'] . '"');
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => 'Erro ao gerar termo para o SEI-MA: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function vincularSei(Request $request, string $id): JsonResponse
+    {
+        try {
+            $this->painelService->validarAcesso();
+
+            $request->validate(['numero_processo_sei' => 'required|string']);
+            $numero = $request->input('numero_processo_sei');
+
+            $result = $this->dataProvider->vincularSei($id, $numero);
 
             return response()->json($result);
         } catch (Throwable $e) {
