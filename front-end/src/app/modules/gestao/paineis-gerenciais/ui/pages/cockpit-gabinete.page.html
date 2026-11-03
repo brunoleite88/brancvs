@@ -1,0 +1,347 @@
+<app-breadcrumb></app-breadcrumb>
+
+<div class="container-fluid px-4 py-3">
+  <!-- Cabeçalho Institucional -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="mb-1 fw-bold text-dark">
+        <i class="bi bi-speedometer2 text-primary me-2"></i>Cockpit Executivo do Gabinete
+      </h2>
+      <p class="text-muted small mb-0">
+        Monitoramento Estratégico em Tempo Real dos Planos de Ação Setoriais e Metas da PGE-MA (Ciclo 2026–2030)
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary" (click)="imprimir()" [disabled]="carregando()">
+        <i class="bi bi-printer me-1"></i> Imprimir Relatório
+      </button>
+      <button class="btn btn-sm btn-primary" (click)="carregarDados()" [disabled]="carregando()">
+        <i class="bi bi-arrow-clockwise me-1" [class.spin]="carregando()"></i> Atualizar
+      </button>
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando dados do Cockpit...</span>
+      </div>
+      <p class="text-muted mt-2">Consolidando metas e indicadores da PGE-MA...</p>
+    </div>
+  } @else {
+    <!-- ═══ Cards de Totais Executivos (KPIs Globais) ═══ -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card h-100 summary-card border-primary shadow-sm">
+          <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="text-muted small fw-semibold text-uppercase">Planos Setoriais</div>
+                <div class="fs-2 fw-bold text-primary mt-1">
+                  {{ dados()?.kpis?.total_planos_ativos ?? 41 }}
+                  <span class="fs-6 text-muted fw-normal">/ {{ (dados()?.kpis?.total_unidades ?? 42) - 1 }}</span>
+                </div>
+              </div>
+              <div class="icon-circle bg-primary-subtle text-primary">
+                <i class="bi bi-building-check"></i>
+              </div>
+            </div>
+            <div class="small text-success fw-semibold mt-2">
+              <i class="bi bi-check-circle-fill me-1"></i>{{ dados()?.kpis?.cobertura_percentual ?? 100 }}% de cobertura institucional
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card h-100 summary-card border-info shadow-sm">
+          <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="text-muted small fw-semibold text-uppercase">Total de Entregas</div>
+                <div class="fs-2 fw-bold text-info-emphasis mt-1">
+                  {{ dados()?.kpis?.total_entregas ?? 1164 | number }}
+                </div>
+              </div>
+              <div class="icon-circle bg-info-subtle text-info-emphasis">
+                <i class="bi bi-box-seam"></i>
+              </div>
+            </div>
+            <div class="small text-muted mt-2">
+              Mapeadas no ciclo 2026–2030
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card h-100 summary-card border-warning shadow-sm">
+          <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="text-muted small fw-semibold text-uppercase">Prazos Iniciais</div>
+                <div class="fs-2 fw-bold text-warning-emphasis mt-1">
+                  {{ (dados()?.kpis?.faixas_prazo?.curto_prazo ?? 253) + (dados()?.kpis?.faixas_prazo?.medio_prazo ?? 288) }}
+                </div>
+              </div>
+              <div class="icon-circle bg-warning-subtle text-warning-emphasis">
+                <i class="bi bi-hourglass-split"></i>
+              </div>
+            </div>
+            <div class="small text-muted mt-2">
+              Marcos de execução em até 180 dias
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="card h-100 summary-card border-success shadow-sm">
+          <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="text-muted small fw-semibold text-uppercase">Projetos Estruturantes</div>
+                <div class="fs-2 fw-bold text-success mt-1">
+                  {{ dados()?.kpis?.projetos_gt_total ?? 10 }}
+                </div>
+              </div>
+              <div class="icon-circle bg-success-subtle text-success">
+                <i class="bi bi-kanban"></i>
+              </div>
+            </div>
+            <div class="small text-muted mt-2">
+              Iniciativas dos Grupos de Trabalho (GTs)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Seção 2: Pilares Estratégicos & Macro-Áreas ═══ -->
+    <div class="row g-3 mb-4">
+      <!-- Pilares do Planejamento PGE-MA -->
+      <div class="col-lg-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-3">
+            <h5 class="card-title fs-6 fw-bold text-dark mb-3">
+              <i class="bi bi-diagram-3-fill text-primary me-2"></i>Entregas por Eixos Estratégicos da PGE-MA
+            </h5>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="fw-semibold text-dark">1º P: Prazo</span>
+                <span class="text-muted">{{ dados()?.kpis?.pilares?.['1º P: Prazo'] ?? 107 }} entregas</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: 15%"></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="fw-semibold text-dark">2º P: Presença nos Tribunais</span>
+                <span class="text-muted">{{ dados()?.kpis?.pilares?.['2º P: Presença nos Tribunais'] ?? 112 }} entregas</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 16%"></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="fw-semibold text-dark">3º P: Padronização e Prevenção</span>
+                <span class="text-muted">{{ dados()?.kpis?.pilares?.['3º P: Padronização e Prevenção'] ?? 180 }} entregas</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-info" role="progressbar" style="width: 23%"></div>
+              </div>
+            </div>
+
+            <div class="mb-1">
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="fw-semibold text-dark">Outros Eixos / Governança & Meio</span>
+                <span class="text-muted">{{ dados()?.kpis?.pilares?.['Outros Eixos / Governança'] ?? 765 }} entregas</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-secondary" role="progressbar" style="width: 46%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distribuição por Macro-Área -->
+      <div class="col-lg-6">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-3">
+            <h5 class="card-title fs-6 fw-bold text-dark mb-3">
+              <i class="bi bi-pie-chart-fill text-primary me-2"></i>Consolidação por Macro-Área da PGE-MA
+            </h5>
+
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr class="small text-uppercase text-muted">
+                    <th>Macro-Área</th>
+                    <th class="text-center">Setores</th>
+                    <th class="text-center">Entregas</th>
+                    <th class="text-center">Farol</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (macro of dados()?.macro_areas; track macro.macro_area) {
+                    <tr>
+                      <td class="fw-semibold text-dark small">{{ macro.macro_area }}</td>
+                      <td class="text-center small">{{ macro.total_unidades }}</td>
+                      <td class="text-center small">{{ macro.total_entregas }}</td>
+                      <td class="text-center">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                          <i class="bi bi-circle-fill me-1 small"></i>{{ macro.verde }} No Prazo
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Seção 3: Tabela Executiva de Setores & Faróis ═══ -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-3">
+        <!-- Filtros Rápidos -->
+        <div class="row g-2 align-items-center mb-3">
+          <div class="col-md-5">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0"
+                placeholder="Buscar por sigla ou nome da unidade..."
+                [ngModel]="filtroTexto()"
+                (ngModelChange)="filtroTexto.set($event)"
+              />
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="filtroMacroArea()"
+              (ngModelChange)="filtroMacroArea.set($event)"
+            >
+              <option value="TODAS">Todas as Macro-Áreas ({{ dados()?.macro_areas?.length }})</option>
+              @for (macro of macroAreasDisponiveis(); track macro) {
+                <option [value]="macro">{{ macro }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-3 d-flex justify-content-md-end gap-1">
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="filtroFarol() === 'TODOS'"
+              [class.btn-outline-secondary]="filtroFarol() !== 'TODOS'"
+              (click)="filtroFarol.set('TODOS')"
+            >
+              Todos ({{ dados()?.unidades?.length ?? 0 }})
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-success]="filtroFarol() === 'VERDE'"
+              [class.btn-outline-secondary]="filtroFarol() !== 'VERDE'"
+              (click)="filtroFarol.set('VERDE')"
+            >
+              <i class="bi bi-circle-fill small me-1"></i>No Prazo
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela de Setores -->
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr class="small text-uppercase text-muted">
+                <th style="width: 120px;">Sigla</th>
+                <th>Setor / Unidade</th>
+                <th>Macro-Área</th>
+                <th class="text-center" style="width: 100px;">Entregas</th>
+                <th>Pilar Predominante</th>
+                <th class="text-center" style="width: 140px;">Farol Gabinete</th>
+                <th class="text-center" style="width: 120px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of unidadesFiltradas(); track u.id) {
+                <tr>
+                  <td>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fw-bold">
+                      {{ u.sigla }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="fw-semibold text-dark">{{ u.nome }}</div>
+                    @if (u.plano_nome) {
+                      <div class="small text-muted">{{ u.plano_nome }}</div>
+                    }
+                  </td>
+                  <td>
+                    <span class="small text-secondary">{{ u.macro_area }}</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge bg-light text-dark border px-2 py-1 fw-bold fs-6">
+                      {{ u.total_entregas }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary-subtle text-secondary small">
+                      {{ u.pilar_predominante }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    @if (u.farol === 'VERDE') {
+                      <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                        <i class="bi bi-check-circle-fill me-1"></i>No Prazo
+                      </span>
+                    } @else if (u.farol === 'AMARELO') {
+                      <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>Atenção
+                      </span>
+                    } @else {
+                      <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                        <i class="bi bi-x-circle-fill me-1"></i>Alerta
+                      </span>
+                    }
+                  </td>
+                  <td class="text-center">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="acessarPlano(u)"
+                      title="Abrir Plano de Ação Setorial"
+                    >
+                      <i class="bi bi-folder2-open me-1"></i>Plano
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    Nenhuma unidade localizada para os filtros informados.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>

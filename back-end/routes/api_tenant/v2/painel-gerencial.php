@@ -2,6 +2,7 @@
 
 use App\V2\PainelGerencial\Adesao\AdesaoController as AdesaoV2;
 use App\V2\PainelGerencial\AlinhamentoDesempenho\AlinhamentoDesempenhoController as AlinhamentoDesempenhoV2;
+use App\V2\PainelGerencial\Cockpit\CockpitGabineteController as CockpitGabineteV2;
 use App\V2\PainelGerencial\Conformidade\ConformidadeController as ConformidadeV2;
 use App\V2\PainelGerencial\Modalidades\ModalidadesController as ModalidadesV2;
 use App\V2\PainelGerencial\PainelGerencialController as PainelGerencialV2;
@@ -9,6 +10,7 @@ use App\V2\PainelGerencial\Projetos\ProjetosController as ProjetosV2;
 use Illuminate\Support\Facades\Route;
 
 Route::get('painel-gerencial/unidade-inicial', [PainelGerencialV2::class, 'unidadeInicial']);
+Route::get('painel-gerencial/cockpit-gabinete', [CockpitGabineteV2::class, 'index']);
 Route::get('painel-gerencial/alinhamento-desempenho/alinhamento-institucional', [AlinhamentoDesempenhoV2::class, 'alinhamentoInstitucional']);
 Route::get('painel-gerencial/alinhamento-desempenho/avaliacoes-plano-entrega', [AlinhamentoDesempenhoV2::class, 'avaliacoesPlanoEntrega']);
 Route::get('painel-gerencial/alinhamento-desempenho/avaliacoes-plano-trabalho', [AlinhamentoDesempenhoV2::class, 'avaliacoesPlanoTrabalho']);

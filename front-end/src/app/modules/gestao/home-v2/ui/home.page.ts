@@ -84,6 +84,10 @@ export class HomeV2Page implements OnInit {
     this.subordinadas.set(value);
   }
 
+  irParaCockpitGabinete(): void {
+    this.router.navigate(['gestao', 'paineis-gerenciais', 'cockpit-gabinete']);
+  }
+
   irParaPaineisGerenciais(): void {
     this.router.navigate(['gestao', 'paineis-gerenciais']);
   }

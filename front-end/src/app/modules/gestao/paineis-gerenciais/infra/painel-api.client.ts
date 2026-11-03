@@ -78,6 +78,56 @@ export interface ProjetosPainelResponse {
   projetos: ProjetoResumoItem[];
 }
 
+export interface CockpitKpis {
+  total_unidades: number;
+  total_planos_ativos: number;
+  cobertura_percentual: number;
+  total_entregas: number;
+  projetos_gt_total: number;
+  farol: {
+    verde: number;
+    amarelo: number;
+    vermelho: number;
+  };
+  faixas_prazo: {
+    curto_prazo: number;
+    medio_prazo: number;
+    estruturante: number;
+  };
+  pilares: Record<string, number>;
+}
+
+export interface CockpitMacroArea {
+  macro_area: string;
+  total_unidades: number;
+  total_entregas: number;
+  verde: number;
+  amarelo: number;
+  vermelho: number;
+  progresso_medio: number;
+}
+
+export interface CockpitUnidadeDetalhe {
+  id: string;
+  sigla: string;
+  nome: string;
+  macro_area: string;
+  plano_id: string | null;
+  plano_numero: number | null;
+  plano_nome: string | null;
+  total_entregas: number;
+  progresso_medio: number;
+  farol: 'VERDE' | 'AMARELO' | 'VERMELHO';
+  situacao: string;
+  pilar_predominante: string;
+}
+
+export interface CockpitGabineteResponse {
+  kpis: CockpitKpis;
+  macro_areas: CockpitMacroArea[];
+  unidades: CockpitUnidadeDetalhe[];
+}
+
 export interface UnidadeHistorica {
   id: string;
   sigla: string;
@@ -155,6 +205,12 @@ export class PainelApiClient extends TenantV2ResourceApiBase {
   getProjetosPainel(): Observable<ProjetosPainelResponse> {
     return this.http
       .get<{ data: ProjetosPainelResponse }>(this.resourceUrl('/projetos'))
+      .pipe(map(r => r.data));
+  }
+
+  getCockpitGabinete(): Observable<CockpitGabineteResponse> {
+    return this.http
+      .get<{ data: CockpitGabineteResponse }>(this.resourceUrl('/cockpit-gabinete'))
       .pipe(map(r => r.data));
   }
 

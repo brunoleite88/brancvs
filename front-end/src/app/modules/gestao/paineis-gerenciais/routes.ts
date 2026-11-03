@@ -22,6 +22,12 @@ export const routes: Routes = [
           import('./ui/paineis-gerenciais.page').then(m => m.PaineisGerenciaisPage),
       },
       {
+        path: 'cockpit-gabinete',
+        data: { breadcrumb: 'Cockpit do Gabinete' },
+        loadComponent: () =>
+          import('./ui/pages/cockpit-gabinete.page').then(m => m.CockpitGabinetePage),
+      },
+      {
         path: 'metas-entregas',
         data: { breadcrumb: 'Metas e Entregas' },
         loadComponent: () =>
