@@ -7,6 +7,7 @@ use App\V2\PainelGerencial\Conformidade\ConformidadeController as ConformidadeV2
 use App\V2\PainelGerencial\Modalidades\ModalidadesController as ModalidadesV2;
 use App\V2\PainelGerencial\PainelGerencialController as PainelGerencialV2;
 use App\V2\PainelGerencial\Projetos\ProjetosController as ProjetosV2;
+use App\V2\PainelGerencial\Repactuacao\RepactuacaoController as RepactuacaoV2;
 use Illuminate\Support\Facades\Route;
 
 Route::get('painel-gerencial/unidade-inicial', [PainelGerencialV2::class, 'unidadeInicial']);
@@ -21,6 +22,12 @@ Route::get('painel-gerencial/modalidades/por-unidade', [ModalidadesV2::class, 'm
 
 Route::get('painel-gerencial/projetos', [ProjetosV2::class, 'index']);
 Route::get('painel-gerencial/projetos/indicador', [ProjetosV2::class, 'indicadorPorUnidade']);
+
+Route::get('painel-gerencial/repactuacoes', [RepactuacaoV2::class, 'index']);
+Route::get('painel-gerencial/repactuacoes/entregas-unidade/{unidadeId}', [RepactuacaoV2::class, 'entregasPorUnidade']);
+Route::post('painel-gerencial/repactuacoes', [RepactuacaoV2::class, 'store']);
+Route::post('painel-gerencial/repactuacoes/{id}/homologar', [RepactuacaoV2::class, 'homologar']);
+Route::post('painel-gerencial/repactuacoes/{id}/rejeitar', [RepactuacaoV2::class, 'rejeitar']);
 
 Route::get('painel-gerencial/conformidade/registro-execucao-pe', [ConformidadeV2::class, 'registroExecucaoPE']);
 Route::get('painel-gerencial/conformidade/avaliacao-pe', [ConformidadeV2::class, 'avaliacaoPE']);

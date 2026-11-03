@@ -51,6 +51,12 @@ export const routes: Routes = [
           import('./ui/pages/projetos-painel.page').then(m => m.ProjetosPainelPage),
       },
       {
+        path: 'repactuacoes',
+        data: { breadcrumb: 'Monitoramento & Repactuação' },
+        loadComponent: () =>
+          import('./ui/pages/repactuacoes-painel.page').then(m => m.RepactuacoesPainelPage),
+      },
+      {
         path: 'modalidades',
         redirectTo: 'projetos',
         pathMatch: 'full',

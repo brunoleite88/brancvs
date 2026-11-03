@@ -1,0 +1,721 @@
+<app-breadcrumb></app-breadcrumb>
+
+<div class="container-fluid px-4 py-3">
+  <!-- Cabeçalho Institucional -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+      <h2 class="mb-1 fw-bold text-dark">
+        <i class="bi bi-clock-history text-primary me-2"></i>Monitoramento & Repactuação de Metas
+      </h2>
+      <p class="text-muted small mb-0">
+        Ciclos periódicos de avaliação (Trimestral/Semestral), registro formal de justificativas e homologação pelo Gabinete da PGE-MA
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-primary" (click)="abrirModalNova()">
+        <i class="bi bi-plus-circle me-1"></i> Nova Repactuação
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" (click)="imprimir()" [disabled]="carregando()">
+        <i class="bi bi-printer me-1"></i> Imprimir Relatório
+      </button>
+      <button class="btn btn-sm btn-outline-primary" (click)="carregarDados()" [disabled]="carregando()">
+        <i class="bi bi-arrow-clockwise me-1" [class.spin]="carregando()"></i> Atualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- Cards de Totais / Indicadores de Cabeçalho -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-primary shadow-sm">
+        <div class="card-body py-3">
+          <div class="text-muted small fw-semibold text-uppercase">Total de Repactuações</div>
+          <div class="fs-2 fw-bold text-primary mt-1">
+            {{ dados()?.totais?.total_solicitacoes ?? 0 }}
+          </div>
+          <div class="small text-muted">Ajustes registrados no ciclo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-warning shadow-sm">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="text-muted small fw-semibold text-uppercase">Pendentes de Homologação</div>
+            @if ((dados()?.totais?.pendentes ?? 0) > 0) {
+              <span class="badge bg-warning text-dark">Ação Requerida</span>
+            }
+          </div>
+          <div class="fs-2 fw-bold text-warning mt-1">
+            {{ dados()?.totais?.pendentes ?? 0 }}
+          </div>
+          <div class="small text-muted">Aguardando parecer do Gabinete</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-success shadow-sm">
+        <div class="card-body py-3">
+          <div class="text-muted small fw-semibold text-uppercase">Homologadas pelo Gabinete</div>
+          <div class="fs-2 fw-bold text-success mt-1">
+            {{ dados()?.totais?.homologadas ?? 0 }}
+          </div>
+          <div class="small text-muted">
+            Taxa de aprovação: <strong>{{ dados()?.totais?.taxa_homologacao ?? 100 }}%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+      <div class="card h-100 summary-card border-info shadow-sm">
+        <div class="card-body py-3">
+          <div class="text-muted small fw-semibold text-uppercase">Setores Envolvidos</div>
+          <div class="fs-2 fw-bold text-info mt-1">
+            {{ dados()?.totais?.unidades_impactadas ?? 0 }}
+          </div>
+          <div class="small text-muted">Unidades com plano repactuado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros e Abas -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body py-3 bg-light rounded">
+      <div class="row g-2 align-items-center">
+        <!-- Navegação em Abas -->
+        <div class="col-12 col-lg-5">
+          <div class="btn-group w-100" role="group">
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="abaAtiva() === 'FILA_GABINETE'"
+              [class.btn-outline-primary]="abaAtiva() !== 'FILA_GABINETE'"
+              (click)="abaAtiva.set('FILA_GABINETE')"
+            >
+              <i class="bi bi-inbox me-1"></i> Fila de Decisão Gabinete
+              @if ((dados()?.totais?.pendentes ?? 0) > 0) {
+                <span class="badge bg-danger ms-1">{{ dados()?.totais?.pendentes }}</span>
+              }
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="abaAtiva() === 'QUADRO_GERAL'"
+              [class.btn-outline-primary]="abaAtiva() !== 'QUADRO_GERAL'"
+              (click)="abaAtiva.set('QUADRO_GERAL')"
+            >
+              <i class="bi bi-table me-1"></i> Quadro Geral
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm"
+              [class.btn-primary]="abaAtiva() === 'MOTIVOS'"
+              [class.btn-outline-primary]="abaAtiva() !== 'MOTIVOS'"
+              (click)="abaAtiva.set('MOTIVOS')"
+            >
+              <i class="bi bi-pie-chart me-1"></i> Causas & Motivos
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtros Rápidos -->
+        <div class="col-6 col-md-3 col-lg-2">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="cicloSelecionado()"
+            (ngModelChange)="cicloSelecionado.set($event); onFiltroChange()"
+          >
+            <option value="TODOS">Todos os Ciclos</option>
+            <option value="2026-T1">2026 - 1º Trimestre (T1)</option>
+            <option value="2026-T2">2026 - 2º Trimestre (T2)</option>
+            <option value="2026-T3">2026 - 3º Trimestre (T3)</option>
+            <option value="2026-T4">2026 - 4º Trimestre (T4)</option>
+            <option value="2026-S1">2026 - 1º Semestre (S1)</option>
+            <option value="2026-S2">2026 - 2º Semestre (S2)</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-3 col-lg-2">
+          <select
+            class="form-select form-select-sm"
+            [ngModel]="statusSelecionado()"
+            (ngModelChange)="statusSelecionado.set($event); onFiltroChange()"
+          >
+            <option value="TODOS">Todos os Status</option>
+            <option value="PENDENTE">Pendente Gabinete</option>
+            <option value="HOMOLOGADO">Homologado</option>
+            <option value="REJEITADO">Devolvido / Rejeitado</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar por unidade, entrega ou justificativa..."
+              [ngModel]="filtroTexto()"
+              (ngModelChange)="filtroTexto.set($event)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (carregando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando monitoramento de repactuações...</span>
+      </div>
+      <p class="text-muted mt-2">Carregando dados de monitoramento e governança setorial...</p>
+    </div>
+  }
+
+  <!-- ABA 1: FILA DE DECISÃO DO GABINETE -->
+  @if (!carregando() && abaAtiva() === 'FILA_GABINETE') {
+    @if (pendentesGabinete().length === 0) {
+      <div class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+          <i class="bi bi-check-circle text-success fs-1"></i>
+          <h4 class="mt-3 fw-bold">Nenhuma Solicitação Pendente de Homologação</h4>
+          <p class="text-muted mb-0">
+            Todas as solicitações de repactuação dos planos de entregas foram analisadas e despachadas pela Gestão Estratégica / Gabinete.
+          </p>
+        </div>
+      </div>
+    } @else {
+      <div class="row g-3">
+        @for (item of pendentesGabinete(); track item.id) {
+          <div class="col-12 col-xl-6">
+            <div class="card h-100 queue-card border-warning shadow-sm">
+              <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-warning text-dark me-2">Aguardando Gabinete</span>
+                  <span class="badge bg-light text-dark border">{{ item.ciclo }}</span>
+                  <span class="badge bg-secondary ms-1">Ajuste de {{ item.tipo }}</span>
+                </div>
+                <small class="text-muted">
+                  <i class="bi bi-calendar3 me-1"></i>{{ item.created_at | date:'dd/MM/yyyy HH:mm' }}
+                </small>
+              </div>
+
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                  <span class="badge bg-primary fs-6 me-2">{{ item.unidade_sigla }}</span>
+                  <strong class="text-dark">{{ item.unidade_nome }}</strong>
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">{{ item.descricao_ajuste }}</h6>
+
+                @if (item.descricao_entrega) {
+                  <div class="p-2 mb-3 bg-light rounded border small">
+                    <span class="text-muted d-block fw-semibold">Entrega Vinculada do Plano Setorial:</span>
+                    <span class="text-dark">{{ item.descricao_entrega }}</span>
+                  </div>
+                }
+
+                <div class="row g-2 mb-3 small">
+                  <div class="col-6">
+                    <div class="border rounded p-2 bg-light">
+                      <span class="text-muted d-block">Prazo Anterior:</span>
+                      <strong class="text-danger">
+                        {{ item.data_anterior ? (item.data_anterior | date:'dd/MM/yyyy') : 'Não definido' }}
+                      </strong>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="border rounded p-2 bg-light border-warning">
+                      <span class="text-muted d-block">Novo Prazo Proposto:</span>
+                      <strong class="text-success">
+                        {{ item.data_nova ? (item.data_nova | date:'dd/MM/yyyy') : 'Apenas Meta/Escopo' }}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3 small">
+                  <span class="text-muted fw-semibold d-block">Motivo Classificado:</span>
+                  <span class="badge bg-info text-dark">{{ getMotivoLabel(item.motivo) }}</span>
+                </div>
+
+                <div class="mb-3 small bg-light p-2 rounded">
+                  <span class="text-muted fw-semibold d-block">Justificativa Apresentada:</span>
+                  <p class="mb-0 text-secondary italic">"{{ item.justificativa }}"</p>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                  <span class="small text-muted">
+                    Solicitante: <strong>{{ item.solicitante_nome }}</strong>
+                  </span>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-danger" (click)="abrirModalParecer(item, 'REJEITAR')">
+                      <i class="bi bi-x-circle me-1"></i> Devolver
+                    </button>
+                    <button class="btn btn-sm btn-success" (click)="abrirModalParecer(item, 'HOMOLOGAR')">
+                      <i class="bi bi-check2-circle me-1"></i> Homologar Ajuste
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ABA 2: QUADRO GERAL DE MONITORAMENTO -->
+  @if (!carregando() && abaAtiva() === 'QUADRO_GERAL') {
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr class="small text-muted text-uppercase">
+                <th style="width: 90px;">Ciclo</th>
+                <th style="width: 130px;">Unidade</th>
+                <th>Ajuste Proposto & Entrega</th>
+                <th style="width: 140px;">Causa / Motivo</th>
+                <th style="width: 120px;">Prazo Repactuado</th>
+                <th style="width: 130px;">Status</th>
+                <th style="width: 110px;" class="text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rep of repactuacoesFiltradas(); track rep.id) {
+                <tr class="hover-row">
+                  <td>
+                    <span class="badge bg-light text-dark border">{{ rep.ciclo }}</span>
+                  </td>
+                  <td>
+                    <strong class="text-primary d-block">{{ rep.unidade_sigla }}</strong>
+                    <span class="small text-muted text-truncate d-inline-block" style="max-width: 120px;" [title]="rep.unidade_nome">
+                      {{ rep.unidade_nome }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="fw-semibold text-dark">{{ rep.descricao_ajuste }}</div>
+                    @if (rep.descricao_entrega) {
+                      <div class="small text-muted text-truncate" style="max-width: 420px;" [title]="rep.descricao_entrega">
+                        <i class="bi bi-arrow-return-right me-1"></i>{{ rep.descricao_entrega }}
+                      </div>
+                    }
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary-subtle text-secondary small">
+                      {{ getMotivoLabel(rep.motivo) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (rep.data_nova) {
+                      <span class="small text-success fw-bold">
+                        <i class="bi bi-calendar-check me-1"></i>{{ rep.data_nova | date:'dd/MM/yyyy' }}
+                      </span>
+                    } @else {
+                      <span class="small text-muted">Ajuste de Meta</span>
+                    }
+                  </td>
+                  <td>
+                    @switch (rep.status) {
+                      @case ('PENDENTE') {
+                        <span class="badge bg-warning text-dark">
+                          <i class="bi bi-hourglass-split me-1"></i>Pendente
+                        </span>
+                      }
+                      @case ('HOMOLOGADO') {
+                        <span class="badge bg-success">
+                          <i class="bi bi-check-circle me-1"></i>Homologado
+                        </span>
+                      }
+                      @case ('REJEITADO') {
+                        <span class="badge bg-danger">
+                          <i class="bi bi-x-circle me-1"></i>Devolvido
+                        </span>
+                      }
+                    }
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-outline-secondary" (click)="abrirTrilhaAuditoria(rep)" title="Ver Trilha de Auditoria & Justificativa">
+                      <i class="bi bi-eye"></i> Detalhes
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    Nenhuma repactuação encontrada para os filtros selecionados.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ABA 3: CAUSAS & MOTIVOS DE AJUSTE -->
+  @if (!carregando() && abaAtiva() === 'MOTIVOS') {
+    <div class="row g-4">
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0 text-dark">
+              <i class="bi bi-bar-chart text-primary me-2"></i>Distribuição de Causas de Repactuação
+            </h5>
+            <small class="text-muted">Classificação das justificativas registradas pelas unidades setoriais</small>
+          </div>
+          <div class="card-body">
+            @for (motivo of dados()?.por_motivo ?? []; track motivo.motivo) {
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1 small">
+                  <span class="fw-semibold text-dark">{{ motivo.label }}</span>
+                  <span class="text-muted"><strong>{{ motivo.total }}</strong> solicitações ({{ motivo.percentual }}%)</span>
+                </div>
+                <div class="progress" style="height: 10px;">
+                  <div
+                    class="progress-bar bg-primary"
+                    role="progressbar"
+                    [style.width.%]="motivo.percentual"
+                  ></div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0 text-dark">
+              <i class="bi bi-calendar-event text-primary me-2"></i>Evolução por Ciclo de Monitoramento
+            </h5>
+            <small class="text-muted">Adesão institucional às janelas trimestrais/semestrais</small>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              @for (c of dados()?.por_ciclo ?? []; track c.ciclo) {
+                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                  <div>
+                    <span class="fw-bold text-dark">{{ c.ciclo }}</span>
+                    <small class="text-muted d-block">Janela de Monitoramento PGE-MA</small>
+                  </div>
+                  <div class="d-flex gap-2 align-items-center">
+                    <span class="badge bg-primary">{{ c.total }} ajustes</span>
+                    @if (c.pendentes > 0) {
+                      <span class="badge bg-warning text-dark">{{ c.pendentes }} pendentes</span>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- MODAL: DELIBERAÇÃO / PARECER DO GABINETE -->
+@if (modalParecerAberta() && itemParaDeliberacao(); as item) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0">
+        <div class="modal-header" [class.bg-success-subtle]="parecerAcao() === 'HOMOLOGAR'" [class.bg-danger-subtle]="parecerAcao() === 'REJEITAR'">
+          <h5 class="modal-title fw-bold">
+            @if (parecerAcao() === 'HOMOLOGAR') {
+              <i class="bi bi-check2-circle text-success me-2"></i>Homologar Repactuação de Meta
+            } @else {
+              <i class="bi bi-x-circle text-danger me-2"></i>Devolver com Ressalvas
+            }
+          </h5>
+          <button type="button" class="btn-close" (click)="fecharModalParecer()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3 small">
+            <span class="text-muted d-block">Unidade Solicitante:</span>
+            <strong class="text-dark">{{ item.unidade_sigla }} - {{ item.unidade_nome }}</strong>
+          </div>
+
+          <div class="mb-3 small">
+            <span class="text-muted d-block">Ajuste Solicitado:</span>
+            <div class="fw-semibold text-dark">{{ item.descricao_ajuste }}</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">
+              Despacho / Parecer do Gabinete & Gestão Estratégica:
+            </label>
+            <textarea
+              class="form-control"
+              rows="4"
+              [(ngModel)]="parecerTexto"
+              placeholder="Insira a fundamentação do parecer de aprovação ou devolução..."
+            ></textarea>
+            <div class="form-text small">
+              Este parecer ficará registrado de forma auditável e transparente para auditorias internas e PGE/TCE.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="fecharModalParecer()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            [class.btn-success]="parecerAcao() === 'HOMOLOGAR'"
+            [class.btn-danger]="parecerAcao() === 'REJEITAR'"
+            (click)="salvarDeliberacao()"
+            [disabled]="salvando()"
+          >
+            @if (salvando()) {
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            Confirmar Decisão
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: TRILHA DE AUDITORIA & DETALHES -->
+@if (modalTrilhaAberta() && repactuacaoSelecionada(); as rep) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow-lg border-0">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="bi bi-shield-check text-primary me-2"></i>Trilha de Auditoria & Governança da Repactuação
+          </h5>
+          <button type="button" class="btn-close" (click)="fecharTrilhaAuditoria()"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <span class="text-muted small d-block">Status Atual:</span>
+              @switch (rep.status) {
+                @case ('HOMOLOGADO') { <span class="badge bg-success">Homologado</span> }
+                @case ('PENDENTE') { <span class="badge bg-warning text-dark">Pendente</span> }
+                @case ('REJEITADO') { <span class="badge bg-danger">Devolvido</span> }
+              }
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted small d-block">Ciclo de Avaliação:</span>
+              <strong>{{ rep.ciclo }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted small d-block">Tipo de Ajuste:</span>
+              <strong>{{ rep.tipo }}</strong>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="text-muted small d-block">Motivo Classificado:</span>
+              <span class="badge bg-info text-dark">{{ getMotivoLabel(rep.motivo) }}</span>
+            </div>
+          </div>
+
+          <div class="border rounded p-3 bg-light mb-3">
+            <h6 class="fw-bold text-dark mb-1">{{ rep.descricao_ajuste }}</h6>
+            <div class="small text-muted mb-2">Unidade: {{ rep.unidade_sigla }} - {{ rep.unidade_nome }}</div>
+            @if (rep.descricao_entrega) {
+              <div class="small text-dark p-2 bg-white rounded border">
+                <strong>Entrega Setorial:</strong> {{ rep.descricao_entrega }}
+              </div>
+            }
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <div class="border rounded p-3 bg-white">
+                <span class="text-muted small d-block">Configuração Anterior:</span>
+                <div class="small text-danger fw-bold mt-1">
+                  Prazo: {{ rep.data_anterior ? (rep.data_anterior | date:'dd/MM/yyyy') : 'Não estipulado' }}
+                </div>
+                @if (rep.meta_anterior) {
+                  <div class="small text-muted mt-1">Meta: {{ rep.meta_anterior }}</div>
+                }
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border rounded p-3 bg-white border-success">
+                <span class="text-muted small d-block">Configuração Repactuada:</span>
+                <div class="small text-success fw-bold mt-1">
+                  Prazo: {{ rep.data_nova ? (rep.data_nova | date:'dd/MM/yyyy') : 'Não alterado' }}
+                </div>
+                @if (rep.meta_nova) {
+                  <div class="small text-dark mt-1">Meta: {{ rep.meta_nova }}</div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">Justificativa da Unidade:</label>
+            <div class="p-3 bg-light rounded text-secondary small">
+              "{{ rep.justificativa }}"
+            </div>
+          </div>
+
+          @if (rep.parecer_analise) {
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-success">
+                <i class="bi bi-file-earmark-check me-1"></i>Despacho / Parecer do Gabinete:
+              </label>
+              <div class="p-3 bg-success-subtle rounded text-dark small border border-success">
+                <strong>Despacho:</strong> {{ rep.parecer_analise }}
+                <div class="small text-muted mt-2">
+                  <i class="bi bi-person-check me-1"></i>Homologado por: <strong>{{ rep.analisador_nome ?? 'Gabinete PGE-MA' }}</strong>
+                  em {{ rep.data_homologacao | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="fecharTrilhaAuditoria()">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL: NOVA SOLICITAÇÃO DE REPACTUAÇÃO -->
+@if (modalNovaAberta()) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content shadow-lg border-0">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-plus-circle me-2"></i>Nova Solicitação de Repactuação de Metas
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="fecharModalNova()"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold">Unidade Setorial / Procuradoria: *</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="novaUnidadeId"
+                (ngModelChange)="onUnidadeNovaChange()"
+              >
+                <option value="">Selecione uma unidade...</option>
+                @for (u of dados()?.unidades ?? []; track u.id) {
+                  <option [value]="u.id">{{ u.sigla }} - {{ u.nome }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label small fw-bold">Ciclo de Avaliação: *</label>
+              <select class="form-select form-select-sm" [(ngModel)]="novoCiclo">
+                <option value="2026-T1">2026 - 1º Trimestre (T1)</option>
+                <option value="2026-T2">2026 - 2º Trimestre (T2)</option>
+                <option value="2026-T3">2026 - 3º Trimestre (T3)</option>
+                <option value="2026-T4">2026 - 4º Trimestre (T4)</option>
+                <option value="2026-S1">2026 - 1º Semestre (S1)</option>
+                <option value="2026-S2">2026 - 2º Semestre (S2)</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label small fw-bold">Tipo de Ajuste: *</label>
+              <select class="form-select form-select-sm" [(ngModel)]="novoTipo">
+                <option value="PRAZO">Prorrogação de Prazo</option>
+                <option value="META">Adequação Quantitativa de Meta</option>
+                <option value="ESCOPO">Redefinição de Escopo</option>
+                <option value="OUTRO">Outro Ajuste</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Entrega do Plano Setorial a ser Repactuada: *</label>
+            @if (carregandoEntregas()) {
+              <div class="small text-muted py-2"><i class="bi bi-hourglass-split me-1"></i>Carregando entregas da unidade selecionada...</div>
+            } @else {
+              <select class="form-select form-select-sm" [(ngModel)]="novaEntregaId" [disabled]="!novaUnidadeId">
+                <option value="">Selecione a entrega vinculada...</option>
+                @for (ent of entregasUnidade(); track ent.id) {
+                  <option [value]="ent.id">{{ ent.descricao_entrega }}</option>
+                }
+              </select>
+            }
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold">Motivo Classificado: *</label>
+              <select class="form-select form-select-sm" [(ngModel)]="novoMotivo">
+                <option value="IMPEDIMENTO_ORCAMENTARIO">Impedimento Orçamentário / BID (PROFISCO III)</option>
+                <option value="ATRASO_EXTERNO">Atraso Externo (Tribunais, CCL ou Órgãos Externos)</option>
+                <option value="REORGANIZACAO_INTERNA">Reorganização Interna de Equipe / Carga de Trabalho</option>
+                <option value="EXPANSAO_DEMANDA">Expansão de Demanda Institucional</option>
+                <option value="ADEQUACAO_TECNICA">Adequação Técnica ou Ferramental</option>
+                <option value="OUTRO">Outros Motivos Justificados</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold">Novo Prazo Proposto (se aplicável):</label>
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="novaDataFim" />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Título / Resumo do Ajuste: *</label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="novaDescricaoAjuste"
+              placeholder="Ex.: Prorrogação do prazo para conclusão de edital de IA..."
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Justificativa Circunstanciada: *</label>
+            <textarea
+              class="form-control form-control-sm"
+              rows="3"
+              [(ngModel)]="novaJustificativa"
+              placeholder="Apresente as razões fáticas e jurídicas que motivaram a necessidade de repactuação..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="fecharModalNova()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            (click)="submeterNovaRepactuacao()"
+            [disabled]="salvando()"
+          >
+            @if (salvando()) {
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            Enviar ao Gabinete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

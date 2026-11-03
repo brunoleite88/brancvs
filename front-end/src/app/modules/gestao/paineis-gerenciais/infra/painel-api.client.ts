@@ -143,6 +143,66 @@ export interface CockpitGabineteResponse {
   unidades: CockpitUnidadeDetalhe[];
 }
 
+export interface RepactuacaoItem {
+  id: string;
+  plano_entrega_id: string;
+  plano_entrega_entrega_id: string | null;
+  unidade_id: string;
+  unidade_sigla: string;
+  unidade_nome: string;
+  ciclo: string;
+  tipo: 'PRAZO' | 'META' | 'ESCOPO' | 'OUTRO';
+  motivo: string;
+  descricao_ajuste: string;
+  justificativa: string;
+  data_anterior: string | null;
+  data_nova: string | null;
+  meta_anterior: string | null;
+  meta_nova: string | null;
+  status: 'PENDENTE' | 'HOMOLOGADO' | 'REJEITADO';
+  solicitante_id: string;
+  solicitante_nome: string;
+  analisador_id: string | null;
+  analisador_nome: string | null;
+  parecer_analise: string | null;
+  data_homologacao: string | null;
+  created_at: string;
+  descricao_entrega?: string;
+  meta_atual_entrega?: string;
+  progresso_atual_entrega?: number;
+}
+
+export interface RepactuacaoMotivoSummary {
+  motivo: string;
+  label: string;
+  total: number;
+  percentual: number;
+}
+
+export interface RepactuacaoCicloSummary {
+  ciclo: string;
+  total: number;
+  pendentes: number;
+  homologadas: number;
+}
+
+export interface RepactuacaoTotais {
+  total_solicitacoes: number;
+  pendentes: number;
+  homologadas: number;
+  rejeitadas: number;
+  unidades_impactadas: number;
+  taxa_homologacao: number;
+}
+
+export interface RepactuacoesResponse {
+  totais: RepactuacaoTotais;
+  por_motivo: RepactuacaoMotivoSummary[];
+  por_ciclo: RepactuacaoCicloSummary[];
+  unidades: Array<{ id: string; sigla: string; nome: string }>;
+  repactuacoes: RepactuacaoItem[];
+}
+
 export interface UnidadeHistorica {
   id: string;
   sigla: string;
@@ -331,4 +391,32 @@ export class PainelApiClient extends TenantV2ResourceApiBase {
       .pipe(map(r => r.data));
   }
 
+  getRepactuacoes(ciclo?: string, status?: string, unidadeId?: string): Observable<RepactuacoesResponse> {
+    const params: Record<string, string> = {};
+    if (ciclo) params['ciclo'] = ciclo;
+    if (status) params['status'] = status;
+    if (unidadeId) params['unidade_id'] = unidadeId;
+
+    return this.http
+      .get<{ data: RepactuacoesResponse }>(this.resourceUrl('/repactuacoes'), { params })
+      .pipe(map(r => r.data));
+  }
+
+  getEntregasPorUnidade(unidadeId: string): Observable<any[]> {
+    return this.http
+      .get<{ data: any[] }>(this.resourceUrl(`/repactuacoes/entregas-unidade/${unidadeId}`))
+      .pipe(map(r => r.data));
+  }
+
+  criarRepactuacao(payload: any): Observable<any> {
+    return this.http.post(this.resourceUrl('/repactuacoes'), payload);
+  }
+
+  homologarRepactuacao(id: string, parecer?: string): Observable<any> {
+    return this.http.post(this.resourceUrl(`/repactuacoes/${id}/homologar`), { parecer });
+  }
+
+  rejeitarRepactuacao(id: string, parecer: string): Observable<any> {
+    return this.http.post(this.resourceUrl(`/repactuacoes/${id}/rejeitar`), { parecer });
+  }
 }

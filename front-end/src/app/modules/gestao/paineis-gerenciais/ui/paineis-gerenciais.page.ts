@@ -25,6 +25,7 @@ export class PaineisGerenciaisPage {
     { titulo: 'Metas e Entregas', rota: 'metas-entregas', icon: 'bi bi-graph-up-arrow' },
     { titulo: 'Conformidade', rota: 'conformidade', icon: 'bi bi-clipboard2-check' },
     { titulo: 'Projetos', rota: 'projetos', icon: 'bi bi-kanban' },
+    { titulo: 'Monitoramento & Repactuação', rota: 'repactuacoes', icon: 'bi bi-clock-history' },
   ];
 
   navegarPara(rota: string): void {
