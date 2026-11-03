@@ -87,7 +87,8 @@ review-pr-*
 front-end/out-tsc/app/main.js
 front-end/dist/*
 
-docs/*
+!docs/**
+!docs/prints/**
 scripts/release/*
 AGENTS.md
 .agents/skills/*
