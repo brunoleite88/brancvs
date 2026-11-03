@@ -1,6 +1,7 @@
 .summary-card {
   border-left-width: 4px !important;
   background-color: #ffffff;
+  border-radius: 8px;
   transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 
   &:hover {
@@ -41,6 +42,22 @@
   color: #ffffff;
 }
 
+.hover-row {
+  transition: background-color 0.15s ease;
+  &:hover {
+    background-color: #f8fafc;
+  }
+}
+
+.timeline-container {
+  overflow-x: auto;
+}
+
+.gantt-bar-bg {
+  background-color: #eff6ff;
+  border-radius: 4px;
+}
+
 @keyframes spin-anim {
   from {
     transform: rotate(0deg);
@@ -53,4 +70,22 @@
 .spin {
   display: inline-block;
   animation: spin-anim 1s linear infinite;
+}
+
+@media print {
+  app-breadcrumb,
+  .btn,
+  .input-group,
+  .btn-group {
+    display: none !important;
+  }
+
+  .container-fluid {
+    padding: 0 !important;
+  }
+
+  .card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
 }

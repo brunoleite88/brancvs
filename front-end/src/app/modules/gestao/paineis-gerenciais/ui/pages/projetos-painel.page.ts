@@ -23,8 +23,10 @@ export class ProjetosPainelPage implements OnInit {
   readonly carregando = signal(true);
   readonly dados = signal<ProjetosPainelResponse | null>(null);
 
+  readonly modoVisualizacao = signal<'CARDS' | 'CRONOGRAMA' | 'MATRIZ'>('CARDS');
   readonly filtroTexto = signal('');
   readonly filtroStatus = signal<'TODOS' | 'EXECUCAO' | 'IMPLANTACAO' | 'ELABORACAO'>('TODOS');
+  readonly projetoSelecionado = signal<ProjetoResumoItem | null>(null);
 
   readonly projetosFiltrados = computed(() => {
     const list = this.dados()?.projetos ?? [];
@@ -39,7 +41,8 @@ export class ProjetosPainelPage implements OnInit {
           p.titulo.toLowerCase().includes(texto) ||
           p.lider.toLowerCase().includes(texto) ||
           p.unidades_participantes.toLowerCase().includes(texto) ||
-          p.krs_vinculados.toLowerCase().includes(texto);
+          p.krs_vinculados.toLowerCase().includes(texto) ||
+          (p.fonte_financiamento && p.fonte_financiamento.toLowerCase().includes(texto));
         if (!match) return false;
       }
 
@@ -91,10 +94,29 @@ export class ProjetosPainelPage implements OnInit {
     return 'badge-elaboracao';
   }
 
+  getMarcoStatusClass(status: string): string {
+    const s = (status || '').toUpperCase();
+    if (s === 'CONCLUIDO') return 'badge bg-success';
+    if (s === 'INICIADO') return 'badge bg-primary';
+    if (s === 'AGUARDANDO') return 'badge bg-warning text-dark';
+    return 'badge bg-secondary';
+  }
+
+  abrirDetalhes(projeto: ProjetoResumoItem): void {
+    this.projetoSelecionado.set(projeto);
+  }
+
+  fecharDetalhes(): void {
+    this.projetoSelecionado.set(null);
+  }
+
   acessarProjeto(projeto: ProjetoResumoItem): void {
-    // Redireciona para o módulo de projetos
     this.router.navigate(['gestao', 'projeto'], {
       queryParams: { search: projeto.codigo },
     });
+  }
+
+  imprimir(): void {
+    window.print();
   }
 }

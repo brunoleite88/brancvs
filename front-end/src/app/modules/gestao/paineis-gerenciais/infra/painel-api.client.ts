@@ -53,6 +53,16 @@ export interface SerieAdesao {
   serie: SerieAdesaoItem[];
 }
 
+export interface ProjetoMarcoItem {
+  id: string;
+  nome: string;
+  descricao: string;
+  data_inicio: string | null;
+  data_fim: string | null;
+  progresso: number;
+  status: string;
+}
+
 export interface ProjetoResumoItem {
   id: string;
   codigo: string;
@@ -65,6 +75,9 @@ export interface ProjetoResumoItem {
   objetivo: string;
   krs_vinculados: string;
   progresso: number;
+  fonte_financiamento?: string;
+  risco_principal?: string;
+  marcos?: ProjetoMarcoItem[];
 }
 
 export interface ProjetosPainelResponse {
@@ -74,6 +87,8 @@ export interface ProjetosPainelResponse {
     em_implantacao: number;
     em_elaboracao: number;
     media_progresso: number;
+    total_marcos?: number;
+    marcos_concluidos?: number;
   };
   projetos: ProjetoResumoItem[];
 }

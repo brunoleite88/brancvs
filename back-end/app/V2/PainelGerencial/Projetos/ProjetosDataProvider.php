@@ -42,11 +42,19 @@ class ProjetosDataProvider
             return $p->nome;
         });
 
+        $tarefasPorProjeto = DB::connection('tenant')->table('projetos_tarefas')
+            ->whereNull('deleted_at')
+            ->orderBy('indice')
+            ->get()
+            ->groupBy('projeto_id');
+
         $lista = [];
         $emExecucao = 0;
         $emImplantacao = 0;
         $emElaboracao = 0;
         $totalProgresso = 0;
+        $totalMarcosGeral = 0;
+        $totalMarcosConcluidos = 0;
 
         foreach ($sgpeProjetos as $sp) {
             $guid = null;
@@ -69,6 +77,41 @@ class ProjetosDataProvider
 
             $totalProgresso += $progresso;
 
+            // Busca os marcos do projeto
+            $tarefas = $guid && isset($tarefasPorProjeto[$guid]) ? $tarefasPorProjeto[$guid] : collect();
+            $marcos = [];
+            $fonteFinanciamento = 'Recursos Ordinários / Tesouro';
+            $riscoPrincipal = 'Acompanhamento Regular';
+
+            foreach ($tarefas as $t) {
+                $totalMarcosGeral++;
+                if ($t->progresso >= 100 || $t->status === 'CONCLUIDO') {
+                    $totalMarcosConcluidos++;
+                }
+
+                $tags = json_decode($t->etiquetas ?? '[]', true);
+                if (is_array($tags)) {
+                    foreach ($tags as $tag) {
+                        if (($tag['key'] ?? '') === 'fonte') {
+                            $fonteFinanciamento = $tag['value'];
+                        }
+                        if (($tag['key'] ?? '') === 'risco') {
+                            $riscoPrincipal = $tag['value'];
+                        }
+                    }
+                }
+
+                $marcos[] = [
+                    'id' => $t->id,
+                    'nome' => $t->nome,
+                    'descricao' => $t->descricao,
+                    'data_inicio' => $t->data_inicio ? substr($t->data_inicio, 0, 10) : null,
+                    'data_fim' => $t->data_fim ? substr($t->data_fim, 0, 10) : null,
+                    'progresso' => (float) $t->progresso,
+                    'status' => $t->status,
+                ];
+            }
+
             $lista[] = [
                 'id' => $guid ?? (string) $sp->id,
                 'codigo' => $sp->codigo,
@@ -81,6 +124,9 @@ class ProjetosDataProvider
                 'objetivo' => $sp->objetivo,
                 'krs_vinculados' => $sp->krs_vinculados,
                 'progresso' => $progresso,
+                'fonte_financiamento' => $fonteFinanciamento,
+                'risco_principal' => $riscoPrincipal,
+                'marcos' => $marcos,
             ];
         }
 
@@ -93,6 +139,8 @@ class ProjetosDataProvider
                 'em_implantacao' => $emImplantacao,
                 'em_elaboracao' => $emElaboracao,
                 'media_progresso' => $total > 0 ? round($totalProgresso / $total, 1) : 0,
+                'total_marcos' => $totalMarcosGeral,
+                'marcos_concluidos' => $totalMarcosConcluidos,
             ],
             'projetos' => $lista,
         ];
