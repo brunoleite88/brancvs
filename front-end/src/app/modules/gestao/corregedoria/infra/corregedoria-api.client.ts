@@ -10,9 +10,17 @@ export interface RelatorioAto {
   ato: string;
   data_ato: string;
   observacao: string;
-  vinculo_tipo?: 'NENHUM' | 'INICIATIVA' | 'PROJETO';
+  vinculo_tipo?: 'NENHUM' | 'INICIATIVA' | 'PROJETO' | 'PLANO_INDIVIDUAL';
   vinculo_codigo?: string;
   vinculo_descricao?: string;
+}
+
+export interface OpcaoVinculoIndividual {
+  id: string;
+  codigo: string;
+  titulo: string;
+  descricao?: string;
+  tipo: string;
 }
 
 export interface OpcaoVinculoProjeto {
@@ -41,6 +49,7 @@ export interface OpcoesVinculoResponse {
   unidade_sigla: string;
   projetos: OpcaoVinculoProjeto[];
   iniciativas: OpcaoVinculoIniciativa[];
+  entregas_individuais?: OpcaoVinculoIndividual[];
 }
 
 export interface RelatorioCabecalho {
@@ -83,6 +92,11 @@ export class CorregedoriaApiClient extends TenantV2ResourceApiBase {
   salvarRascunho(payload: any): Observable<RelatorioCorregedoria> {
     return this.http.post<any>(this.resourceUrl('/salvar-rascunho'), payload)
       .pipe(map(r => r?.data));
+  }
+
+  importarAtividades(mes: number, ano: number, unidadeId?: string): Observable<{ data: RelatorioCorregedoria; importados: number }> {
+    return this.http.post<any>(this.resourceUrl('/importar-atividades'), { mes, ano, unidade_id: unidadeId })
+      .pipe(map(r => ({ data: r?.data, importados: r?.importados ?? 0 })));
   }
 
   assinarRelatorio(id: string): Observable<RelatorioCorregedoria> {

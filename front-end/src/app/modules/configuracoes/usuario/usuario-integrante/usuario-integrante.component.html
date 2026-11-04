@@ -38,12 +38,6 @@
             </ng-template>
         </column>
 
-        <column [title]="lex.translate('Regramento')" [template]="columnRegramento">
-            <ng-template let-row="row" #columnRegramento>
-                <span *ngFor="let regramento of row.regramentos">{{ regramento.nome || '' }} </span>
-            </ng-template>
-        </column>
-
         <column [title]="lex.translate('Atribuições')" [template]="columnAtribuicoes" [editTemplate]="editAtribuicoes">
             <ng-template let-row="row" #columnAtribuicoes>
                 <div *ngFor="let a of row.atribuicoes">

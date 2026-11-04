@@ -22,10 +22,16 @@ import { Unidade } from './unidade.model';
 import { UnidadeVinculada } from '../services/auth.service';
 
 
-export type UsuarioSituacaoFuncional = "ATIVO_PERMANENTE" |
-    "APOSENTADO" |
-    "CEDIDO/REQUISITADO" |
+export type UsuarioSituacaoFuncional = "ESTATUTARIO_PROCURADOR" |
+    "ESTATUTARIO_SERVIDOR" |
     "NOMEADO_CARGO_COMISSIONADO" |
+    "RESIDENCIA_JURIDICA" |
+    "ESTAGIARIO" |
+    "CONTRATO_TEMPORARIO" |
+    "CEDIDO/REQUISITADO" |
+    "TERCEIRIZADO" |
+    "APOSENTADO" |
+    "ATIVO_PERMANENTE" |
     "SEM_VINCULO" |
     "TABELISTA(ESP/EMERG)" |
     "NATUREZA_ESPECIAL" |
@@ -56,7 +62,6 @@ export type UsuarioSituacaoFuncional = "ATIVO_PERMANENTE" |
     "ANISTIADO_PUBLICO_L10559" |
     "ANISTIADO_PRIVADO_L10559" |
     "ATIVO_DECISAO_JUDICIAL" |
-    "CONTRATO_TEMPORARIO" |
     "COLAB_PCCTAE_E_MAGISTERIO" |
     "COLABORADOR_ICT" |
     "CLT_ANS_DEC_6657/08" |
@@ -69,7 +74,6 @@ export type UsuarioSituacaoFuncional = "ATIVO_PERMANENTE" |
     "EMPREGO_PCC/EX-TERRITORIO" |
     "EXC_INDISCIPLINA" |
     "CONTRATO_PROFESSOR_SUBSTITUTO" |
-    "ESTAGIARIO" |
     "ESTAGIARIO_SIGEPE" |
     "RESIDENCIA_E_PMM" |
     "APOSENTADO_TEMPORARIRIO" |
@@ -79,7 +83,7 @@ export type UsuarioSituacaoFuncional = "ATIVO_PERMANENTE" |
     "PENSIONISTA" |
     "BENEFICIARIO_PENSAO" |
     "QE/MRE_CEDIDO" |
-    "QUADRO_ESPEC_QE/MRE";
+    "QUADRO_ESPEC_QE/MRE" | string;
 
 export type UsuarioSituacaoSiape = "ATIVO" | "INATIVO" | "ATIVO_TEMPORARIO";
 
@@ -149,7 +153,7 @@ export class Usuario extends Base implements HasNotificacao {
     public notificacoes: NotificacoesConfig = new NotificacoesConfig();
     public id_google: string | null = null; /* ID do usuário google */
     public url_foto: string | null = null; /* URL da foto do usuário (temporário) */
-    public situacao_funcional: UsuarioSituacaoFuncional = "ATIVO_PERMANENTE";
+    public situacao_funcional: UsuarioSituacaoFuncional = "ESTATUTARIO_SERVIDOR";
     public situacao_siape: UsuarioSituacaoSiape = "ATIVO";
     public texto_complementar_plano: string | null = ""; // Mensagem adicional para o plano de trabalho
 

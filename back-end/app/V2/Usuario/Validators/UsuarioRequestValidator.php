@@ -25,7 +25,7 @@ class UsuarioRequestValidator
             'sexo' => ['sometimes', 'nullable', 'string', 'in:MASCULINO,FEMININO'],
             'matricula' => ['sometimes', 'nullable', 'string', 'max:50'],
             'password' => ['sometimes', 'nullable', 'string', 'min:4'],
-            'situacao_funcional' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'situacao_funcional' => ['sometimes', 'nullable', 'string', 'max:60'],
             'situacao_siape' => ['sometimes', 'nullable', 'string', 'max:50'],
             'participa_pgd' => ['sometimes', 'nullable', 'string', 'max:50'],
             'modalidade_pgd' => ['sometimes', 'nullable', 'string', 'max:50'],

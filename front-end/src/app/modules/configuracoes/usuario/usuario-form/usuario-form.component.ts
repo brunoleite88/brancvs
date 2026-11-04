@@ -64,7 +64,7 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
       nome_social: { default: null },
       participa_pgd: { default: "não" },
       modalidade_pgd: { default: null },
-      situacao_funcional: { default: "ATIVO_PERMANENTE" },
+      situacao_funcional: { default: "ESTATUTARIO_SERVIDOR" },
       situacao_siape: { default: "ATIVO" },
       usuario_externo: { default: false },
       password: { default: "" },

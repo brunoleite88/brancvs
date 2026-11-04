@@ -14,6 +14,9 @@
         </button>
 
         @if (isEditavel) {
+          <button class="btn btn-outline-info" (click)="importarDoPlanoIndividual()" [disabled]="importando() || salvando()" title="Sincronizar tarefas concluídas na Agenda e entregas do Plano Individual">
+            {{ importando() ? 'Importando...' : 'Importar do Plano Individual / Tarefas' }}
+          </button>
           <button class="btn btn-outline-dark" (click)="abrirModalCabecalho()">
             Editar Cabeçalho e Logo
           </button>
@@ -175,9 +178,9 @@
                   @if (isEditavel) {
                     <textarea class="form-control form-control-sm mb-1" rows="2" [(ngModel)]="item.observacao" placeholder="Detalhamento da atividade..."></textarea>
                     
-                    <!-- Vínculo Opcional a Projeto Estruturante ou Iniciativa do Setor -->
+                    <!-- Vínculo Opcional a Projeto Estruturante, Iniciativa do Setor ou Plano Individual / Tarefa -->
                     <div class="d-print-none bg-light p-1 rounded border">
-                      <div class="d-flex align-items-center gap-2 mb-1">
+                      <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                         <span class="text-muted fw-bold" style="font-size: 0.72rem;">Vínculo:</span>
                         <div class="form-check form-check-inline m-0">
                           <input class="form-check-input" type="radio" [name]="'vinc_tipo_' + $index" value="NENHUM" [(ngModel)]="item.vinculo_tipo" (change)="limparVinculo(item)">
@@ -190,6 +193,10 @@
                         <div class="form-check form-check-inline m-0">
                           <input class="form-check-input" type="radio" [name]="'vinc_tipo_' + $index" value="INICIATIVA" [(ngModel)]="item.vinculo_tipo" (change)="aoMudarTipoVinculo(item)">
                           <label class="form-check-label" style="font-size: 0.75rem;">Iniciativa</label>
+                        </div>
+                        <div class="form-check form-check-inline m-0">
+                          <input class="form-check-input" type="radio" [name]="'vinc_tipo_' + $index" value="PLANO_INDIVIDUAL" [(ngModel)]="item.vinculo_tipo" (change)="aoMudarTipoVinculo(item)">
+                          <label class="form-check-label" style="font-size: 0.75rem;">Plano Individual / Tarefa</label>
                         </div>
                       </div>
 
@@ -207,6 +214,15 @@
                           <option value="">Selecione a Iniciativa do setor...</option>
                           @for (inic of iniciativas(); track inic.id) {
                             <option [value]="inic.codigo">[{{ inic.codigo }}] {{ inic.titulo }}</option>
+                          }
+                        </select>
+                      }
+
+                      @if (item.vinculo_tipo === 'PLANO_INDIVIDUAL') {
+                        <select class="form-select form-select-sm" [(ngModel)]="item.vinculo_codigo" (ngModelChange)="aplicarVinculoNaObservacao(item, $event, 'PLANO_INDIVIDUAL')" style="font-size: 0.75rem;">
+                          <option value="">Selecione a Entrega do Plano Individual ou Tarefa da Agenda...</option>
+                          @for (ei of entregasIndividuais(); track ei.id) {
+                            <option [value]="ei.codigo">[{{ ei.codigo }}] {{ ei.titulo }}</option>
                           }
                         </select>
                       }
@@ -237,11 +253,14 @@
         }
       </datalist>
 
-      <!-- Botão Adicionar Linha -->
+      <!-- Botão Adicionar Linha / Importar do Plano Individual -->
       @if (isEditavel) {
-        <div class="d-print-none mb-4">
+        <div class="d-print-none mb-4 d-flex gap-2">
           <button class="btn btn-sm btn-outline-primary" (click)="adicionarAto()">
             Adicionar Linha de Atividade
+          </button>
+          <button class="btn btn-sm btn-outline-info" (click)="importarDoPlanoIndividual()" [disabled]="importando() || salvando()">
+            {{ importando() ? 'Importando...' : 'Importar do Plano Individual / Tarefas' }}
           </button>
         </div>
       }

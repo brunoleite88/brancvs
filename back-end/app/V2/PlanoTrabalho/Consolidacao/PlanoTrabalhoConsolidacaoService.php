@@ -70,7 +70,7 @@ class PlanoTrabalhoConsolidacaoService
         $plano = $this->authValidator->validar($planoTrabalhoId, Auth::id());
         $consolidacao = $this->concluirValidator->validar($plano, $consolidacaoId, $justificativaCargaHoraria);
 
-        return DB::transaction(function () use ($consolidacao, $justificativaCargaHoraria) {
+        return DB::transaction(function () use ($plano, $consolidacao, $justificativaCargaHoraria) {
             $this->consolidacaoRepository->update($consolidacao->id, [
                 'data_conclusao' => now(),
                 'justificativa_carga_horaria' => $justificativaCargaHoraria,
@@ -81,6 +81,16 @@ class PlanoTrabalhoConsolidacaoService
                 StatusEnum::CONCLUIDO->value,
                 'Período concluído pelo servidor: ' . Auth::user()->nome . '.',
             );
+
+            try {
+                $dtRef = $consolidacao->data_fim ? Carbon::parse($consolidacao->data_fim) : now();
+                app(\App\V2\Corregedoria\CorregedoriaService::class)->importarDoPlanoEAtividades(
+                    (string) $plano->usuario_id,
+                    (int) $dtRef->month,
+                    (int) $dtRef->year,
+                    (string) $plano->unidade_id
+                );
+            } catch (\Throwable $ignore) {}
 
             return $consolidacao->refresh();
         });

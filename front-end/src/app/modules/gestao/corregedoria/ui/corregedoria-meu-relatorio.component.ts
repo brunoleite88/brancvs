@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CorregedoriaApiClient, RelatorioCorregedoria, RelatorioAto, RelatorioCabecalho, OpcaoVinculoProjeto, OpcaoVinculoIniciativa } from '../infra/corregedoria-api.client';
+import { CorregedoriaApiClient, RelatorioCorregedoria, RelatorioAto, RelatorioCabecalho, OpcaoVinculoProjeto, OpcaoVinculoIniciativa, OpcaoVinculoIndividual } from '../infra/corregedoria-api.client';
 import { AuthService } from 'src/app/services/auth.service';
 import { MessageService } from 'src/app/v2/services/message.service';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
@@ -25,9 +25,11 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
   readonly relatorio = signal<RelatorioCorregedoria | null>(null);
   readonly carregando = signal(true);
   readonly salvando = signal(false);
+  readonly importando = signal(false);
 
   readonly projetos = signal<OpcaoVinculoProjeto[]>([]);
   readonly iniciativas = signal<OpcaoVinculoIniciativa[]>([]);
+  readonly entregasIndividuais = signal<OpcaoVinculoIndividual[]>([]);
 
   readonly modalCabecalhoAberto = signal(false);
   readonly cabecalhoEdit = signal<RelatorioCabecalho>({});
@@ -94,6 +96,9 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
                 if (cod.startsWith('GT-')) {
                   a.vinculo_tipo = 'PROJETO';
                   a.vinculo_codigo = cod;
+                } else if (cod.startsWith('PAI-') || cod.startsWith('ATV-')) {
+                  a.vinculo_tipo = 'PLANO_INDIVIDUAL';
+                  a.vinculo_codigo = cod;
                 } else if (cod.includes('.KR') || cod.startsWith('E')) {
                   a.vinculo_tipo = 'INICIATIVA';
                   a.vinculo_codigo = cod;
@@ -132,11 +137,40 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
         if (dados) {
           this.projetos.set(dados.projetos || []);
           this.iniciativas.set(dados.iniciativas || []);
+          this.entregasIndividuais.set(dados.entregas_individuais || []);
           this.cd.markForCheck();
         }
       },
       error: (err) => {
         console.error('Erro ao carregar opções de vínculo:', err);
+      }
+    });
+  }
+
+  importarDoPlanoIndividual(): void {
+    if (!this.isEditavel) return;
+    this.importando.set(true);
+    this.api.importarAtividades(this.mesSelecionado(), this.anoSelecionado(), this.relatorio()?.unidade_id).subscribe({
+      next: (res) => {
+        const atual = this.relatorio();
+        if (res.data) {
+          if (!res.data.cabecalho && atual?.cabecalho) {
+            res.data.cabecalho = atual.cabecalho;
+          }
+          this.relatorio.set(res.data);
+        }
+        this.importando.set(false);
+        this.cd.markForCheck();
+        if (res.importados > 0) {
+          this.message.success(`${res.importados} atividade(s)/entrega(s) importada(s) do seu Plano Individual e Agenda de Tarefas!`);
+        } else {
+          this.message.info('Todas as atividades/entregas disponíveis já constam neste relatório.');
+        }
+      },
+      error: (e) => {
+        this.importando.set(false);
+        this.cd.markForCheck();
+        this.message.error(e?.error?.error || 'Erro ao importar atividades do Plano Individual.');
       }
     });
   }
@@ -163,7 +197,7 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
     }
   }
 
-  aplicarVinculoNaObservacao(item: RelatorioAto, codigoSelecionado: string, tipo: 'PROJETO' | 'INICIATIVA'): void {
+  aplicarVinculoNaObservacao(item: RelatorioAto, codigoSelecionado: string, tipo: 'PROJETO' | 'INICIATIVA' | 'PLANO_INDIVIDUAL'): void {
     if (!codigoSelecionado) {
       this.limparVinculo(item);
       return;
@@ -176,6 +210,9 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
     if (tipo === 'PROJETO') {
       const p = this.projetos().find(x => x.codigo === codigoSelecionado);
       item.vinculo_descricao = p?.titulo || '';
+    } else if (tipo === 'PLANO_INDIVIDUAL') {
+      const e = this.entregasIndividuais().find(x => x.codigo === codigoSelecionado);
+      item.vinculo_descricao = e?.titulo || '';
     } else {
       const i = this.iniciativas().find(x => x.codigo === codigoSelecionado);
       item.vinculo_descricao = i?.titulo || '';

@@ -69,7 +69,7 @@ class UsuarioStoreDTO
             'matricula' => $this->matricula,
             'perfil_id' => $this->perfilId,
             'usuario_externo' => $this->usuarioExterno ?? true,
-            'situacao_funcional' => $this->situacaoFuncional ?? 'ATIVO_PERMANENTE',
+            'situacao_funcional' => $this->situacaoFuncional ?? 'ESTATUTARIO_SERVIDOR',
             'situacao_siape' => $this->situacaoSiape ?? 'ATIVO',
             'participa_pgd' => $this->participaPgd ?? 'não',
             'modalidade_pgd' => $this->modalidadePgd,

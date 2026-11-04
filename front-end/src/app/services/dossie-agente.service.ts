@@ -187,14 +187,14 @@ export class DossieAgenteService {
   </div>
 
   <div class="section">
-    <div class="section-title">2. Situação Funcional e Regime de Trabalho</div>
+    <div class="section-title">2. Vínculo Funcional e Regime de Trabalho</div>
     <div class="grid">
       <div class="field">
         <span class="field-label">Matrícula Funcional</span>
         <span class="field-value"><strong>${u.matricula || 'Não definida'}</strong></span>
       </div>
       <div class="field">
-        <span class="field-label">Situação Funcional</span>
+        <span class="field-label">Vínculo Funcional / Regime Jurídico</span>
         <span class="field-value">${situacaoFuncionalLabel}</span>
       </div>
       <div class="field">
@@ -221,20 +221,15 @@ export class DossieAgenteService {
     ${unidadesHtml}
   </div>
 
-  <div class="section">
-    <div class="section-title">4. Regramentos Aplicáveis</div>
-    <div style="margin-top: 6px;">${regramentosHtml}</div>
-  </div>
-
   ${u.texto_complementar_plano ? `
   <div class="section">
-    <div class="section-title">5. Particularidades e Observações do Agente</div>
+    <div class="section-title">4. Particularidades e Observações do Agente</div>
     <div class="box-texto">${u.texto_complementar_plano}</div>
   </div>
   ` : ''}
 
   <div class="section">
-    <div class="section-title">6. Histórico de Planos de Ação / Trabalho</div>
+    <div class="section-title">5. Histórico de Planos de Ação / Trabalho</div>
     ${planosHtml}
   </div>
 

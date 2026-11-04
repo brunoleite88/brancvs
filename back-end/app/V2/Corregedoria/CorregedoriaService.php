@@ -202,7 +202,7 @@ class CorregedoriaService
         return $relatorio->load(['usuario:id,nome,email,matricula', 'unidade:id,nome,sigla', 'atos']);
     }
 
-    public function obterOpcoesVinculo(?string $unidadeSiglaOrId): array
+    public function obterOpcoesVinculo(?string $unidadeSiglaOrId, ?string $usuarioId = null): array
     {
         $sigla = $unidadeSiglaOrId ?? '';
         if (!empty($unidadeSiglaOrId) && Str::isUuid($unidadeSiglaOrId)) {
@@ -249,10 +249,326 @@ class CorregedoriaService
             'objetivo'
         ])->orderBy('codigo')->get();
 
+        // 3. Entregas de Planos de Ação Individuais e Atividades Concluídas do Agente
+        $entregasIndividuais = [];
+        if ($usuarioId) {
+            $pteRows = DB::table('planos_trabalhos_entregas as pte')
+                ->join('planos_trabalhos as pt', 'pt.id', '=', 'pte.plano_trabalho_id')
+                ->leftJoin('planos_entregas_entregas as pee', 'pee.id', '=', 'pte.plano_entrega_entrega_id')
+                ->where('pt.usuario_id', $usuarioId)
+                ->whereNull('pte.deleted_at')
+                ->whereNull('pt.deleted_at')
+                ->select([
+                    'pte.id',
+                    'pt.numero as plano_numero',
+                    'pte.descricao as trabalho_planejado',
+                    'pte.forca_trabalho',
+                    'pee.descricao as entrega_setorial',
+                ])
+                ->orderBy('pt.numero', 'desc')
+                ->get();
+
+            foreach ($pteRows as $idx => $row) {
+                $cod = 'PAI-' . ($row->plano_numero ?: ($idx + 1));
+                $titulo = $row->entrega_setorial ?: ($row->trabalho_planejado ?: 'Entrega Individual');
+                $entregasIndividuais[] = [
+                    'id' => $row->id,
+                    'codigo' => $cod,
+                    'titulo' => Str::limit($titulo, 100),
+                    'descricao' => $row->trabalho_planejado,
+                    'tipo' => 'PLANO_INDIVIDUAL',
+                ];
+            }
+
+            $atvRows = DB::table('atividades')
+                ->where('usuario_id', $usuarioId)
+                ->whereNull('deleted_at')
+                ->orderBy('numero', 'desc')
+                ->limit(30)
+                ->get(['id', 'numero', 'descricao', 'status', 'data_entrega']);
+
+            foreach ($atvRows as $atv) {
+                $cod = 'ATV-' . $atv->numero;
+                $entregasIndividuais[] = [
+                    'id' => $atv->id,
+                    'codigo' => $cod,
+                    'titulo' => Str::limit((string) $atv->descricao, 100) . " ({$atv->status})",
+                    'descricao' => $atv->descricao,
+                    'tipo' => 'ATIVIDADE',
+                ];
+            }
+        }
+
         return [
             'unidade_sigla' => $sigla,
             'projetos' => $projetos,
             'iniciativas' => $iniciativas,
+            'entregas_individuais' => $entregasIndividuais,
         ];
+    }
+
+    /**
+     * Importa atividades diárias concluídas e registros de execução do Plano de Ação Individual
+     * do agente para o rascunho do Relatório Mensal da Corregedoria.
+     */
+    public function importarDoPlanoEAtividades(string $usuarioId, int $mes, int $ano, ?string $unidadeId = null): array
+    {
+        $relatorio = $this->buscarOuCriarMeuRelatorio($usuarioId, $mes, $ano, $unidadeId);
+
+        if ($relatorio->status === 'CONCLUIDO_ASSINADO' || $relatorio->status === 'HOMOLOGADO') {
+            throw new \Exception('Este relatório mensal já foi consolidado e assinado, não permitindo novas importações.');
+        }
+
+        $dtInicioMes = Carbon::create($ano, $mes, 1, 0, 0, 0);
+        $dtFimMes = $dtInicioMes->copy()->endOfMonth();
+
+        // Remove linha em branco inicial caso exista
+        RelatorioCorregedoriaAto::where('relatorio_corregedoria_id', $relatorio->id)
+            ->where(function ($q) {
+                $q->whereNull('ato')->orWhere('ato', '');
+            })
+            ->where(function ($q) {
+                $q->whereNull('observacao')->orWhere('observacao', '');
+            })
+            ->delete();
+
+        $atosExistentes = RelatorioCorregedoriaAto::where('relatorio_corregedoria_id', $relatorio->id)->get();
+        $codigosExistentes = $atosExistentes->pluck('vinculo_codigo')->filter()->toArray();
+        $obsExistentes = $atosExistentes->pluck('observacao')->filter()->toArray();
+        $proximaOrdem = ((int) $atosExistentes->max('numero_ordem')) + 1;
+        $adicionados = 0;
+
+        // 1. Buscar Atividades Diárias concluídas (ou iniciadas/entregues no mês)
+        $atividades = DB::table('atividades as a')
+            ->leftJoin('tipos_atividades as ta', 'ta.id', '=', 'a.tipo_atividade_id')
+            ->where('a.usuario_id', $usuarioId)
+            ->whereNull('a.deleted_at')
+            ->where(function ($q) use ($dtInicioMes, $dtFimMes) {
+                $q->whereBetween('a.data_entrega', [$dtInicioMes, $dtFimMes])
+                  ->orWhereBetween('a.data_inicio', [$dtInicioMes, $dtFimMes])
+                  ->orWhereBetween('a.updated_at', [$dtInicioMes, $dtFimMes])
+                  ->orWhere('a.status', 'CONCLUIDO');
+            })
+            ->select([
+                'a.id',
+                'a.numero',
+                'a.descricao',
+                'a.status',
+                'a.data_entrega',
+                'a.data_inicio',
+                'a.updated_at',
+                'ta.nome as tipo_atividade_nome',
+            ])
+            ->orderBy('a.data_entrega', 'asc')
+            ->get();
+
+        foreach ($atividades as $atv) {
+            $codigoVinculo = 'ATV-' . $atv->numero;
+            $textoObs = "[{$codigoVinculo}] " . trim((string) $atv->descricao);
+            if (in_array($codigoVinculo, $codigosExistentes, true) || in_array($textoObs, $obsExistentes, true)) {
+                continue;
+            }
+
+            // Buscar comentário técnico de conclusão se houver
+            $comentarioTecnico = DB::table('comentarios')
+                ->where('atividade_id', $atv->id)
+                ->where('tipo', 'TECNICO')
+                ->whereNull('deleted_at')
+                ->value('texto');
+
+            if ($comentarioTecnico) {
+                $textoObs .= ' — Conclusão: ' . trim((string) $comentarioTecnico);
+            }
+
+            // Extrair eventual número de processo da descrição
+            $processoExtraido = null;
+            if (preg_match('/(\d{4,7}[-\.]\d{2}[\.\d\/\-]+)/', (string) $atv->descricao, $matches)) {
+                $processoExtraido = $matches[1];
+            }
+
+            $dtAto = $atv->data_entrega ?? $atv->data_inicio ?? $atv->updated_at ?? now();
+
+            $novoAto = new RelatorioCorregedoriaAto();
+            $novoAto->id = (string) Str::uuid();
+            $novoAto->relatorio_corregedoria_id = $relatorio->id;
+            $novoAto->numero_ordem = $proximaOrdem++;
+            $novoAto->processo = $processoExtraido;
+            $novoAto->ato = $atv->tipo_atividade_nome ?: 'Atividade Concluída (Agenda de Tarefas)';
+            $novoAto->data_ato = Carbon::parse($dtAto)->format('Y-m-d');
+            $novoAto->observacao = $textoObs;
+            $novoAto->vinculo_tipo = 'PLANO_INDIVIDUAL';
+            $novoAto->vinculo_codigo = $codigoVinculo;
+            $novoAto->vinculo_descricao = Str::limit((string) $atv->descricao, 200);
+            $novoAto->save();
+
+            $codigosExistentes[] = $codigoVinculo;
+            $obsExistentes[] = $textoObs;
+            $adicionados++;
+        }
+
+        // 2. Buscar Registros de Execução (Contribuições) do Plano de Ação Individual V2
+        $contribuicoes = DB::table('planos_trabalhos_consolidacoes_contribuicoes as c')
+            ->join('planos_trabalhos_consolidacoes as ptc', 'ptc.id', '=', 'c.plano_trabalho_consolidacao_id')
+            ->join('planos_trabalhos as pt', 'pt.id', '=', 'ptc.plano_trabalho_id')
+            ->leftJoin('planos_trabalhos_entregas as pte', 'pte.id', '=', 'c.plano_trabalho_entrega_id')
+            ->leftJoin('planos_entregas_entregas as pee', 'pee.id', '=', 'c.plano_entrega_entrega_id')
+            ->where('pt.usuario_id', $usuarioId)
+            ->whereNull('c.deleted_at')
+            ->whereNull('ptc.deleted_at')
+            ->whereNull('pt.deleted_at')
+            ->whereNotNull('c.descricao')
+            ->where('c.descricao', '!=', '')
+            ->select([
+                'c.id',
+                'c.descricao as execucao_descricao',
+                'c.esforco_executado',
+                'c.registrado_at',
+                'ptc.data_inicio as periodo_inicio',
+                'ptc.data_fim as periodo_fim',
+                'pt.numero as plano_numero',
+                'pte.descricao as trabalho_planejado',
+                'pee.descricao as entrega_setorial',
+            ])
+            ->orderBy('c.registrado_at', 'asc')
+            ->get();
+
+        foreach ($contribuicoes as $contrib) {
+            $codigoVinculo = 'PAI-' . $contrib->plano_numero;
+            $nomeEntrega = $contrib->entrega_setorial ?: ($contrib->trabalho_planejado ?: 'Entrega do Plano Individual');
+            $textoObs = "[{$codigoVinculo}] Entrega: {$nomeEntrega} ({$contrib->esforco_executado}% CHD) — Execução: " . trim((string) $contrib->execucao_descricao);
+
+            if (in_array($textoObs, $obsExistentes, true)) {
+                continue;
+            }
+
+            $dtAto = $contrib->registrado_at ?? $contrib->periodo_fim ?? now();
+
+            $novoAto = new RelatorioCorregedoriaAto();
+            $novoAto->id = (string) Str::uuid();
+            $novoAto->relatorio_corregedoria_id = $relatorio->id;
+            $novoAto->numero_ordem = $proximaOrdem++;
+            $novoAto->processo = null;
+            $novoAto->ato = 'Objetivos e Planos de Metas';
+            $novoAto->data_ato = Carbon::parse($dtAto)->format('Y-m-d');
+            $novoAto->observacao = $textoObs;
+            $novoAto->vinculo_tipo = 'PLANO_INDIVIDUAL';
+            $novoAto->vinculo_codigo = $codigoVinculo;
+            $novoAto->vinculo_descricao = Str::limit($nomeEntrega, 200);
+            $novoAto->save();
+
+            $obsExistentes[] = $textoObs;
+            $adicionados++;
+        }
+
+        // 3. Caso não haja atividades nem contribuições, mas o usuário possua Entregas pactuadas no Plano de Ação Individual
+        if ($adicionados === 0) {
+            $entregasPactuadas = DB::table('planos_trabalhos_entregas as pte')
+                ->join('planos_trabalhos as pt', 'pt.id', '=', 'pte.plano_trabalho_id')
+                ->leftJoin('planos_entregas_entregas as pee', 'pee.id', '=', 'pte.plano_entrega_entrega_id')
+                ->where('pt.usuario_id', $usuarioId)
+                ->whereNull('pte.deleted_at')
+                ->whereNull('pt.deleted_at')
+                ->select([
+                    'pte.id',
+                    'pte.descricao as trabalho_planejado',
+                    'pte.forca_trabalho',
+                    'pt.numero as plano_numero',
+                    'pt.data_inicio',
+                    'pee.descricao as entrega_setorial',
+                ])
+                ->get();
+
+            foreach ($entregasPactuadas as $ep) {
+                $codigoVinculo = 'PAI-' . $ep->plano_numero;
+                $nomeEntrega = $ep->entrega_setorial ?: ($ep->trabalho_planejado ?: 'Meta Individual');
+                $textoObs = "[{$codigoVinculo}] Meta Pactuada ({$ep->forca_trabalho}% CHD): {$nomeEntrega}" . ($ep->trabalho_planejado ? " — {$ep->trabalho_planejado}" : '');
+
+                if (in_array($textoObs, $obsExistentes, true)) {
+                    continue;
+                }
+
+                $novoAto = new RelatorioCorregedoriaAto();
+                $novoAto->id = (string) Str::uuid();
+                $novoAto->relatorio_corregedoria_id = $relatorio->id;
+                $novoAto->numero_ordem = $proximaOrdem++;
+                $novoAto->processo = null;
+                $novoAto->ato = 'Objetivos e Planos de Metas';
+                $novoAto->data_ato = Carbon::create($ano, $mes, 1)->format('Y-m-d');
+                $novoAto->observacao = $textoObs;
+                $novoAto->vinculo_tipo = 'PLANO_INDIVIDUAL';
+                $novoAto->vinculo_codigo = $codigoVinculo;
+                $novoAto->vinculo_descricao = Str::limit($nomeEntrega, 200);
+                $novoAto->save();
+
+                $obsExistentes[] = $textoObs;
+                $adicionados++;
+            }
+        }
+
+        return [
+            'relatorio' => $relatorio->fresh(['usuario:id,nome,email,matricula', 'unidade:id,nome,sigla', 'atos']),
+            'importados' => $adicionados,
+        ];
+    }
+
+    /**
+     * Sincroniza automaticamente uma atividade concluída no dia com o rascunho do Relatório Mensal da Corregedoria.
+     */
+    public function sincronizarAtividadeConcluida(string $atividadeId, ?string $descricaoTecnica = null): void
+    {
+        $atv = DB::table('atividades as a')
+            ->leftJoin('tipos_atividades as ta', 'ta.id', '=', 'a.tipo_atividade_id')
+            ->where('a.id', $atividadeId)
+            ->select([
+                'a.id',
+                'a.numero',
+                'a.descricao',
+                'a.usuario_id',
+                'a.unidade_id',
+                'a.data_entrega',
+                'ta.nome as tipo_atividade_nome',
+            ])
+            ->first();
+
+        if (!$atv || empty($atv->usuario_id)) {
+            return;
+        }
+
+        $dtReferencia = $atv->data_entrega ? Carbon::parse($atv->data_entrega) : now();
+        $mes = (int) $dtReferencia->month;
+        $ano = (int) $dtReferencia->year;
+
+        $relatorio = $this->buscarOuCriarMeuRelatorio($atv->usuario_id, $mes, $ano, $atv->unidade_id);
+        if ($relatorio->status === 'CONCLUIDO_ASSINADO' || $relatorio->status === 'HOMOLOGADO') {
+            return;
+        }
+
+        $codigoVinculo = 'ATV-' . $atv->numero;
+        $jaExiste = RelatorioCorregedoriaAto::where('relatorio_corregedoria_id', $relatorio->id)
+            ->where('vinculo_codigo', $codigoVinculo)
+            ->exists();
+
+        if ($jaExiste) {
+            return;
+        }
+
+        $proximaOrdem = ((int) RelatorioCorregedoriaAto::where('relatorio_corregedoria_id', $relatorio->id)->max('numero_ordem')) + 1;
+        $textoObs = "[{$codigoVinculo}] " . trim((string) $atv->descricao);
+        if (!empty($descricaoTecnica)) {
+            $textoObs .= ' — Conclusão: ' . trim($descricaoTecnica);
+        }
+
+        $novoAto = new RelatorioCorregedoriaAto();
+        $novoAto->id = (string) Str::uuid();
+        $novoAto->relatorio_corregedoria_id = $relatorio->id;
+        $novoAto->numero_ordem = $proximaOrdem;
+        $novoAto->processo = null;
+        $novoAto->ato = $atv->tipo_atividade_nome ?: 'Atividade Concluída (Agenda de Tarefas)';
+        $novoAto->data_ato = $dtReferencia->format('Y-m-d');
+        $novoAto->observacao = $textoObs;
+        $novoAto->vinculo_tipo = 'PLANO_INDIVIDUAL';
+        $novoAto->vinculo_codigo = $codigoVinculo;
+        $novoAto->vinculo_descricao = Str::limit((string) $atv->descricao, 200);
+        $novoAto->save();
     }
 }

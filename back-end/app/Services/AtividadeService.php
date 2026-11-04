@@ -558,6 +558,9 @@ class AtividadeService extends ServiceBase
             DB::rollback();
             throw $e;
         }
+        try {
+            app(\App\V2\Corregedoria\CorregedoriaService::class)->sincronizarAtividadeConcluida((string) $conclusao["id"], $descricaoTecnica ?? null);
+        } catch (Throwable $ignore) {}
         $this->notificacoesService->send("ATV_CONCLUSAO", ["atividade" => Atividade::find($conclusao["id"])]);
         return true;
     }

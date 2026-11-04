@@ -73,9 +73,26 @@ class CorregedoriaController extends Controller
     {
         try {
             $unidade = $request->input('unidade') ?? $request->input('unidade_id');
-            $result = $this->service->obterOpcoesVinculo($unidade);
+            $usuarioId = Auth::id() ?? $request->input('usuario_id');
+            $result = $this->service->obterOpcoesVinculo($unidade, $usuarioId);
 
             return response()->json(['success' => true, 'data' => $result]);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function importarAtividades(Request $request): JsonResponse
+    {
+        try {
+            $usuarioId = Auth::id() ?? $request->input('usuario_id');
+            $mes = (int) ($request->input('mes') ?? now()->month);
+            $ano = (int) ($request->input('ano') ?? now()->year);
+            $unidadeId = $request->input('unidade_id');
+            $result = $this->service->importarDoPlanoEAtividades($usuarioId, $mes, $ano, $unidadeId);
+
+            return response()->json(['success' => true, 'data' => $result['relatorio'], 'importados' => $result['importados']]);
         } catch (Throwable $e) {
             report($e);
             return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);

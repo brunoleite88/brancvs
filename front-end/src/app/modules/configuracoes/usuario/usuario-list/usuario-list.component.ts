@@ -56,6 +56,7 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
       cpf: { default: "" },
       unidade_id: { default: "" },
       perfil_id: { default: null },
+      situacao_funcional: { default: null },
       atribuicoes: { default: null },
       situacao: { default: null },
       dispensa_pt: { default: null }
@@ -206,6 +207,9 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
     if (filter?.controls.perfil_id?.value?.length) {
       result.push(["perfil_id", "==", filter?.controls.perfil_id?.value]);
     }
+    if (filter?.controls.situacao_funcional?.value?.length) {
+      result.push(["situacao_funcional", "==", filter?.controls.situacao_funcional?.value]);
+    }
     if (filter?.controls.atribuicoes?.value?.length) {
       result.push(["atribuicoes", "==", filter?.controls.atribuicoes?.value]);
     }
@@ -280,7 +284,7 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
           'E-mail': u.email || '',
           'Telefone': u.telefone || '',
           'Perfil': u.perfil?.nome || '',
-          'Situação Funcional': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_FUNCIONAL, u.situacao_funcional) || u.situacao_funcional || '',
+          'Vínculo Funcional': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_FUNCIONAL, u.situacao_funcional) || u.situacao_funcional || '',
           'Situação Cadastral': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_SIAPE, u.situacao_siape) || u.situacao_siape || '',
           'Teletrabalho / Programa': (u.participa_pgd || 'não').toUpperCase() === 'SIM' ? 'Sim' : 'Não',
           'Modalidade': u.modalidade_pgd_label || u.modalidade_pgd || '',
@@ -300,7 +304,7 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
             'E-mail': u.email || '',
             'Telefone': u.telefone || '',
             'Perfil': u.perfil?.nome || '',
-            'Situação Funcional': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_FUNCIONAL, u.situacao_funcional) || u.situacao_funcional || '',
+            'Vínculo Funcional': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_FUNCIONAL, u.situacao_funcional) || u.situacao_funcional || '',
             'Situação Cadastral': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_SIAPE, u.situacao_siape) || u.situacao_siape || '',
             'Teletrabalho / Programa': (u.participa_pgd || 'não').toUpperCase() === 'SIM' ? 'Sim' : 'Não',
             'Modalidade': u.modalidade_pgd_label || u.modalidade_pgd || '',

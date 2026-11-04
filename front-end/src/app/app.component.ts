@@ -258,7 +258,7 @@ export class AppComponent implements IAppComponent {
         icon: this.entity.getIcon('CadeiaValor'),
       },
       ATIVIDADES: {
-        name: this.lex.translate("Atividades"),
+        name: "Agenda de Tarefas (Atividades)",
         permition: 'MOD_ATV',
         route: ['gestao', 'atividade'],
         icon: this.entity.getIcon('Atividade'),
@@ -279,13 +279,13 @@ export class AppComponent implements IAppComponent {
         },
       },
       PLANOS_TRABALHOS: {
-        name: this.lex.translate("Planos de Ação Individuais"),
+        name: "Meus Planos e Execução",
         permition: 'MOD_PTR',
         route: ['gestao', 'plano-trabalho-v2'],
         icon: this.entity.getIcon('PlanoTrabalho'),
       },
       CONSOLIDACOES: {
-        name: this.lex.translate("Consolidações"),
+        name: "Consolidações e Avaliações",
         permition: 'MOD_PTR_CSLD',
         route: ['gestao', 'plano-trabalho', 'consolidacao'],
         icon: this.entity.getIcon('PlanoTrabalhoConsolidacao'),
@@ -576,7 +576,18 @@ export class AppComponent implements IAppComponent {
           this.menuSchema.AVALIACAO_PLANOS_ENTREGAS,
         ],
       },
-      Object.assign({}, this.menuSchema.PLANOS_TRABALHOS),
+      {
+        name: this.lex.translate("Planos de Ação Individuais"),
+        permition: "MOD_PTR",
+        id: "navbarDropdownPlanosIndividuais",
+        icon: this.entity.getIcon('PlanoTrabalho'),
+        menu: [
+          this.menuSchema.PLANOS_TRABALHOS,
+          this.menuSchema.ATIVIDADES,
+          this.menuSchema.CONSOLIDACOES,
+          this.menuSchema.CORREGEDORIA_MEU_RELATORIO,
+        ],
+      },
       Object.assign({}, this.menuSchema.PORTIFOLIOS),
       Object.assign({}, this.menuSchema.OCORRENCIAS),
       {
@@ -643,11 +654,22 @@ export class AppComponent implements IAppComponent {
     ];
 
     this.moduloExecucao = [
-      Object.assign({}, this.menuSchema.PLANOS_TRABALHOS, {
-        metadata: {
-          minha_unidade: true,
-        },
-      }),
+      {
+        name: this.lex.translate("Planos de Ação Individuais"),
+        permition: "MOD_PTR",
+        id: "navbarDropdownPlanosIndividuaisExec",
+        icon: this.entity.getIcon('PlanoTrabalho'),
+        menu: [
+          Object.assign({}, this.menuSchema.PLANOS_TRABALHOS, {
+            metadata: {
+              minha_unidade: true,
+            },
+          }),
+          this.menuSchema.ATIVIDADES,
+          this.menuSchema.CONSOLIDACOES,
+          this.menuSchema.CORREGEDORIA_MEU_RELATORIO,
+        ],
+      },
       Object.assign({}, this.menuSchema.OCORRENCIAS),
       Object.assign({}, this.menuSchema.RELATORIO_USUARIOS, {
         name: this.lex.translate("Relatório de Agentes Públicos"),

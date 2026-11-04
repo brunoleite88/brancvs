@@ -10,6 +10,7 @@
             <input-text [size]="3" [label]="lex.translate('Usuário')" controlName="usuario" [control]="filter!.controls.usuario" placeholder="Nome" [attr.maxlength]=250></input-text>
             <input-search [size]="3" [label]="lex.translate('Lotação')" [control]="filter!.controls.unidade_id" controlName="unidade_id" [dao]="unidadeDao"></input-search>
             <input-select [size]="3" [label]="lex.translate('Perfil')" controlName="perfil_id" nullable [control]="filter!.controls.perfil_id" [dao]="perfilDao"></input-select>
+            <input-select [size]="3" label="Vínculo Funcional" controlName="situacao_funcional" nullable itemNull="Todos" [control]="filter!.controls.situacao_funcional" [items]="lookup.USUARIO_SITUACAO_FUNCIONAL"></input-select>
             <input-select [size]="3" label="Situação" controlName="situacao" nullable itemNull="Todas" [control]="filter!.controls.situacao" [items]="lookup.USUARIO_SITUACAO_SIAPE"></input-select>
             <input-select [size]="3" label="Dispensa de Plano Individual" controlName="dispensa_pt" nullable itemNull="Todas" [control]="filter!.controls.dispensa_pt" [items]="lookup.SIM_NAO"></input-select>
             <input-check [size]="12" [label]="lex.translate('Atribuições')" controlName="atribuicoes" [control]="filter!.controls.atribuicoes" [items]="lookup.UNIDADE_INTEGRANTE_TIPO" [inline]="true"></input-check>
@@ -27,11 +28,9 @@
             </ng-template>
         </column>
 
-        <column title="Regramentos" [template]="columnRegramentos">
-            <ng-template let-row="row" #columnRegramentos>
-                <div *ngFor="let regramento of row.regramentos" class="d-block">
-                    <label class="">{{regramento}}</label>
-                </div>
+        <column title="Vínculo Funcional" [template]="columnVinculoFuncional">
+            <ng-template let-row="row" #columnVinculoFuncional>
+                <span>{{ lookup.getValue(lookup.USUARIO_SITUACAO_FUNCIONAL, row.situacao_funcional) || row.situacao_funcional || '-' }}</span>
             </ng-template>
         </column>
 

@@ -33,7 +33,7 @@
         <tab key="SITUACAO" label="Situação">
             <div class="row">
                 <input-text [size]="4" label="Nº Matrícula" controlName="matricula" [attr.maxlength]=50></input-text>
-                <input-select [size]="4" label="Situação Funcional" controlName="situacao_funcional" [items]="lookup.USUARIO_SITUACAO_FUNCIONAL"></input-select>
+                <input-select [size]="4" label="Vínculo Funcional / Regime Jurídico" controlName="situacao_funcional" [items]="lookup.USUARIO_SITUACAO_FUNCIONAL"></input-select>
                 <input-select [size]="4" label="Situação Cadastral" controlName="situacao_siape" [items]="lookup.USUARIO_SITUACAO_SIAPE"></input-select>
             </div>
             <div class="row mt-2">
@@ -68,24 +68,9 @@
                                     <span>{{ row.sigla || '(Não definida)' }} </span>
                                 </ng-template>
                             </column>
-                            <column [title]="lex.translate('Situação Funcional')" [template]="columnSituacao">
+                            <column title="Vínculo Funcional" [template]="columnSituacao">
                                 <ng-template let-row="row" #columnSituacao>
                                     <span>{{ lookup.getValue(lookup.USUARIO_SITUACAO_FUNCIONAL, row.situacao_funcional) }} </span>
-                                </ng-template>
-                            </column>
-                        </columns>
-                    </grid>
-                </div>
-            </div>
-            
-            <div class="row mt-2" *ngIf="regramentos.length">
-                <div class="col-md-12">
-                    <label class="form-label fw-bold text-muted">Regramentos Cadastrados</label>
-                    <grid #regramentos_grid [items]="regramentos" minHeight="auto" noMargin>
-                        <columns>
-                            <column [title]="lex.translate('Regramentos')" [template]="columnRegramento">
-                                <ng-template let-row="row" #columnRegramento>
-                                    <span>{{ row.nome || '' }} </span>
                                 </ng-template>
                             </column>
                         </columns>
