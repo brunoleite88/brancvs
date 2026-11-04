@@ -18,6 +18,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Http;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -194,26 +195,38 @@ class LoginController extends Controller
      */
     public function authenticateUserPassword(Request $request, FirebaseAuthService $auth)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-        if (Auth::attempt($credentials)) {
+        $loginInput = trim($request->input('email') ?? $request->input('usuario') ?? '');
+        $passwordInput = (string) ($request->input('password') ?? $request->input('senha') ?? '');
+
+        if (empty($loginInput) || empty($passwordInput)) {
+            return LogError::newError('Usuário e senha são obrigatórios.', new Exception("authenticateUserPassword"), []);
+        }
+
+        $cleanCpf = preg_replace('/\D/', '', $loginInput);
+        $usuario = Usuario::whereRaw('LOWER(TRIM(email)) = ?', [strtolower($loginInput)])
+            ->orWhere('matricula', $loginInput)
+            ->when(!empty($cleanCpf) && strlen($cleanCpf) === 11, function ($query) use ($cleanCpf) {
+                return $query->orWhere('cpf', $cleanCpf);
+            })
+            ->first();
+
+        if ($usuario && Hash::check($passwordInput, $usuario->password)) {
+            Auth::login($usuario);
             $request->session()->regenerate();
             $request->session()->put("kind", "USERPASSWORD");
             $entidade = $this->registrarEntidade($request);
-            $usuario = $this->registrarUsuario($request, self::loggedUser());
-            if ($usuario === null) {
+            $usuarioRegistrado = $this->registrarUsuario($request, self::loggedUser());
+            if ($usuarioRegistrado === null) {
                 return response()->json(['error' => 'Usuário inativo ou não cadastrado no sistema. Acesso negado.'], 401);
             }
             return response()->json([
                 'success' => true,
                 "entidade" => $entidade,
-                "usuario" => $usuario,
+                "usuario" => $usuarioRegistrado,
                 "horario_servidor" => CalendarioService::horarioServidor()
             ]);
         }
-        return LogError::newError('As credenciais fornecidas são inválidas.', new Exception("authenticateUserPassword"), ["email" => $credentials["email"]]);
+        return LogError::newError('As credenciais fornecidas são inválidas.', new Exception("authenticateUserPassword"), ["email" => $loginInput]);
     }
 
     /**

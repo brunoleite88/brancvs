@@ -1,12 +1,13 @@
-<div class="d-flex vh-100 g-0 bg-gray-100">
-    <div class="col-lg-6 position-relative d-none d-lg-block bg-primary-subtle">        
-        <div class="bg-holder" style="background-image: url(../../../assets/images/intro_login.jpg)"></div>
-    </div>
+<div class="container-fluid vh-100 p-0 overflow-hidden bg-gray-100">
+    <div class="row g-0 h-100">
+        <!-- Coluna da Esquerda: Imagem Institucional -->
+        <div class="col-lg-6 d-none d-lg-block position-relative h-100 bg-primary-subtle" style="overflow: hidden;">
+            <div class="bg-holder" style="background-image: url(assets/images/intro_login.jpg); width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-size: cover; background-position: center;"></div>
+        </div>
 
-    <div [class]="modalRoute ? 'col-12 col-lg-6' : 'col-12 col-lg-6'">
-
-        <div class="d-flex align-items-center justify-content-center h-100 g-0 px-4 px-sm-0">
-            <div class="col col-sm-8 col-lg-8 col-xl-7">
+        <!-- Coluna da Direita: Card e Formulário de Login -->
+        <div class="col-12 col-lg-6 d-flex align-items-center justify-content-center h-100 overflow-y-auto px-4 px-sm-5" style="background-color: #f8f9fa; z-index: 2; position: relative;">
+            <div class="w-100" style="max-width: 440px;">
                 <div *ngIf="error.length" class="alert alert-danger mt-2 mb-4" role="alert">
                     <span><u><strong>{{ (error || '').split('&')[0] }}</strong></u></span><br>{{ (error || '').split('&')[1] }}
                 </div>
@@ -18,7 +19,7 @@
                     <p class="fs-6 text-muted">Gestão Estratégica e Projetos Estruturantes</p>
                 </div>
 
-                <div class="card shadow-sm p-4 border-0 rounded-3 mb-3">
+                <div class="card shadow-sm p-4 border-0 rounded-3 mb-3 bg-white">
                     <form [formGroup]="login" (ngSubmit)="signInUserPassword()">
                         <div class="mb-3 text-start">
                             <label class="form-label small fw-bold text-secondary">Usuário ou E-mail</label>

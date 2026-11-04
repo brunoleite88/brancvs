@@ -482,7 +482,7 @@ class PlanoEntregaService extends ServiceBase
             $unidadeIds = [];
 
             foreach ($data["where"] as $key => $where) {
-                if ($where[0] === 'unidade_id') {
+                if (isset($where[0]) && $where[0] === 'unidade_id') {
                     if ($where[1] === '==') {
                         $unidadeIds[] = $where[2]; // Adiciona o valor único
                         unset($data["where"][$key]); // Remove a condição original

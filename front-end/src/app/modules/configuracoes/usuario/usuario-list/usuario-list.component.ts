@@ -9,6 +9,10 @@ import { UsuarioDaoService } from 'src/app/dao/usuario-dao.service';
 import { Perfil } from 'src/app/models/perfil.model';
 import { Usuario } from 'src/app/models/usuario.model';
 import { PageListBase } from 'src/app/modules/base/page-list-base';
+import { ExcelService } from 'src/app/services/excel.service';
+import { DossieAgenteService } from 'src/app/services/dossie-agente.service';
+import { QueryOptions } from 'src/app/dao/query-options';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'app-usuario-list',
@@ -25,6 +29,8 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
   public unidadeDao: UnidadeDaoService;
   public perfilDao: PerfilDaoService;
   public usuarioDao: UsuarioDaoService;
+  public xlsx: ExcelService;
+  public dossieService: DossieAgenteService;
 
   public BOTAO_PEDAGIO: ToolbarButton;
   public BOTAO_REMOVE_PEDAGIO: ToolbarButton;
@@ -37,6 +43,8 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
     this.unidadeDao = injector.get<UnidadeDaoService>(UnidadeDaoService);
     this.perfilDao = injector.get<PerfilDaoService>(PerfilDaoService);
     this.usuarioDao = injector.get<UsuarioDaoService>(UsuarioDaoService);
+    this.xlsx = injector.get<ExcelService>(ExcelService);
+    this.dossieService = injector.get<DossieAgenteService>(DossieAgenteService);
 
     /* Inicializações */
     this.title = this.lex.translate("Usuários");
@@ -95,9 +103,26 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
 
   public dynamicButtons(row: any): ToolbarButton[] {
     let result: ToolbarButton[] = [];
-    if(row.usuario_externo) return result;
-    if (this.auth.hasPermissionTo('MOD_PART_PEDAGIO') && !row.pedagio) result.push(this.BOTAO_PEDAGIO);
-    if (this.auth.hasPermissionTo('MOD_PART_PEDAGIO') && row.pedagio) result.push(this.BOTAO_REMOVE_PEDAGIO);
+    if (!row.usuario_externo) {
+      if (this.auth.hasPermissionTo('MOD_PART_PEDAGIO') && !row.pedagio) result.push(this.BOTAO_PEDAGIO);
+      if (this.auth.hasPermissionTo('MOD_PART_PEDAGIO') && row.pedagio) result.push(this.BOTAO_REMOVE_PEDAGIO);
+    }
+    result.push({
+      label: "Dossiê do Agente",
+      icon: "bi bi-file-earmark-person",
+      color: "btn-outline-info",
+      onClick: (usuario: Usuario) => { this.imprimirDossie(usuario); }
+    });
+
+    if (this.auth.hasPermissionTo('MOD_USER_EDT')) {
+      result.push({
+        label: "Redefinir Senha",
+        icon: "bi bi-key",
+        color: "btn-outline-warning",
+        onClick: (usuario: Usuario) => { this.redefinirSenha(usuario); }
+      });
+    }
+
     return result;
   }
 
@@ -118,6 +143,22 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
 
     if(row.perfil.nivel === Perfil.NIVEL.COLABORADOR && !!row.usuario_externo ) {
       result.push(this.OPTION_EXCLUIR)
+    }
+
+    result.push({
+      label: "Dossiê do Agente",
+      icon: "bi bi-file-earmark-person",
+      color: "btn-outline-info",
+      onClick: (usuario: Usuario) => { this.imprimirDossie(usuario); }
+    });
+
+    if (this.auth.hasPermissionTo('MOD_USER_EDT')) {
+      result.push({
+        label: "Redefinir Senha",
+        icon: "bi bi-key",
+        color: "btn-outline-warning",
+        onClick: (usuario: Usuario) => { this.redefinirSenha(usuario); }
+      });
     }
 
     return result;
@@ -177,6 +218,7 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
     if (filter?.controls.dispensa_pt?.value?.length) {
       result.push(["dispensa_pt", "==", filter?.controls.dispensa_pt?.value]);
     }
+
     return result;
   }
 
@@ -223,6 +265,78 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
         });
       }
     });
+  }
+
+
+  public exportExcel = (form: any, queryOptions: QueryOptions): Observable<any> => {
+    return new Observable((subscriber) => {
+      const rows = this.grid?.items || [];
+      if (rows && rows.length > 0) {
+        const dadosExcel = rows.map((u: any) => ({
+          'Matrícula': u.matricula || '',
+          'CPF': u.cpf || '',
+          'Nome': u.nome_exibicao || u.nome || '',
+          'Nome Social': u.nome_social || '',
+          'E-mail': u.email || '',
+          'Telefone': u.telefone || '',
+          'Perfil': u.perfil?.nome || '',
+          'Situação Funcional': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_FUNCIONAL, u.situacao_funcional) || u.situacao_funcional || '',
+          'Situação Cadastral': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_SIAPE, u.situacao_siape) || u.situacao_siape || '',
+          'Teletrabalho / Programa': (u.participa_pgd || 'não').toUpperCase() === 'SIM' ? 'Sim' : 'Não',
+          'Modalidade': u.modalidade_pgd_label || u.modalidade_pgd || '',
+          'Tipo de Vínculo': u.usuario_externo ? 'Externo' : 'Interno'
+        }));
+        this.xlsx.exportJSON('agentes_publicos_pgema', dadosExcel);
+        subscriber.next({ success: true });
+        subscriber.complete();
+      } else {
+        const options = Object.assign({}, queryOptions, { limit: 5000 });
+        this.dao?.query(options).asPromise().then((queryRows: any) => {
+          const dados = (queryRows || []).map((u: any) => ({
+            'Matrícula': u.matricula || '',
+            'CPF': u.cpf || '',
+            'Nome': u.nome_exibicao || u.nome || '',
+            'Nome Social': u.nome_social || '',
+            'E-mail': u.email || '',
+            'Telefone': u.telefone || '',
+            'Perfil': u.perfil?.nome || '',
+            'Situação Funcional': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_FUNCIONAL, u.situacao_funcional) || u.situacao_funcional || '',
+            'Situação Cadastral': this.lookup.getValue(this.lookup.USUARIO_SITUACAO_SIAPE, u.situacao_siape) || u.situacao_siape || '',
+            'Teletrabalho / Programa': (u.participa_pgd || 'não').toUpperCase() === 'SIM' ? 'Sim' : 'Não',
+            'Modalidade': u.modalidade_pgd_label || u.modalidade_pgd || '',
+            'Tipo de Vínculo': u.usuario_externo ? 'Externo' : 'Interno'
+          }));
+          this.xlsx.exportJSON('agentes_publicos_pgema', dados);
+          subscriber.next({ success: true });
+          subscriber.complete();
+        }).catch((err: any) => {
+          subscriber.error(err);
+        });
+      }
+    });
+  };
+
+  public async imprimirDossie(usuario: Usuario) {
+    try {
+      const dossieData = await (this.dao as any).getDossie(usuario.id);
+      this.dossieService.abrirDossieEmNovaAba(dossieData || usuario);
+    } catch (e) {
+      this.dossieService.abrirDossieEmNovaAba(usuario);
+    }
+  }
+
+  public async redefinirSenha(usuario: Usuario) {
+    const novaSenha = await this.dialog.prompt('Redefinir Senha', `Digite a nova senha para o usuário ${usuario.nome}:`, '');
+    if (novaSenha && novaSenha.trim().length >= 4) {
+      try {
+        await (this.dao as any).resetPassword(usuario.id, novaSenha.trim());
+        this.dialog.alert('Sucesso', 'Senha redefinida com sucesso!');
+      } catch (err: any) {
+        this.dialog.alert('Erro', err?.error || 'Erro ao redefinir senha.');
+      }
+    } else if (novaSenha !== null && novaSenha !== undefined) {
+      this.dialog.alert('Aviso', 'A senha deve conter ao menos 4 caracteres.');
+    }
   }
 
 }

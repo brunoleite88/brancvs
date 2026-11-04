@@ -7,29 +7,55 @@
                 </div>
                 <div class="form-group col-md-9">
                     <div class="row">
-                        <input-text [disabled]="!entity?.usuario_externo ? 'true' : undefined" [size]="3" label="CPF" controlName="cpf"  [attr.maxlength]=11 required></input-text>
-                        <input-text [disabled]="!entity?.usuario_externo ? 'true' : undefined" [size]="6" label="E-mail" controlName="email" textCase="lower" [attr.maxlength]=250></input-text>
-                        <input-datetime date [size]="3" label="Nascimento" noIcon controlName="data_nascimento" [labelInfo]="'Data de nascimento'" [disabled]="!entity?.usuario_externo ? 'true' : undefined"></input-datetime>
+                        <input-text [size]="3" label="CPF" controlName="cpf" [attr.maxlength]=11 required></input-text>
+                        <input-text [size]="5" label="E-mail" controlName="email" textCase="lower" [attr.maxlength]=250></input-text>
+                        <input-datetime date [size]="4" label="Nascimento" noIcon controlName="data_nascimento" [labelInfo]="'Data de nascimento'"></input-datetime>
                     </div>
                     <div class="row">
-                        <input-text [size]="12" label="Nome" controlName="nome" [disabled]="!entity?.usuario_externo ? 'true' : undefined" [attr.maxlength]=250 required></input-text>
+                        <input-text [size]="12" label="Nome" controlName="nome" [attr.maxlength]=250 required></input-text>
                     </div>
                     <div class="row">
-                        <input-text [size]="12" label="Nome Social" controlName="nome_social" [disabled]="!isTitular ? 'true' : undefined" [maxLength]="100"
+                        <input-text [size]="12" label="Nome Social" controlName="nome_social" [maxLength]="100"
                           labelInfo="O Nome Social será utilizado como identificação principal no sistema. O nome civil permanecerá armazenado para fins administrativos e poderá ser utilizado nas hipóteses previstas na legislação vigente.">
                         </input-text>
                     </div>
                     <div class="row">
-                        <input-select [size]="6" label="UF" icon="bi bi-flag" controlName="uf" [items]="lookup.UF" [disabled]="!entity?.usuario_externo ? 'true' : undefined"></input-select>
-                        <input-text [size]="6" label="Telefone" controlName="telefone" [maskFormat]="'(00) 0000-0000||(00) 0 0000-0000'" [attr.maxlength]=250></input-text>
+                        <input-select [size]="4" label="UF" icon="bi bi-flag" controlName="uf" [items]="lookup.UF"></input-select>
+                        <input-text [size]="4" label="Telefone" controlName="telefone" [maskFormat]="'(00) 0000-0000||(00) 0 0000-0000'" [attr.maxlength]=250></input-text>
+                        <input-switch [size]="4" label="Usuário Externo" controlName="usuario_externo" [labelInfo]="'Define se é colaborador externo ou servidor interno da instituição'"></input-switch>
+                    </div>
+                    <div class="row mt-2">
+                        <input-text type="password" [size]="6" label="Senha de Acesso" controlName="password" [labelInfo]="isNew ? 'Defina a senha inicial do usuário' : 'Preencha apenas caso deseje alterar a senha do usuário'"></input-text>
                     </div>
                 </div>
             </div>
         </tab>
-        <tab key="SITUACAO" label="Situação" *ngIf="!isNew">
+        <tab key="SITUACAO" label="Situação">
             <div class="row">
+                <input-text [size]="4" label="Nº Matrícula" controlName="matricula" [attr.maxlength]=50></input-text>
+                <input-select [size]="4" label="Situação Funcional" controlName="situacao_funcional" [items]="lookup.USUARIO_SITUACAO_FUNCIONAL"></input-select>
+                <input-select [size]="4" label="Situação Cadastral" controlName="situacao_siape" [items]="lookup.USUARIO_SITUACAO_SIAPE"></input-select>
+            </div>
+            <div class="row mt-2">
+                <input-select [size]="4" label="Participa de Teletrabalho / Programa" controlName="participa_pgd" [items]="lookup.SIM_NAO"></input-select>
+                <input-select [size]="4" label="Modalidade de Trabalho" controlName="modalidade_pgd" [items]="modalidadePgd.items"></input-select>
+                <div class="col-md-4 d-flex align-items-end mb-3" *ngIf="entity?.id">
+                    <button type="button" class="btn btn-outline-primary w-100" (click)="abrirDossie()">
+                        <i class="bi bi-file-earmark-person"></i> Exportar Dossiê do Agente
+                    </button>
+                </div>
+            </div>
+
+            <div class="row mt-3">
                 <div class="col-md-12">
-                    <top-alert *ngIf="!entity?.unidades_vinculadas?.length" type="warning" [message]="'Nenhum unidade vinculada ao usuário'"></top-alert>
+                    <label class="form-label fw-bold">Particularidades / Observações do Agente</label>
+                    <input-editor controlName="texto_complementar_plano" [dataset]="planoDataset"></input-editor>
+                </div>
+            </div>
+
+            <div class="row mt-3" *ngIf="entity?.unidades_vinculadas?.length">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold text-muted">Histórico de Unidades Vinculadas</label>
                     <grid #unidades_vinculadas [items]="entity?.unidades_vinculadas || []" minHeight="auto" noMargin>
                         <columns>
                             <column [title]="lex.translate('Nº Matrícula')" [template]="columnMatricula">
@@ -52,10 +78,10 @@
                 </div>
             </div>
             
-            <div class="row">
+            <div class="row mt-2" *ngIf="regramentos.length">
                 <div class="col-md-12">
-                    <top-alert *ngIf="!entity?.regramentos" type="warning" [message]="'Nenhum regramento cadastrado para o usuário'"></top-alert>
-                    <grid #regramentos_grid [items]="regramentos" *ngIf="regramentos.length" minHeight="auto" noMargin>
+                    <label class="form-label fw-bold text-muted">Regramentos Cadastrados</label>
+                    <grid #regramentos_grid [items]="regramentos" minHeight="auto" noMargin>
                         <columns>
                             <column [title]="lex.translate('Regramentos')" [template]="columnRegramento">
                                 <ng-template let-row="row" #columnRegramento>
@@ -66,18 +92,6 @@
                     </grid>
                 </div>
             </div>
-            <div class="row" style="margin-bottom: 20px">
-                <input-display [size]="3" label="Participante do PGD" [value]="entity?.participa_pgd?.toUpperCase()"></input-display>
-                <input-display [size]="6" label="Modalidade" [value]="entity?.modalidade_pgd_label || entity?.modalidade_pgd || 'Não definida'"></input-display>
-            </div>
-        </tab>
-        <tab key="CONFIGURACOES" label="TCR- Particularidades do participante" *ngIf="entity?.id && !entity?.usuario_externo">
-            <div class="row">
-                <input-editor [label]="''" controlName="texto_complementar_plano" [dataset]="planoDataset"></input-editor>
-            </div>
-        </tab>
-        <tab key="TCR" label="TCR compilado" *ngIf="entity?.id && !entity?.usuario_externo">
-            <document-preview *ngIf="entity?.ultimo_plano_trabalho_ativo" [html]="entity?.ultimo_plano_trabalho_ativo?.documentos?.[0]?.conteudo || ''" emptysDocumentMensage="Vazio"></document-preview>
         </tab>
         <tab key="ATRIBUICOES" [label]="lex.translate('Atribuições')">
             <usuario-integrante #unidadesIntegrantes noPersist [entity]="entity" [readOnly]="!canEditAtribuicoes"></usuario-integrante>
@@ -85,5 +99,5 @@
     </tabs>
 </editable-form>
 <small *ngIf="entity?.id && entity?.usuario_externo && entity?.audits_externo">
-    <span class="fs-6 text-danger">** Cadastro realizado por  {{ entity?.audits_externo[0]?.performed_by || 'carregando...' }}  em {{ entity?.audits_externo[0]?.created_at || 'carregando...' }}  </span>
+    <span class="fs-6 text-danger">** Cadastro realizado por {{ entity?.audits_externo[0]?.performed_by || 'carregando...' }} em {{ entity?.audits_externo[0]?.created_at || 'carregando...' }} </span>
 </small>

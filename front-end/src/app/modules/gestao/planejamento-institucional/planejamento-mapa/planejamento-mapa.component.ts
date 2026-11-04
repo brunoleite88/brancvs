@@ -152,14 +152,16 @@ export class PlanejamentoMapaComponent extends PageFrameBase {
   }
 
   public onObjetivoAddClick(data: any) {
-    let eixo = this.eixos.find(x => x.eixo.id == data.id);   
+    let eixoId = data?.eixo?.id || data?.eixo_tematico_id || data?.id;
+    let eixo = this.eixos.find(x => x.eixo.id == eixoId);
+    let eixoTematico = data?.eixo || eixo?.eixo;
     let objetivo = new PlanejamentoObjetivo({
-      _status: "ADD",
+      _status: 'ADD',
       id: this.dao!.generateUuid(),
       planejamento_id: this.planejamento?.id,
-      eixo_tematico_id: data.eixo.id,
-      eixo_tematico: data.eixo,
-      sequencia: eixo?.objetivos.length ? eixo?.objetivos[0].sequencia : 0
+      eixo_tematico_id: eixoTematico?.id,
+      eixo_tematico: eixoTematico,
+      sequencia: eixo?.objetivos.length ? (eixo.objetivos[0].sequencia || 0) : 0
     });
     this.go.navigate({ route: ['gestao', 'planejamento', 'objetivo'] }, {
       metadata: { 

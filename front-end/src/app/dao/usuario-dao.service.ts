@@ -62,6 +62,14 @@ export class UsuarioDaoService extends DaoBaseService<Usuario> {
     return this.server.postDownload('api/usuario/download-cpf-siape', { cpf });
   }
 
+  public resetPassword(id: string, password: string): Promise<any> {
+    return firstValueFrom(this.server.post('api/Usuario/reset-password', { id, password }));
+  }
+
+  public getDossie(id: string): Promise<any> {
+    return firstValueFrom(this.server.post('api/Usuario/dossie', { id }));
+  }
+
   public consultarSIAPE(cpf: string) {
     return this.server.post('api/usuario/consultar-cpf-siape', { cpf });
   }

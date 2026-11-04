@@ -48,7 +48,13 @@ Certifique-se de que o MariaDB/MySQL esteja em execução.
 Para ter **exatamente o mesmo estado** desta máquina (com todas as 42 unidades da PGE-MA, gestores reais, 41 Planos de Ação Setoriais, 1.164 ações/entregas vinculadas ao Planejamento 2026–2030, usuário Administrador e configurações):
 ```bash
 # Na raiz do projeto ou dentro de back-end:
-gunzip -c back-end/database/dumps/pge_ma_complete_setup.sql.gz | mysql -u root -p
+# No Linux / macOS / Docker / Git Bash:
+gunzip -c back-end/database/dumps/pge_ma_complete_setup.sql.gz | mysql -u root -p --default-character-set=utf8mb4
+
+# No Windows (PowerShell) - descompacte e use 'source' com UTF-8:
+# php -r '$zp = gzopen("back-end/database/dumps/pge_ma_complete_setup.sql.gz", "rb"); $fp = fopen("back-end/database/dumps/setup.sql", "wb"); while (!gzeof($zp)) { fwrite($fp, gzread($zp, 1048576)); } fclose($fp); gzclose($zp);'
+# mysql -u root -p --default-character-set=utf8mb4 -e "source back-end/database/dumps/setup.sql"
+# Remove-Item back-end/database/dumps/setup.sql
 ```
 *Pronto! Os bancos `petrvs`, `tenantpgema` e `petrvs_logs` são criados e totalmente povoados de forma instantânea.*
 

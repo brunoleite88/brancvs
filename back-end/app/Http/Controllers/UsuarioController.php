@@ -20,7 +20,26 @@ class UsuarioController extends ControllerBase
 {
     public static $sameTransaction = true;
 
-    public $updatable = ["config", "notificacoes", "texto_complementar_plano", "perfil_id"];
+    public $updatable = [
+        "config", 
+        "notificacoes", 
+        "texto_complementar_plano", 
+        "perfil_id",
+        "nome",
+        "nome_social",
+        "email",
+        "cpf",
+        "matricula",
+        "telefone",
+        "uf",
+        "data_nascimento",
+        "situacao_funcional",
+        "situacao_siape",
+        "participa_pgd",
+        "modalidade_pgd",
+        "usuario_externo",
+        "password"
+    ];
 
     public function checkPermissions($action, $request, $service, $unidade, $usuario)
     {
@@ -359,6 +378,55 @@ class UsuarioController extends ControllerBase
             $dataError = throwableToArrayLog($e);
             Log::error($dataError);
             return response()->json(['error' => "Codigo " . $dataError['code'] . ": Ocorreu um erro inesperado."]);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'id' => 'required|string',
+                'password' => 'required|string|min:4'
+            ]);
+
+            $usuario = Usuario::findOrFail($data['id']);
+            $usuario->password = \Illuminate\Support\Facades\Hash::make($data['password']);
+            $usuario->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Senha redefinida com sucesso!'
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function dossie(Request $request)
+    {
+        try {
+            $id = $request->input('id');
+            if (empty($id)) {
+                return response()->json(['error' => 'ID do usuário é obrigatório'], 422);
+            }
+
+            $usuario = Usuario::with([
+                'perfil',
+                'unidadesIntegrantes.unidade',
+                'unidadesIntegrantes.atribuicoes',
+                'planosTrabalho' => function ($q) {
+                    $q->orderBy('data_inicio', 'desc')->take(5);
+                }
+            ])->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'dossie' => $usuario
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

@@ -14,6 +14,8 @@ import { UnidadeIntegranteDaoService } from 'src/app/dao/unidade-integrante-dao.
 import { IntegranteConsolidado } from 'src/app/models/unidade-integrante.model';
 import { InputSearchComponent } from 'src/app/components/input/input-search/input-search.component';
 import { UsuarioService } from 'src/app/v2/services/usuario.service';
+import { ModalidadePgdService } from 'src/app/services/modalidade-pgd.service';
+import { DossieAgenteService } from 'src/app/services/dossie-agente.service';
 import { firstValueFrom } from 'rxjs';
 
 type Regramento = IIndexable & { nome: string; };
@@ -39,6 +41,8 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
   public integranteDao: UnidadeIntegranteDaoService;
   public planoTrabalhoDao: PlanoTrabalhoDaoService;
   public usuarioService: UsuarioService;
+  public modalidadePgd: ModalidadePgdService;
+  public dossieService: DossieAgenteService;
   public planoDataset: TemplateDataset[];
   public regramentos: Regramento[] = [];
 
@@ -49,22 +53,27 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
     this.integranteDao = injector.get<UnidadeIntegranteDaoService>(UnidadeIntegranteDaoService);
     this.planoTrabalhoDao = injector.get<PlanoTrabalhoDaoService>(PlanoTrabalhoDaoService);
     this.usuarioService = injector.get<UsuarioService>(UsuarioService);
+    this.modalidadePgd = injector.get<ModalidadePgdService>(ModalidadePgdService);
+    this.dossieService = injector.get<DossieAgenteService>(DossieAgenteService);
     this.form = this.fh.FormBuilder({
       email: { default: "" },
       nome: { default: "" },
       cpf: { default: "" },
+      matricula: { default: "" },
       apelido: { default: "" },
       nome_social: { default: null },
-      participa_pgd: { default: ""},
-      modalidade_pgd: { default: null},
-      usuario_externo: { default: true },
+      participa_pgd: { default: "não" },
+      modalidade_pgd: { default: null },
+      situacao_funcional: { default: "ATIVO_PERMANENTE" },
+      situacao_siape: { default: "ATIVO" },
+      usuario_externo: { default: false },
+      password: { default: "" },
       telefone: { default: "" },
       uf: { default: "" },
       sexo: { default: null },
       url_foto: { default: "" },
       texto_complementar_plano: { default: "" },
       data_nascimento: { default: null },
-      situacao_siape: { default: 'ATIVO' },
     }, this.cdRef, this.validate);
     this.planoDataset = this.planoTrabalhoDao.dataset();
     this.join = [
@@ -155,6 +164,14 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
       data_nascimento: this.form!.controls.data_nascimento.value || null,
       uf: this.form!.controls.uf.value || null,
       sexo: this.form!.controls.sexo.value || null,
+      matricula: this.form!.controls.matricula.value || null,
+      password: this.form!.controls.password.value || null,
+      situacao_funcional: this.form!.controls.situacao_funcional.value || null,
+      situacao_siape: this.form!.controls.situacao_siape.value || null,
+      participa_pgd: this.form!.controls.participa_pgd.value || null,
+      modalidade_pgd: this.form!.controls.modalidade_pgd.value || null,
+      texto_complementar_plano: this.form!.controls.texto_complementar_plano.value || null,
+      usuario_externo: !!this.form!.controls.usuario_externo.value,
     }));
   }
 
@@ -201,7 +218,29 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
       requests.push(firstValueFrom(this.usuarioService.atualizarAtribuicoes(usuarioId, atribuicoes)));
     }
 
+    // Persistência unificada dos campos funcionais e cadastrais
+    requests.push(firstValueFrom(this.usuarioService.atualizarSituacao(usuarioId, {
+      matricula: this.form!.controls.matricula.value || null,
+      situacao_funcional: this.form!.controls.situacao_funcional.value || null,
+      situacao_siape: this.form!.controls.situacao_siape.value || null,
+      participa_pgd: this.form!.controls.participa_pgd.value || null,
+      modalidade_pgd: this.form!.controls.modalidade_pgd.value || null,
+      texto_complementar_plano: this.form!.controls.texto_complementar_plano.value || null,
+      usuario_externo: !!this.form!.controls.usuario_externo.value,
+      ...(this.form!.controls.password.value ? { password: this.form!.controls.password.value } : {})
+    })));
+
     await Promise.all(requests);
+  }
+
+  public async abrirDossie() {
+    if (!this.entity?.id) return;
+    try {
+      const dossieData = await (this.dao as any).getDossie(this.entity.id);
+      this.dossieService.abrirDossieEmNovaAba(dossieData || this.entity);
+    } catch (e) {
+      this.dossieService.abrirDossieEmNovaAba(this.entity);
+    }
   }
 
   private readonly CAMPOS_DADOS_PESSOAIS = ['telefone'];

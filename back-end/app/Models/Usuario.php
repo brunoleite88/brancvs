@@ -142,7 +142,7 @@ class Usuario extends Authenticatable implements AuditableContract, HasStatusHis
         'participa_pgd',/* enum('sim','não'); */ // Participação do usuário no PGD
         //'deleted_at', /* timestamp; */
         //'remember_token', /* varchar(100); */
-        //'password', /* varchar(255); */// Senha do usuário
+        'password', /* varchar(255); */// Senha do usuário
         //'url_foto', /* varchar(255); */// URL da foto do usuário (temporário)
         //'foto_perfil', /* text; */// Foto padrão do perfil
         //'foto_google', /* text; */// Foto do G-Suit (Google)

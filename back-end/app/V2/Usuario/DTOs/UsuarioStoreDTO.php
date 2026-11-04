@@ -21,6 +21,13 @@ class UsuarioStoreDTO
         public readonly ?string $uf = null,
         public readonly ?string $sexo = null,
         public readonly ?string $matricula = null,
+        public readonly ?string $password = null,
+        public readonly ?string $situacaoFuncional = null,
+        public readonly ?string $situacaoSiape = null,
+        public readonly ?string $participaPgd = null,
+        public readonly ?string $modalidadePgd = null,
+        public readonly ?string $textoComplementarPlano = null,
+        public readonly ?bool $usuarioExterno = null,
     ) {}
 
     public static function fromArray(array $data): self
@@ -37,13 +44,20 @@ class UsuarioStoreDTO
             uf: $data['uf'] ?? null,
             sexo: $data['sexo'] ?? null,
             matricula: $data['matricula'] ?? null,
+            password: $data['password'] ?? null,
+            situacaoFuncional: $data['situacao_funcional'] ?? null,
+            situacaoSiape: $data['situacao_siape'] ?? null,
+            participaPgd: $data['participa_pgd'] ?? null,
+            modalidadePgd: $data['modalidade_pgd'] ?? null,
+            textoComplementarPlano: $data['texto_complementar_plano'] ?? null,
+            usuarioExterno: isset($data['usuario_externo']) ? (bool) $data['usuario_externo'] : true,
         );
     }
 
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        return [
+        $arr = [
             'nome' => $this->nome,
             'email' => $this->email,
             'cpf' => $this->cpf,
@@ -54,7 +68,16 @@ class UsuarioStoreDTO
             'sexo' => $this->sexo,
             'matricula' => $this->matricula,
             'perfil_id' => $this->perfilId,
-            'usuario_externo' => true,
+            'usuario_externo' => $this->usuarioExterno ?? true,
+            'situacao_funcional' => $this->situacaoFuncional ?? 'ATIVO_PERMANENTE',
+            'situacao_siape' => $this->situacaoSiape ?? 'ATIVO',
+            'participa_pgd' => $this->participaPgd ?? 'não',
+            'modalidade_pgd' => $this->modalidadePgd,
+            'texto_complementar_plano' => $this->textoComplementarPlano,
         ];
+        if (!empty($this->password)) {
+            $arr['password'] = \Illuminate\Support\Facades\Hash::make($this->password);
+        }
+        return $arr;
     }
 }

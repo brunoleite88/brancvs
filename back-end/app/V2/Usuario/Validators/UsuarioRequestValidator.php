@@ -24,6 +24,13 @@ class UsuarioRequestValidator
             'uf' => ['sometimes', 'nullable', 'string', 'size:2'],
             'sexo' => ['sometimes', 'nullable', 'string', 'in:MASCULINO,FEMININO'],
             'matricula' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'password' => ['sometimes', 'nullable', 'string', 'min:4'],
+            'situacao_funcional' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'situacao_siape' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'participa_pgd' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'modalidade_pgd' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'texto_complementar_plano' => ['sometimes', 'nullable', 'string'],
+            'usuario_externo' => ['sometimes', 'nullable'],
         ], [
             'cpf.required' => 'O CPF é obrigatório.',
             'cpf.regex' => 'O CPF deve conter exatamente 11 dígitos numéricos.',

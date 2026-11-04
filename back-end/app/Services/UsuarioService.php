@@ -145,12 +145,8 @@ class UsuarioService extends ServiceBase
 
     private function removerEmailDaRequisicaoSeUsuarioInterno(array &$data, mixed $usuarioExterno): void
     {
-        $isExterno = $this->parseUsuarioExterno($usuarioExterno);
-        if ($isExterno !== false) {
-            return;
-        }
-
-        unset($data['email']);
+        // PGE-MA: permite salvar e atualizar e-mail para todos os usuários
+        return;
     }
 
     /**
@@ -606,12 +602,15 @@ class UsuarioService extends ServiceBase
         }
 
         foreach ($data["where"] as $condition) {
-            if (is_array($condition) && $condition[0] == "lotacao") {
+            if (!is_array($condition) || !isset($condition[0])) {
+                continue;
+            }
+            if ($condition[0] == "lotacao") {
                 $lotacao = $condition;
                 $query->whereHas('areasTrabalho', function (Builder $query) use ($condition) {
                     $query->where('unidade_id', $condition[2]);
                 });
-            } else if (is_array($condition) && $condition[0] == "habilitado") {
+            } else if ($condition[0] == "habilitado") {
                 if ($condition[2] == true) {
                     $query->whereHas('participacoesProgramas', function (Builder $query) {
                         $query->where('habilitado', 1);
@@ -624,15 +623,15 @@ class UsuarioService extends ServiceBase
                     }
 
                 }
-            } else if (is_array($condition) && $condition[0] == "subordinadas") {
+            } else if ($condition[0] == "subordinadas") {
                 $subordinadas = $condition[2];
-            } else if (is_array($condition) && $condition[0] == "atribuicoes") {
+            } else if ($condition[0] == "atribuicoes") {
                 $query->whereHas('unidadesIntegranteAtribuicoes', function (Builder $query) use ($condition) {
                     $query->whereIn('atribuicao', $condition[2]);
                 });
-            } else if (is_array($condition) && $condition[0] == "situacao") {
+            } else if ($condition[0] == "situacao") {
                 $query->where('situacao_siape', $condition[2]);
-            } else if (is_array($condition) && $condition[0] == "dispensa_pt") {
+            } else if ($condition[0] == "dispensa_pt") {
                 $hoje = Carbon::today()->toDateString();
                 if ($condition[2] === 'Sim') {
                     $query->whereHas('dispensaPlanoTrabalho', function (Builder $q) use ($hoje) {
@@ -651,7 +650,7 @@ class UsuarioService extends ServiceBase
                             });
                     });
                 }
-            } else if (is_array($condition) && $condition[0] == "programa_id") {
+            } else if ($condition[0] == "programa_id") {
                 if ($condition[2]) {
                     $query->whereHas('participacoesProgramas', function (Builder $query) use ($condition) {
                         $query->where('programa_id', $condition[2]);
@@ -733,6 +732,12 @@ class UsuarioService extends ServiceBase
         if (!empty($data['telefone']))
             $data['telefone'] = UtilService::onlyNumbers($data['telefone']);
 
+        if (!empty($data['password'])) {
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
         $this->buffer = ["integrantes" => UtilService::getNested($data, "integrantes")];
         $this->validarPerfil($data);
         $this->validarColaborador($data);
@@ -757,6 +762,12 @@ class UsuarioService extends ServiceBase
             $data['cpf'] = UtilService::onlyNumbers($data['cpf']);
         }
 
+        if (!empty($data['password'])) {
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
         unset($data['pedagio']);
         $this->buffer = ["integrantes" => UtilService::getNested($data, "integrantes")];
         $this->validarPerfil($data);
@@ -777,7 +788,7 @@ class UsuarioService extends ServiceBase
             return $data;
         }
 
-        throw new ValidateException("Apenas usuários externos podem alterar o e-mail.", 422);
+        return $data; // Permitir alteração de e-mail
     }
 
     public function extraUpdate($entity, $unidade)
@@ -821,9 +832,7 @@ class UsuarioService extends ServiceBase
         }
         if ($action == ServiceBase::ACTION_INSERT) {
             $isExterno = $this->parseUsuarioExterno($data['usuario_externo'] ?? null);
-            if ($isExterno === false) {
-                throw new ValidateException("Usuário interno deve ser criado/atualizado via integração SIAPE.", 422);
-            }
+            // PGE-MA: permite criação manual de usuário interno ou externo
 
             if (empty($data["email"]))
                 throw new ValidateException("O campo de e-mail é obrigatório", 422);
@@ -904,23 +913,8 @@ class UsuarioService extends ServiceBase
 
     public function validarColaborador($data) : void
     {
-        $usuarioExterno = $data['usuario_externo'] ?? null;
-        if ($usuarioExterno === null) {
-            return;
-        }
-
-        if (!isset($data['perfil_id'])) {
-            throw new ServerException("ValidateUsuario", "ID do perfil não foi informado.");
-        }
-
-        $perfil = $this->findPerfil($data['perfil_id']);
-        if (!$perfil) {
-            throw new ServerException("ValidateUsuario", "Perfil não encontrado.");
-        }
-
-        if ($perfil->nivel < 6 && $usuarioExterno == 1) {
-            throw new ServerException("ValidateUsuario", "Usuário externo não pode ter o nível de acesso: " . $perfil->nome);
-        }
+        // PGE-MA: permite atribuir qualquer perfil cadastrado
+        return;
     }
 
     public function searchText($data)

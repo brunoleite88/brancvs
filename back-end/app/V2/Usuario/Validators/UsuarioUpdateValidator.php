@@ -34,19 +34,14 @@ class UsuarioUpdateValidator
 
         $isExterno = (bool) $alvo->usuario_externo;
 
-        if ($isExterno && $perfil->nivel < PerfilEnum::COLABORADOR->value) {
-            throw new ValidateException('Usuário externo não pode ter este nível de acesso.');
-        }
-
-        if (!$isExterno && $perfil->nivel === PerfilEnum::COLABORADOR->value) {
-            throw new ValidateException('Usuário interno não pode ter o nível Colaborador.');
-        }
+        // Simplificação PGE-MA: qualquer usuário pode receber os perfis disponíveis no sistema
+        // if ($isExterno && $perfil->nivel < PerfilEnum::COLABORADOR->value) { ... }
     }
 
     /**
      * @param array<int, array{unidade_id: string, atribuicoes?: string[]}> $atribuicoes
      */
-    public function validarAtribuicoes(array $atribuicoes, bool $isExterno = true): void
+    public function validarAtribuicoes(array &$atribuicoes, bool $isExterno = true): void
     {
         foreach ($atribuicoes as $integrante) {
             $this->validarUnidadeAtiva($integrante['unidade_id']);
@@ -54,7 +49,22 @@ class UsuarioUpdateValidator
         }
 
         if (!$isExterno) {
-            $this->validarPossuiLotacao($atribuicoes);
+            $hasLotado = false;
+            foreach ($atribuicoes as $integrante) {
+                $atribs = $integrante['atribuicoes'] ?? [];
+                if (in_array(Atribuicao::LOTADO->value, $atribs, true)) {
+                    $hasLotado = true;
+                    break;
+                }
+            }
+            if (!$hasLotado && count($atribuicoes) > 0) {
+                if (!isset($atribuicoes[0]['atribuicoes'])) {
+                    $atribuicoes[0]['atribuicoes'] = [];
+                }
+                $atribuicoes[0]['atribuicoes'][] = Atribuicao::LOTADO->value;
+            } elseif (!$hasLotado) {
+                throw new ValidateException('Usuário interno deve possuir ao menos uma lotação.');
+            }
         }
     }
 

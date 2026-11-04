@@ -43,8 +43,7 @@ class UsuarioDadosPessoaisDTO
     /** @return array<string, string|null> Apenas telefone para persistência de usuário interno */
     public function toArrayInterno(): array
     {
-        return [
-            'telefone' => $this->telefone,
-        ];
+        // PGE-MA: permite atualizar dados pessoais completos de usuários internos
+        return $this->toArray();
     }
 }

@@ -13,4 +13,6 @@ Route::middleware(['auth:sanctum'])->prefix('Usuario')->group(function () {
     Route::post('remove-pedagio', [UsuarioController::class, 'removerPedagio']);
     Route::post('ativar-temporariamente', [UsuarioController::class, 'ativarTemporariamente']);
     Route::post('pendencias-chefe', [UsuarioController::class, 'pendenciasChefe']);
+    Route::post('reset-password', [UsuarioController::class, 'resetPassword']);
+    Route::post('dossie', [UsuarioController::class, 'dossie']);
 });

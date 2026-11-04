@@ -71,6 +71,13 @@ export class UsuarioService {
     uf?: string | null;
     sexo?: string | null;
     matricula?: string | null;
+    password?: string | null;
+    situacao_funcional?: string | null;
+    situacao_siape?: string | null;
+    participa_pgd?: string | null;
+    modalidade_pgd?: string | null;
+    texto_complementar_plano?: string | null;
+    usuario_externo?: boolean;
   }): Observable<Usuario> {
     return this.http
         .post<any>(`${this.gb.servidorURL}/${this.base}`, dados)
@@ -100,4 +107,22 @@ export class UsuarioService {
         .put<any>(`${this.gb.servidorURL}/${this.base}/${usuarioId}/atribuicoes`, { atribuicoes })
         .pipe(map((response: any) => response?.data as Usuario));
   }
+  atualizarSituacao(usuarioId: string, dados: any): Observable<any> {
+    return this.http
+        .post<any>(`${this.gb.servidorURL}/api/Usuario/update`, { id: usuarioId, data: dados })
+        .pipe(map((response: any) => response?.data));
+  }
+
+  resetPassword(usuarioId: string, password: string): Observable<any> {
+    return this.http
+        .post<any>(`${this.gb.servidorURL}/api/Usuario/reset-password`, { id: usuarioId, password })
+        .pipe(map((response: any) => response));
+  }
+
+  getDossie(usuarioId: string): Observable<any> {
+    return this.http
+        .post<any>(`${this.gb.servidorURL}/api/Usuario/dossie`, { id: usuarioId })
+        .pipe(map((response: any) => response?.dossie));
+  }
+
 }
