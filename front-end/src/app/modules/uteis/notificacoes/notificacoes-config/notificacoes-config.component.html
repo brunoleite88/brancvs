@@ -1,10 +1,35 @@
 <editable-form [form]="form!" [disabled]="disabled" noButtons [withScroll]="false">
-    <separator transparent title="Formas de notificação">
+    <separator transparent title="Canais de recebimento">
         <input-switch *ngIf="templateService.notifica.petrvs" [size]="4" scale="small" icon="bi bi-bell" labelPosition="right" label="Notificar no Sistema PGE-MA" controlName="enviar_petrvs" (change)="updateNotificacoes()"></input-switch>
         <input-switch *ngIf="templateService.notifica.email" [size]="4" scale="small" icon="bi bi-envelope-at" labelPosition="right" label="Notificar por e-mail" controlName="enviar_email" (change)="updateNotificacoes()"></input-switch>
         <input-switch *ngIf="templateService.notifica.whatsapp" [size]="4" scale="small" icon="bi bi-whatsapp" labelPosition="right" label="Notificar por Whatsapp" controlName="enviar_whatsapp" (change)="updateNotificacoes()"></input-switch>
     </separator>
-    <separator *ngIf="viewInit" title="Templates e habilitação de notificações">
+
+    <separator *ngIf="viewInit && !entidadeId && !unidadeId" transparent title="Alertas e eventos monitorados">
+        <div class="row g-2 mt-1">
+            <div *ngFor="let item of notificar" class="col-12 col-md-6">
+                <div class="p-2 border rounded bg-white d-flex align-items-center justify-content-between h-100">
+                    <label class="form-check-label small text-dark mb-0 me-2"
+                           [for]="'notif-switch-' + item.codigo"
+                           style="cursor: pointer;">
+                        {{ item.descricao }}
+                    </label>
+                    <div class="form-check form-switch mb-0 flex-shrink-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               role="switch"
+                               [id]="'notif-switch-' + item.codigo"
+                               [checked]="item.notifica"
+                               [disabled]="disabled || !form.controls.enviar_petrvs.value"
+                               (change)="onToggleNotificarItem(item, $any($event.target).checked)"
+                               style="cursor: pointer;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </separator>
+
+    <separator *ngIf="viewInit && (entidadeId || unidadeId)" title="Templates e habilitação de notificações">
         <notificacoes-template [entity]="entity" [source]="source" [unidadeId]="unidadeId" [entidadeId]="entidadeId" [cdRef]="cdRef"></notificacoes-template>
     </separator>
 </editable-form>

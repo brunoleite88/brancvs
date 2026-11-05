@@ -12,8 +12,43 @@ class NotificacoesService
     public $notificacoes = [];
 
     public function __construct() {
-        /* Foi necessário inicializar a variável no construtor devido a um BUG do php */
         $this->notificacoes = [
+            "PRAZO_RELATORIO_CORREGEDORIA" => [
+                "descricao" => "Alerta de prazo e pendência do Relatório Mensal da Corregedoria",
+                "destinatarios" => (fn(&$params) => []),
+                "unidade" => (fn(&$params) => null),
+                "validacao" => (fn(&$params) => true),
+                "dataset" => [["field" => "competencia", "label" => "Competência"], ["field" => "prazo", "label" => "Prazo limite"]],
+                "datasource" => (fn(&$params) => ["competencia" => $params["competencia"] ?? "", "prazo" => $params["prazo"] ?? ""]),
+                "template" => "Seu Relatório Mensal de Atividades ({{competencia}}) encontra-se pendente de consolidação e assinatura até {{prazo}}."
+            ],
+            "HOMOLOGACAO_CORREGEDORIA" => [
+                "descricao" => "Alerta de relatórios mensais aguardando homologação da Corregedoria",
+                "destinatarios" => (fn(&$params) => []),
+                "unidade" => (fn(&$params) => null),
+                "validacao" => (fn(&$params) => true),
+                "dataset" => [["field" => "quantidade", "label" => "Quantidade pendente"]],
+                "datasource" => (fn(&$params) => ["quantidade" => $params["quantidade"] ?? 0]),
+                "template" => "Existem {{quantidade}} relatório(s) mensal(is) assinado(s) aguardando análise e homologação no Painel da Corregedoria."
+            ],
+            "PRAZO_ATIVIDADES_PLANOS" => [
+                "descricao" => "Alerta de atividades da Agenda de Tarefas e Planos com ações ou prazos pendentes",
+                "destinatarios" => (fn(&$params) => []),
+                "unidade" => (fn(&$params) => null),
+                "validacao" => (fn(&$params) => true),
+                "dataset" => [["field" => "resumo", "label" => "Resumo das pendências"]],
+                "datasource" => (fn(&$params) => ["resumo" => $params["resumo"] ?? ""]),
+                "template" => "Você possui atividades ou validações de planos com prazo em andamento: {{resumo}}."
+            ],
+            "PRAZO_INICIATIVAS_MARCOS" => [
+                "descricao" => "Alerta de marcos estratégicos e iniciativas prioritárias de curto prazo da Unidade",
+                "destinatarios" => (fn(&$params) => []),
+                "unidade" => (fn(&$params) => null),
+                "validacao" => (fn(&$params) => true),
+                "dataset" => [["field" => "unidade_sigla", "label" => "Sigla da Unidade"], ["field" => "quantidade", "label" => "Total de iniciativas"]],
+                "datasource" => (fn(&$params) => ["unidade_sigla" => $params["unidade_sigla"] ?? "", "quantidade" => $params["quantidade"] ?? 0]),
+                "template" => "A unidade {{unidade_sigla}} possui {{quantidade}} iniciativa(s) prioritária(s) de curto prazo em acompanhamento no ciclo atual."
+            ],
             "DMD_DISTRIBUICAO" => [
                 "descricao" => "Notificação de distribuição do registro de execução",
                 "destinatarios" => (fn(&$params) => [$params["atividade"]->usuario]),
@@ -95,8 +130,8 @@ class NotificacoesService
             $destinatarios = $notificacaoDef["destinatarios"]($params);
             $unidade = $unidade ?? $notificacaoDef["unidade"]($params);
             $entidade = $unidade?->entidade;
-            $notificacaoEntidade = $entidade?->notificacoesTemplates->where("codigo", $code)->first() ?? ["enviar" => true, "template" => null]; //$this->getOrDefault($code, $entidade?->notificacoes || [], ["enviar" => true, "template" => null]);
-            $notificacaoUnidade = $unidade?->notificacoesTemplates->where("codigo", $code)->first() ?? ["enviar" => true, "template" => null]; //$this->getOrDefault($code, $unidade?->notificacoes || [], ["enviar" => true, "template" => null]);
+            $notificacaoEntidade = $entidade?->notificacoesTemplates->where("codigo", $code)->first() ?? ["enviar" => true, "template" => null];
+            $notificacaoUnidade = $unidade?->notificacoesTemplates->where("codigo", $code)->first() ?? ["enviar" => true, "template" => null];
             $template = $notificacaoUnidade["template"] ?? $notificacaoEntidade["template"] ?? $notificacaoDef["template"];
             $message = $this->applyParams($template, $notificacaoDef["datasource"]($params));
             if(!empty($entidade) && $notificacaoEntidade["enviar"] && $notificacaoUnidade["enviar"]) {
@@ -135,7 +170,6 @@ class NotificacoesService
                             "usuario_id" => $destinatario->id
                         ])->save();
                         $enviados["whatsapp"][] = $destinatario->telefone;
-                        //strip_tags() -> Remove as TAGS html do texto
                     }
                 }
             }

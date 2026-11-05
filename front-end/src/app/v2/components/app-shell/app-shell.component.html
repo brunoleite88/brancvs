@@ -114,24 +114,19 @@
           <!-- Direita: ações -->
           <div class="header-actions ms-auto">
 
-            <!-- Notificações (ocultado por causa do Mural de Avisos) -->
-            <!-- <div class="header-functions">
-              <button class="br-button circle" type="button"
-                [attr.aria-label]="naoLidas ? naoLidas + ' notificações não lidas' : 'Notificações'"
-                (click)="irParaNotificacoes()">
-                <span class="position-relative" aria-hidden="true">
-                  <i class="bi bi-bell"></i>
-                  @if (naoLidas) {
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                      style="font-size:0.55rem">
-                      {{ naoLidas > 9 ? '9+' : naoLidas }}
-                    </span>
-                  }
+            <!-- Mural de Avisos e Prazos -->
+            <div class="header-functions">
+              <button class="br-button small" type="button"
+                aria-label="Mural de Avisos e Prazos"
+                (click)="abrirMuralAvisos()">
+                <i class="bi bi-megaphone me-1" aria-hidden="true"></i>
+                <span class="d-none d-sm-inline" aria-hidden="true">
+                  Mural de Avisos@if (totalIndicadorMural() > 0) { ({{ totalIndicadorMural() }})}
                 </span>
               </button>
             </div>
 
-            <span class="br-divider vertical mx-half" aria-hidden="true"></span> -->
+            <span class="br-divider vertical mx-half" aria-hidden="true"></span>
 
             <!-- Unidade / Matrícula -->
             <div class="header-functions">
@@ -284,18 +279,147 @@
   </div>
 }
 
-<!-- ─── Template: Mural de Avisos ──────────────────────────────────────────── -->
-<ng-template #muralTemplate let-avisos="avisos">
-  <div class="overflow-auto px-2 mural-aviso-container">
-    @for (aviso of avisos; track aviso.titulo) {
-      <mural-aviso-card
-        [titulo]="aviso.titulo"
-        [conteudo]="aviso.conteudo"
-        [remetente]="aviso.remetente"
-        [dataFormatada]="aviso.dataFormatada"
-        [horaFormatada]="aviso.horaFormatada"
-        [lido]="aviso.lido"
-      ></mural-aviso-card>
+<!-- ─── Template: Mural de Avisos e Prazos ─────────────────────────────────── -->
+<ng-template #muralTemplate>
+  <div class="px-2 text-start">
+    <!-- Barra de Abas e Atalho de Preferências -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center pb-2 mb-3 border-bottom gap-2">
+      <div class="btn-group btn-group-sm" role="group" aria-label="Seções do Mural">
+        <button type="button" class="btn btn-sm"
+                [class.btn-primary]="abaMuralAtiva() === 'ALERTAS'"
+                [class.btn-outline-secondary]="abaMuralAtiva() !== 'ALERTAS'"
+                (click)="abaMuralAtiva.set('ALERTAS')">
+          Ações e Prazos ({{ alertasPendentesLista().length }})
+        </button>
+        <button type="button" class="btn btn-sm"
+                [class.btn-primary]="abaMuralAtiva() === 'COMUNICADOS'"
+                [class.btn-outline-secondary]="abaMuralAtiva() !== 'COMUNICADOS'"
+                (click)="abaMuralAtiva.set('COMUNICADOS')">
+          Comunicados Institucionais ({{ avisosLista().length }})
+        </button>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        @if (abaMuralAtiva() === 'COMUNICADOS' && podeGerenciarMural) {
+          <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" (click)="toggleFormNovoAviso()">
+            @if (exibirFormNovoAviso()) {
+              Cancelar
+            } @else {
+              + Novo Comunicado
+            }
+          </button>
+        }
+        <button type="button" class="btn btn-sm btn-link text-decoration-none py-0 px-1"
+                title="Configurar quais alertas você deseja visualizar"
+                (click)="abrirPreferenciasDoMural()">
+          <i class="bi bi-gear me-1"></i>Preferências
+        </button>
+      </div>
+    </div>
+
+    <!-- ABA 1: Ações Pendentes e Prazos Expirando -->
+    @if (abaMuralAtiva() === 'ALERTAS') {
+      <div class="overflow-auto mural-aviso-container">
+        @if (!alertasHabilitados()) {
+          <div class="text-center text-muted py-4 small">
+            As notificações internas estão desativadas nas suas Preferências.
+            <div class="mt-2">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="abrirPreferenciasDoMural()">
+                Gerenciar Preferências
+              </button>
+            </div>
+          </div>
+        } @else if (alertasPendentesLista().length > 0) {
+          @for (alerta of alertasPendentesLista(); track alerta.id) {
+            <div class="p-3 mb-2 border rounded bg-white">
+              <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
+                <span class="small text-secondary fw-semibold">
+                  <i class="bi bi-building me-1 text-muted"></i>{{ alerta.origem }}
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2"
+                        (click)="acessarRotaMural(alerta.rota)">
+                  Acessar
+                </button>
+              </div>
+              <div class="fw-bold text-dark small mb-1">{{ alerta.titulo }}</div>
+              <div class="small text-secondary mb-1">{{ alerta.descricao }}</div>
+              <div class="small text-muted">
+                <i class="bi bi-calendar3 me-1"></i>Prazo: <strong class="text-dark">{{ alerta.prazo }}</strong>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="text-center text-muted py-4 small">
+            Nenhuma ação pendente ou prazo crítico localizado para o seu perfil no momento.
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ABA 2: Comunicados Institucionais -->
+    @if (abaMuralAtiva() === 'COMUNICADOS') {
+      @if (podeGerenciarMural && exibirFormNovoAviso()) {
+        <div class="p-3 mb-3 border rounded bg-light">
+          <div class="mb-2">
+            <label class="form-label small fw-bold mb-1">Título do Comunicado</label>
+            <input type="text" class="form-control form-control-sm"
+                   [value]="novoAvisoTitulo()"
+                   (input)="novoAvisoTitulo.set($any($event.target).value)"
+                   placeholder="Informe o título objetivo do aviso" />
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-bold mb-1">Mensagem / Conteúdo</label>
+            <textarea class="form-control form-control-sm" rows="3"
+                      [value]="novoAvisoConteudo()"
+                      (input)="novoAvisoConteudo.set($any($event.target).value)"
+                      placeholder="Digite o conteúdo institucional do aviso..."></textarea>
+          </div>
+          <div class="row g-2 align-items-end">
+            <div class="col-sm-6">
+              <label class="form-label small fw-bold mb-1">Exibir até (opcional)</label>
+              <input type="date" class="form-control form-control-sm"
+                     [value]="novoAvisoExpiracao()"
+                     (input)="novoAvisoExpiracao.set($any($event.target).value)" />
+            </div>
+            <div class="col-sm-6 text-end">
+              <button type="button" class="btn btn-sm btn-primary"
+                      [disabled]="salvandoAviso() || !novoAvisoTitulo().trim() || !novoAvisoConteudo().trim()"
+                      (click)="publicarNovoAviso()">
+                Publicar Comunicado
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="overflow-auto mural-aviso-container">
+        @if (avisosLista().length > 0) {
+          @for (aviso of avisosLista(); track aviso.id) {
+            <div class="position-relative">
+              <mural-aviso-card
+                [titulo]="aviso.titulo"
+                [conteudo]="aviso.conteudo"
+                [remetente]="aviso.remetente"
+                [dataFormatada]="aviso.dataFormatada"
+                [horaFormatada]="aviso.horaFormatada"
+                [lido]="aviso.lido"
+              ></mural-aviso-card>
+              @if (podeGerenciarMural) {
+                <button type="button"
+                        class="btn btn-sm btn-link text-danger text-decoration-none py-0 px-1 position-absolute top-0 end-0 mt-3"
+                        title="Remover comunicado"
+                        (click)="removerAvisoMural(aviso.id)">
+                  <i class="bi bi-trash"></i> Remover
+                </button>
+              }
+            </div>
+          }
+        } @else {
+          <div class="text-center text-muted py-4 small">
+            Não há comunicados institucionais publicados no momento.
+          </div>
+        }
+      </div>
     }
   </div>
 </ng-template>

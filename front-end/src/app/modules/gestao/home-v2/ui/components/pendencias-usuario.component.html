@@ -1,182 +1,229 @@
-<div class="row g-3">
-  <!-- Card: Meu Relatório Mensal de Atividades -->
-  <div class="col-md-6">
+<div class="row g-3 align-items-stretch">
+  <!-- Card 1: Meu Relatório Mensal (Corregedoria) -->
+  <div class="col-md-4">
     <div class="br-card home-card h-100">
-      <div class="card-content p-3">
-        <h6 class="text-start fw-bold mb-3 d-flex justify-content-between align-items-center">
-          <span>
-            Meu Relatório Mensal (Corregedoria)
-            <i class="fas fa-info-circle text-muted ml-1"
-               title="Acompanhamento do seu Relatório Mensal de Atividades exigido pela Corregedoria-Geral da PGE-MA."
-               aria-hidden="true"
-               style="cursor: help;"></i>
-          </span>
-          @if (relatorioMensal()) {
-            <span class="badge bg-light text-dark border">
-              {{ nomeMes(relatorioMensal()!.mes) }}/{{ relatorioMensal()!.ano }}
-            </span>
-          }
-        </h6>
+      <div class="card-content p-3 d-flex flex-column justify-content-between h-100">
+        <div class="w-100">
+          <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom w-100">
+            <h6 class="text-start fw-bold mb-0">
+              Meu Relatório Mensal
+              <i class="fas fa-info-circle text-muted ms-1"
+                 title="Acompanhamento do seu Relatório Mensal de Atividades da Corregedoria-Geral da PGE-MA."
+                 aria-hidden="true"
+                 style="cursor: help;"></i>
+            </h6>
+            @if (relatorioMensal()) {
+              <span class="small text-muted fw-semibold">
+                {{ nomeMes(relatorioMensal()!.mes) }}/{{ relatorioMensal()!.ano }}
+              </span>
+            }
+          </div>
 
-        @if (loading()) {
-          <div class="d-flex justify-content-center py-3">
-            <span class="br-loading small" role="progressbar"></span>
-          </div>
-        } @else if (relatorioMensal()) {
-          @if (relatorioMensal()!.status === 'RASCUNHO') {
-            <div class="p-2 border rounded bg-light mb-2">
-              <div class="d-flex align-items-center justify-content-between">
-                <div>
-                  <span class="badge bg-warning text-dark me-2">RASCUNHO</span>
-                  <span class="small fw-semibold text-secondary">
-                    {{ relatorioMensal()!.total_atos }} ato(s) registrado(s)
-                  </span>
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" (click)="irParaMeuRelatorio()">
-                  Editar
-                </button>
+          @if (loading()) {
+            <div class="d-flex justify-content-center py-3 w-100">
+              <span class="br-loading small" role="progressbar"></span>
+            </div>
+          } @else if (relatorioMensal()) {
+            @if (relatorioMensal()!.status === 'RASCUNHO') {
+              <div class="small text-dark mb-1 text-start">
+                Situação: <strong>Em rascunho</strong> · <strong>{{ relatorioMensal()!.total_atos }}</strong> ato(s) registrado(s)
               </div>
-              <p class="small text-muted mb-0 mt-1">
-                Pendente de consolidação e assinatura para a Corregedoria.
+              <p class="small text-muted mb-2 text-start">
+                Pendente de consolidação e assinatura digital para envio à Corregedoria.
               </p>
-            </div>
-            <div class="text-end">
-              <a class="small text-decoration-none fw-bold" role="button" (click)="irParaMeuRelatorio()">
-                Acessar Meu Relatório &rarr;
-              </a>
-            </div>
-          } @else if (relatorioMensal()!.status === 'NAO_INICIADO') {
-            <div class="p-2 border rounded bg-light mb-2">
-              <span class="badge bg-secondary me-2">NÃO INICIADO</span>
-              <p class="small text-muted mb-1 mt-1">
-                Você ainda não iniciou o preenchimento do relatório da competência vigente.
-              </p>
-              <button type="button" class="btn btn-sm btn-primary mt-1" (click)="irParaMeuRelatorio()">
-                Iniciar Relatório
-              </button>
-            </div>
-          } @else if (relatorioMensal()!.status === 'CONCLUIDO_ASSINADO') {
-            <div class="p-2 border rounded bg-light mb-2">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-patch-check-fill text-primary me-2" style="font-size: 1.25rem;"></i>
-                <div>
-                  <span class="badge bg-primary me-2">CONCLUÍDO E ASSINADO</span>
-                  <p class="small text-muted mb-0 mt-1">
-                    Relatório assinado, aguardando despacho e homologação da Corregedoria.
-                  </p>
-                </div>
+            } @else if (relatorioMensal()!.status === 'NAO_INICIADO') {
+              <div class="small text-dark mb-1 text-start">
+                Situação: <strong>Não iniciado</strong>
               </div>
-            </div>
-            <div class="text-end">
-              <a class="small text-decoration-none fw-bold" role="button" (click)="irParaMeuRelatorio()">
-                Visualizar Relatório &rarr;
-              </a>
-            </div>
-          } @else if (relatorioMensal()!.status === 'HOMOLOGADO') {
-            <div class="p-2 border rounded bg-light mb-2">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 1.25rem;"></i>
-                <div>
-                  <span class="badge bg-success me-2">HOMOLOGADO</span>
-                  <p class="small text-muted mb-0 mt-1">
-                    Relatório homologado com sucesso pela Corregedoria-Geral.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="text-end">
-              <a class="small text-decoration-none fw-bold text-success" role="button" (click)="irParaMeuRelatorio()">
-                Visualizar Certidão &rarr;
-              </a>
-            </div>
-          } @else {
-            <div class="p-2 border rounded bg-light mb-2">
-              <span class="badge bg-danger me-2">{{ relatorioMensal()!.status }}</span>
-              <p class="small text-muted mb-1 mt-1">
-                Relatório com pendência de revisão ou retificação.
+              <p class="small text-muted mb-2 text-start">
+                Preenchimento da competência vigente ainda não iniciado.
               </p>
-              <button type="button" class="btn btn-sm btn-danger mt-1" (click)="irParaMeuRelatorio()">
-                Revisar Relatório
-              </button>
+            } @else if (relatorioMensal()!.status === 'CONCLUIDO_ASSINADO') {
+              <div class="small text-dark mb-1 text-start">
+                Situação: <strong>Concluído e assinado</strong> · <strong>{{ relatorioMensal()!.total_atos }}</strong> ato(s)
+              </div>
+              <p class="small text-muted mb-2 text-start">
+                Relatório enviado e aguardando análise da Corregedoria-Geral.
+              </p>
+            } @else if (relatorioMensal()!.status === 'HOMOLOGADO') {
+              <div class="small text-dark mb-1 text-start">
+                Situação: <strong>Homologado pela Corregedoria</strong>
+              </div>
+              <p class="small text-muted mb-2 text-start">
+                Competência regularizada e certidão disponível para consulta.
+              </p>
+            } @else {
+              <div class="small text-dark mb-1 text-start">
+                Situação: <strong>{{ relatorioMensal()!.status }}</strong>
+              </div>
+              <p class="small text-muted mb-2 text-start">
+                Relatório aguarda revisão ou retificação pelo agente.
+              </p>
+            }
+          } @else if (erro()) {
+            <div class="text-center text-muted small py-2">
+              <p class="mb-0">{{ erro() }}</p>
             </div>
           }
-        } @else if (erro()) {
-          <div class="text-center text-muted small pb-3">
-            <i class="fas fa-exclamation-triangle mb-2" aria-hidden="true"></i>
-            <p class="mb-0">{{ erro() }}</p>
-          </div>
-        }
+        </div>
+
+        <div class="home-card-footer pt-2 border-top mt-2">
+          <button type="button" class="home-card-action-btn" (click)="irParaMeuRelatorio()">
+            Editar Relatório
+          </button>
+          <a class="home-card-action-link" role="button" (click)="irParaMeuRelatorio()">
+            Acessar &rarr;
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Card: Homologações e Validações Pendentes -->
-  <div class="col-md-6">
+  <!-- Card 2: Plano Individual e Agenda de Tarefas -->
+  <div class="col-md-4">
     <div class="br-card home-card h-100">
-      <div class="card-content p-3">
-        <h6 class="text-start fw-bold mb-3">
-          Homologações e Validações
-          <i class="fas fa-info-circle text-muted ml-1"
-             title="Apresenta os relatórios e documentos que aguardam homologação ou validação no seu âmbito de atuação."
-             aria-hidden="true"
-             style="cursor: help;"></i>
-        </h6>
-        @if (loading()) {
-          <div class="d-flex justify-content-center py-3">
-            <span class="br-loading small" role="progressbar"></span>
+      <div class="card-content p-3 d-flex flex-column justify-content-between h-100">
+        <div class="w-100">
+          <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom w-100">
+            <h6 class="text-start fw-bold mb-0">
+              Plano Individual e Tarefas
+              <i class="fas fa-info-circle text-muted ms-1"
+                 title="Resumo do seu Plano de Ação Individual vigente e das suas tarefas registradas na Agenda de Tarefas."
+                 aria-hidden="true"
+                 style="cursor: help;"></i>
+            </h6>
           </div>
-        } @else if (data()) {
-          @if (totalHomologacoesCorregedoria() > 0 || totalPendenciasPE() > 0 || totalPendenciasPT() > 0) {
-            <ul class="list-unstyled mb-0">
-              @if (totalHomologacoesCorregedoria() > 0) {
-                <li class="d-flex justify-content-between py-1 border-bottom">
-                  <span>Relatórios aguardando homologação (Corregedoria)</span>
-                  <a class="fw-bold text-decoration-none ms-3 text-primary" role="link" tabindex="0"
-                    (click)="irParaPainelCorregedoria()" (keydown.enter)="irParaPainelCorregedoria()">
-                    {{ totalHomologacoesCorregedoria() }}
-                  </a>
-                </li>
-              }
-              @if (data()!.assinaturas_pe_pendentes > 0) {
-                <li class="d-flex justify-content-between py-1">
-                  <span>Homologação de Planos Setoriais</span>
-                  <a class="fw-bold text-decoration-none ms-3" role="link" tabindex="0"
-                    (click)="irParaAssinaturasPE()" (keydown.enter)="irParaAssinaturasPE()">
-                    {{ data()!.assinaturas_pe_pendentes }}
-                  </a>
-                </li>
-              }
-              @if (data()!.registros_execucao_pe_atraso > 0) {
-                <li class="d-flex justify-content-between py-1">
-                  <span>Registros em atraso (Planos Setoriais)</span>
-                  <a class="fw-bold text-decoration-none ms-3" role="link" tabindex="0"
-                    (click)="irParaRegistrosExecucaoPE()" (keydown.enter)="irParaRegistrosExecucaoPE()">
-                    {{ data()!.registros_execucao_pe_atraso }}
-                  </a>
-                </li>
-              }
-              @if (data()!.avaliacoes_pe_pendentes > 0) {
-                <li class="d-flex justify-content-between py-1">
-                  <span>Avaliações pendentes</span>
-                  <a class="fw-bold text-decoration-none ms-3" role="link" tabindex="0"
-                    (click)="irParaAvaliacoesPE()" (keydown.enter)="irParaAvaliacoesPE()">
-                    {{ data()!.avaliacoes_pe_pendentes }}
-                  </a>
-                </li>
-              }
-            </ul>
-          } @else {
-            <div class="d-flex flex-column align-items-center justify-content-center text-muted py-3">
-              <i class="bi bi-check-circle-fill mb-2" style="font-size: 2rem; color: #168821;" aria-hidden="true"></i>
-              <span>Sem homologações pendentes</span>
+
+          @if (loading()) {
+            <div class="d-flex justify-content-center py-3 w-100">
+              <span class="br-loading small" role="progressbar"></span>
+            </div>
+          } @else if (resumoIndividual()) {
+            <div class="small mb-2 w-100">
+              <div class="d-flex justify-content-between py-1 border-bottom w-100">
+                <span class="text-secondary">Plano Individual:</span>
+                @if (resumoIndividual()!.plano_numero) {
+                  <strong class="text-dark">
+                    #{{ resumoIndividual()!.plano_numero }} ({{ formatarStatusPlano(resumoIndividual()!.plano_status) }})
+                  </strong>
+                } @else {
+                  <span class="text-muted">Não cadastrado</span>
+                }
+              </div>
+              <div class="d-flex justify-content-between py-1 border-bottom w-100">
+                <span class="text-secondary">Metas / Entregas pactuadas:</span>
+                <strong class="text-dark">{{ resumoIndividual()!.total_entregas_plano }}</strong>
+              </div>
+              <div class="d-flex justify-content-between py-1 w-100">
+                <span class="text-secondary">Agenda de Tarefas:</span>
+                <span class="text-dark">
+                  <strong>{{ resumoIndividual()!.atividades_andamento }}</strong> em curso ·
+                  <strong>{{ resumoIndividual()!.atividades_concluidas }}</strong> concluída(s)
+                </span>
+              </div>
             </div>
           }
-        } @else if (erro()) {
-          <div class="text-center text-muted small pb-3">
-            <i class="fas fa-exclamation-triangle mb-2" aria-hidden="true"></i>
-            <p class="mb-0">{{ erro() }}</p>
+        </div>
+
+        <div class="home-card-footer pt-2 border-top mt-2">
+          <button type="button" class="home-card-action-btn" (click)="irParaAgendaTarefas()">
+            Agenda de Tarefas
+          </button>
+          <a class="home-card-action-link" role="button" (click)="irParaMeusPlanos()">
+            Meus Planos &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Homologações e Validações -->
+  <div class="col-md-4">
+    <div class="br-card home-card h-100">
+      <div class="card-content p-3 d-flex flex-column justify-content-between h-100">
+        <div class="w-100">
+          <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom w-100">
+            <h6 class="text-start fw-bold mb-0">
+              Homologações e Validações
+              <i class="fas fa-info-circle text-muted ms-1"
+                 title="Apresenta os relatórios e planos que aguardam homologação ou validação no seu âmbito de atuação."
+                 aria-hidden="true"
+                 style="cursor: help;"></i>
+            </h6>
           </div>
-        }
+
+          @if (loading()) {
+            <div class="d-flex justify-content-center py-3 w-100">
+              <span class="br-loading small" role="progressbar"></span>
+            </div>
+          } @else if (data()) {
+            @if (totalHomologacoesCorregedoria() > 0 || totalPendenciasPE() > 0 || totalPendenciasPT() > 0) {
+              <ul class="list-unstyled small mb-0 w-100">
+                @if (totalHomologacoesCorregedoria() > 0) {
+                  <li class="d-flex justify-content-between py-1 border-bottom w-100">
+                    <span class="text-secondary">Relatórios para homologar (Corregedoria)</span>
+                    <a class="fw-bold text-decoration-none ms-2 text-dark" role="link" tabindex="0"
+                      (click)="irParaPainelCorregedoria()" (keydown.enter)="irParaPainelCorregedoria()">
+                      {{ totalHomologacoesCorregedoria() }}
+                    </a>
+                  </li>
+                }
+                @if (data()!.assinaturas_pe_pendentes > 0) {
+                  <li class="d-flex justify-content-between py-1 border-bottom w-100">
+                    <span class="text-secondary">Homologação de Planos Setoriais</span>
+                    <a class="fw-bold text-decoration-none ms-2 text-dark" role="link" tabindex="0"
+                      (click)="irParaAssinaturasPE()" (keydown.enter)="irParaAssinaturasPE()">
+                      {{ data()!.assinaturas_pe_pendentes }}
+                    </a>
+                  </li>
+                }
+                @if (data()!.registros_execucao_pe_atraso > 0) {
+                  <li class="d-flex justify-content-between py-1 border-bottom w-100">
+                    <span class="text-secondary">Registros pendentes (Planos Setoriais)</span>
+                    <a class="fw-bold text-decoration-none ms-2 text-dark" role="link" tabindex="0"
+                      (click)="irParaRegistrosExecucaoPE()" (keydown.enter)="irParaRegistrosExecucaoPE()">
+                      {{ data()!.registros_execucao_pe_atraso }}
+                    </a>
+                  </li>
+                }
+                @if (data()!.avaliacoes_pe_pendentes > 0) {
+                  <li class="d-flex justify-content-between py-1 w-100">
+                    <span class="text-secondary">Avaliações pendentes</span>
+                    <a class="fw-bold text-decoration-none ms-2 text-dark" role="link" tabindex="0"
+                      (click)="irParaAvaliacoesPE()" (keydown.enter)="irParaAvaliacoesPE()">
+                      {{ data()!.avaliacoes_pe_pendentes }}
+                    </a>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="d-flex align-items-center gap-2 text-muted small py-2 w-100">
+                <i class="bi bi-check-circle text-secondary" style="font-size: 1.25rem;" aria-hidden="true"></i>
+                <span>Nenhuma homologação ou validação pendente no momento.</span>
+              </div>
+            }
+          } @else if (erro()) {
+            <div class="text-center text-muted small py-2">
+              <p class="mb-0">{{ erro() }}</p>
+            </div>
+          }
+        </div>
+
+        <div class="home-card-footer pt-2 border-top mt-2">
+          @if (acessoCorregedoria()) {
+            <button type="button" class="home-card-action-btn" (click)="irParaPainelCorregedoria()">
+              Painel da Corregedoria
+            </button>
+            <a class="home-card-action-link" role="button" (click)="irParaPainelCorregedoria()">
+              Homologar &rarr;
+            </a>
+          } @else {
+            <span class="small text-muted">Validações em dia</span>
+            <a class="home-card-action-link" role="button" (click)="irParaMeusPlanos()">
+              Consultar Planos &rarr;
+            </a>
+          }
+        </div>
       </div>
     </div>
   </div>

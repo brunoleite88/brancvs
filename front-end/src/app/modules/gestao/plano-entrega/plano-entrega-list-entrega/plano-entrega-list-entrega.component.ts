@@ -188,9 +188,9 @@ export class PlanoEntregaListEntregaComponent extends PageFrameBase {
     if(this.isDisabled) btns.push(Object.assign({ onClick: this.consult.bind(this) }, this.OPTION_INFORMACOES));
     const statusComHistorico = ['ATIVO', 'CONCLUIDO', 'AVALIADO', 'SUSPENSO', 'CANCELADO'];
     if((this.execucao || this.isDisabled) && this.entity && statusComHistorico.includes(this.entity.status)){
-        btns.push({ label: this.lex.translate("Históricos de Execução"), icon: "bi bi-activity", color: 'btn-outline-info', onClick: this.showProgresso.bind(this) });   
+        btns.push({ label: this.lex.translate("Históricos de Execução"), icon: "bi bi-activity", color: 'btn-outline-secondary', onClick: this.showProgresso.bind(this) });   
     } 
-    if(!row._status) btns.push({ label: "Detalhes", icon: "bi bi-eye", color: 'btn-outline-success', onClick: this.showDetalhes.bind(this) });   
+    if(!row._status) btns.push({ label: "Detalhes", icon: "bi bi-eye", color: 'btn-outline-secondary', onClick: this.showDetalhes.bind(this) });   
     return btns;
   }
 

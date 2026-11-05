@@ -1,5 +1,4 @@
-
-<div *ngIf="carregando" class="d-flex justify-content-center">
+<div *ngIf="carregando" class="d-flex justify-content-center py-4">
     <div class="spinner-border" role="status">
         <span class="visually-hidden"></span>
     </div>
@@ -15,7 +14,7 @@
                     </div>
                 </separator>
             </div>
-            <div [class]="etiquetas ? 'col-md-12' : 'col-md-6'">
+            <div *ngIf="etiquetas" class="col-md-12">
                 <input-multiselect label="Etiquetas" multiselectStyle="inline" controlName="etiquetas" [size]="12" [addItemHandle]="addItemHandleEtiquetas.bind(this)">
                     <input-text [size]="5" label="Texto" controlName="etiqueta_texto" [attr.maxlength]=250></input-text>
                     <input-select [size]="3" label="Ícone" icon="fas fa-sign-out-alt" controlName="etiqueta_icone" liveSearch [items]="lookup.ICONES"></input-select>
@@ -23,24 +22,8 @@
                 </input-multiselect>
             </div>
         </div>
-        <separator *ngIf="entity && !etiquetas" transparent title="Notificações">
+        <separator *ngIf="entity && !etiquetas" transparent title="Notificações e Alertas">
             <notificacoes-config #notificacoes [entity]="entity!" [disabled]="formDisabled"></notificacoes-config>
         </separator>
-        <!--div class="row">
-            <div class="col-md-6">
-                <separator transparent title="Meios de notificação"></separator>
-                <input-switch [size]="12" scale="small" labelPosition="right" label="Notificar no Petrvs" controlName="enviar_petrvs"></input-switch>
-                <input-switch [size]="12" scale="small" labelPosition="right" label="Notificar por e-mail" controlName="enviar_email"></input-switch>
-                <input-switch [size]="12" scale="small" labelPosition="right" label="Notificar por Whatsapp" controlName="enviar_whatsapp"></input-switch>
-            </div>
-            <div class="col-md-6">
-                <separator transparent title="Tipos de notificação"></separator>
-                <input-switch [size]="12" scale="small" labelPosition="right" [label]="'Notificar distribuição ' + lex.translate('demanda',false,true)" controlName="notifica_demanda_distribuicao"></input-switch>
-                <input-switch [size]="12" scale="small" labelPosition="right" [label]="'Notificar conclusão ' + lex.translate('demanda',false,true)" controlName="notifica_demanda_conclusao"></input-switch>
-                <input-switch [size]="12" scale="small" labelPosition="right" [label]="'Notificar avaliação ' + lex.translate('demanda',false,true)" controlName="notifica_demanda_avaliacao"></input-switch>
-                <input-switch [size]="12" scale="small" labelPosition="right" [label]="'Notificar modificação ' + lex.translate('demanda',false,true)" controlName="notifica_demanda_modificacao"></input-switch>
-                <input-switch [size]="12" scale="small" labelPosition="right" [label]="'Notificar comentário ' + lex.translate('demanda',false,true)" controlName="notifica_demanda_comentario"></input-switch>
-            </div>
-        </div//-->
     </editable-form>
 </div>

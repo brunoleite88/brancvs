@@ -240,16 +240,16 @@ export class AppComponent implements IAppComponent {
         icon: this.entity.getIcon('Ocorrencia'),
       },
       CORREGEDORIA_MEU_RELATORIO: {
-        name: "Meu Relatório Mensal",
+        name: "Relatório Mensal",
         permition: '',
         route: ['gestao', 'corregedoria', 'meu-relatorio'],
         icon: 'bi bi-file-earmark-person',
       },
       CORREGEDORIA_PAINEL: {
-        name: "Painel da Corregedoria",
-        permition: '',
+        name: "Painel de Corregedoria",
+        permition: 'MOD_CORREGEDORIA_PAINEL',
         route: ['gestao', 'corregedoria', 'painel'],
-        icon: 'bi bi-shield-shaded',
+        icon: 'bi bi-shield-check',
       },
       CADEIAS_VALORES: {
         name: this.lex.translate("Cadeias de Valores"),
@@ -258,7 +258,7 @@ export class AppComponent implements IAppComponent {
         icon: this.entity.getIcon('CadeiaValor'),
       },
       ATIVIDADES: {
-        name: "Agenda de Tarefas (Atividades)",
+        name: "Agenda",
         permition: 'MOD_ATV',
         route: ['gestao', 'atividade'],
         icon: this.entity.getIcon('Atividade'),
@@ -279,7 +279,7 @@ export class AppComponent implements IAppComponent {
         },
       },
       PLANOS_TRABALHOS: {
-        name: "Meus Planos e Execução",
+        name: "Planos e Execução",
         permition: 'MOD_PTR',
         route: ['gestao', 'plano-trabalho-v2'],
         icon: this.entity.getIcon('PlanoTrabalho'),
@@ -495,13 +495,13 @@ export class AppComponent implements IAppComponent {
         icon: 'bi bi-file-earmark-arrow-down',
       },
       RELATORIO_PLANO_TRABALHO: {
-        name: this.lex.translate("Planos de Ação Individuais"),
+        name: "Ações Individuais",
         permition: 'MOD_RELATORIO_PT',
         route: ['relatorios', 'planos-trabalho'],
         icon: this.entity.getIcon('PlanoTrabalho'),
       },
       RELATORIO_PLANO_ENTREGA: {
-        name: this.lex.translate("Planos de Ação Setoriais"),
+        name: "Ações Setoriais",
         permition: 'MOD_RELATORIO_PE',
         route: ['relatorios', 'planos-entrega'],
         icon: this.entity.getIcon('PlanoEntrega'),
@@ -566,7 +566,7 @@ export class AppComponent implements IAppComponent {
 
     this.moduloGestao = [
       {
-        name: this.lex.translate("Planos de Ação Setoriais"),
+        name: "Ações Setoriais",
         permition: "MENU_GESTAO_ACESSO",
         id: "navbarDropdownGestaoExecucao",
         icon: 'bi bi-list',
@@ -577,7 +577,7 @@ export class AppComponent implements IAppComponent {
         ],
       },
       {
-        name: this.lex.translate("Planos de Ação Individuais"),
+        name: "Ações Individuais",
         permition: "MOD_PTR",
         id: "navbarDropdownPlanosIndividuais",
         icon: this.entity.getIcon('PlanoTrabalho'),
@@ -590,16 +590,7 @@ export class AppComponent implements IAppComponent {
       },
       Object.assign({}, this.menuSchema.PORTIFOLIOS),
       Object.assign({}, this.menuSchema.OCORRENCIAS),
-      {
-        name: "Corregedoria",
-        permition: "",
-        id: "navbarDropdownCorregedoria",
-        icon: 'bi bi-shield-check',
-        menu: [
-          this.menuSchema.CORREGEDORIA_MEU_RELATORIO,
-          this.menuSchema.CORREGEDORIA_PAINEL,
-        ],
-      },
+      Object.assign({}, this.menuSchema.CORREGEDORIA_PAINEL),
       {
         name: this.lex.translate("Planejamento"),
         permition: "MENU_GESTAO_ACESSO",
@@ -655,7 +646,7 @@ export class AppComponent implements IAppComponent {
 
     this.moduloExecucao = [
       {
-        name: this.lex.translate("Planos de Ação Individuais"),
+        name: "Ações Individuais",
         permition: "MOD_PTR",
         id: "navbarDropdownPlanosIndividuaisExec",
         icon: this.entity.getIcon('PlanoTrabalho'),
@@ -671,6 +662,7 @@ export class AppComponent implements IAppComponent {
         ],
       },
       Object.assign({}, this.menuSchema.OCORRENCIAS),
+      Object.assign({}, this.menuSchema.CORREGEDORIA_PAINEL),
       Object.assign({}, this.menuSchema.RELATORIO_USUARIOS, {
         name: this.lex.translate("Relatório de Agentes Públicos"),
       }),

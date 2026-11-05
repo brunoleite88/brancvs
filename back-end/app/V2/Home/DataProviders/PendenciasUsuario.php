@@ -42,24 +42,13 @@ class PendenciasUsuario
         return $this->unidadeRepository;
     }
 
-    /**
-     * @return array{
-     *   assinaturas_pe_pendentes: int,
-     *   assinaturas_pt_pendentes: int,
-     *   registros_execucao_pe_atraso: int,
-     *   registros_execucao_pt_atraso: int,
-     *   avaliacoes_pt_pendentes: int,
-     *   avaliacoes_pe_pendentes: int,
-     *   relatorio_mensal?: array{status: string, pendente: bool, mes: int, ano: int, relatorio_id: ?string, total_atos: int},
-     *   relatorios_aguardando_homologacao?: int,
-     * }
-     */
     public function getData(HomeRequestDTO $dto): array
     {
         $escopo = $this->resolverUnidades($dto);
-        $subordinadasIds = array_slice($escopo, 1); // escopo sem a unidade raiz
+        $subordinadasIds = array_slice($escopo, 1);
 
         $corregedoria = $this->verificarPendenciasCorregedoria($dto->usuarioId);
+        $resumoIndividual = $this->obterResumoIndividual($dto->usuarioId);
 
         return array_merge([
             'assinaturas_pe_pendentes' => $this->planoEntregaRepository->countPlanosEntregaHomologacao($subordinadasIds),
@@ -68,23 +57,10 @@ class PendenciasUsuario
             'registros_execucao_pt_atraso' => $this->consolidacaoRepository->countConsolidacoesAtrasadas($dto->usuarioId, [$dto->unidadeId]),
             'avaliacoes_pt_pendentes' => $this->planoTrabalhoRepository->countAguardandoMinhaAvaliacao($escopo, $dto->usuarioId),
             'avaliacoes_pe_pendentes' => $this->planoEntregaRepository->countPlanosEntregaAvaliacao($subordinadasIds, PlanoEntrega::DATA_MUDANCA_REGRA_PE),
+            'resumo_individual' => $resumoIndividual,
         ], $corregedoria);
     }
 
-    /**
-     * Calcula pendências somando todas as unidades onde o usuário é diretamente chefia (titular ou substituto).
-     *
-     * @return array{
-     *   assinaturas_pe_pendentes: int,
-     *   assinaturas_pt_pendentes: int,
-     *   registros_execucao_pe_atraso: int,
-     *   registros_execucao_pt_atraso: int,
-     *   avaliacoes_pt_pendentes: int,
-     *   avaliacoes_pe_pendentes: int,
-     *   relatorio_mensal?: array{status: string, pendente: bool, mes: int, ano: int, relatorio_id: ?string, total_atos: int},
-     *   relatorios_aguardando_homologacao?: int,
-     * }
-     */
     public function getDataGlobal(string $usuarioId): array
     {
         $unidadesGerenciadas = $this->unidadeRepository->getUnidadesGerenciadas($usuarioId);
@@ -92,6 +68,7 @@ class PendenciasUsuario
 
         $reAtrasadosProprios = $this->aguardandoRegistroExecucao->count($usuarioId);
         $corregedoria = $this->verificarPendenciasCorregedoria($usuarioId);
+        $resumoIndividual = $this->obterResumoIndividual($usuarioId);
 
         if (empty($unidadeIds)) {
             return array_merge([
@@ -101,6 +78,7 @@ class PendenciasUsuario
                 'registros_execucao_pt_atraso' => $reAtrasadosProprios,
                 'avaliacoes_pt_pendentes' => 0,
                 'avaliacoes_pe_pendentes' => 0,
+                'resumo_individual' => $resumoIndividual,
             ], $corregedoria);
         }
 
@@ -111,7 +89,43 @@ class PendenciasUsuario
             'registros_execucao_pt_atraso' => $reAtrasadosProprios,
             'avaliacoes_pt_pendentes' => $this->aguardandoAvaliacao->count($usuarioId),
             'avaliacoes_pe_pendentes' => $this->avaliacaoPendentePE->count($usuarioId),
+            'resumo_individual' => $resumoIndividual,
         ], $corregedoria);
+    }
+
+    /**
+     * Verifica se o usuário possui perfil de administração ou vínculo com a Corregedoria-Geral (CG).
+     */
+    private function possuiAcessoCorregedoria(string $usuarioId): bool
+    {
+        $nivelPerfil = DB::table('usuarios as u')
+            ->join('perfis as p', 'p.id', '=', 'u.perfil_id')
+            ->where('u.id', $usuarioId)
+            ->value('p.nivel');
+
+        if ($nivelPerfil !== null && in_array((int) $nivelPerfil, [0, 1, 2], true)) {
+            return true;
+        }
+
+        if (Schema::hasTable('usuarios_integrantes') && Schema::hasTable('unidades')) {
+            $vinculadoCorregedoria = DB::table('usuarios_integrantes as ui')
+                ->join('unidades as un', 'un.id', '=', 'ui.unidade_id')
+                ->where('ui.usuario_id', $usuarioId)
+                ->whereNull('ui.deleted_at')
+                ->whereNull('un.deleted_at')
+                ->where(function ($q) {
+                    $q->where('un.sigla', 'CG')
+                      ->orWhere('un.sigla', 'LIKE', 'CG-%')
+                      ->orWhere('un.nome', 'LIKE', '%Corregedoria%');
+                })
+                ->exists();
+
+            if ($vinculadoCorregedoria) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -119,10 +133,13 @@ class PendenciasUsuario
      */
     private function verificarPendenciasCorregedoria(string $usuarioId): array
     {
+        $acessoCorregedoria = $this->possuiAcessoCorregedoria($usuarioId);
+
         if (!Schema::hasTable('relatorios_corregedoria')) {
             return [
                 'relatorio_mensal' => null,
                 'relatorios_aguardando_homologacao' => 0,
+                'acesso_corregedoria' => $acessoCorregedoria,
             ];
         }
 
@@ -146,12 +163,15 @@ class PendenciasUsuario
         }
 
         $status = $relatorio ? $relatorio->status : 'NAO_INICIADO';
-        $pendente = !in_array($status, ['CONCLUIDO_ASSINADO', 'HOMOLOGADO']);
+        $pendente = !in_array($status, ['CONCLUIDO_ASSINADO', 'HOMOLOGADO'], true);
 
-        $aguardandoHomologacao = DB::table('relatorios_corregedoria')
-            ->where('status', 'CONCLUIDO_ASSINADO')
-            ->whereNull('deleted_at')
-            ->count();
+        $aguardandoHomologacao = 0;
+        if ($acessoCorregedoria) {
+            $aguardandoHomologacao = DB::table('relatorios_corregedoria')
+                ->where('status', 'CONCLUIDO_ASSINADO')
+                ->whereNull('deleted_at')
+                ->count();
+        }
 
         return [
             'relatorio_mensal' => [
@@ -163,6 +183,61 @@ class PendenciasUsuario
                 'total_atos' => $totalAtos,
             ],
             'relatorios_aguardando_homologacao' => $aguardandoHomologacao,
+            'acesso_corregedoria' => $acessoCorregedoria,
+        ];
+    }
+
+    /**
+     * Retorna resumo do Plano de Ação Individual e da Agenda de Tarefas (Atividades) do usuário.
+     */
+    private function obterResumoIndividual(string $usuarioId): array
+    {
+        $planoNumero = null;
+        $planoStatus = null;
+        $totalEntregasPlano = 0;
+
+        if (Schema::hasTable('planos_trabalhos')) {
+            $plano = DB::table('planos_trabalhos')
+                ->where('usuario_id', $usuarioId)
+                ->whereNull('deleted_at')
+                ->orderByRaw("status = 'ATIVO' desc")
+                ->orderByDesc('numero')
+                ->first(['id', 'numero', 'status']);
+
+            if ($plano) {
+                $planoNumero = (int) $plano->numero;
+                $planoStatus = (string) $plano->status;
+                if (Schema::hasTable('planos_trabalhos_entregas')) {
+                    $totalEntregasPlano = DB::table('planos_trabalhos_entregas')
+                        ->where('plano_trabalho_id', $plano->id)
+                        ->whereNull('deleted_at')
+                        ->count();
+                }
+            }
+        }
+
+        $atividadesAndamento = 0;
+        $atividadesConcluidas = 0;
+        if (Schema::hasTable('atividades')) {
+            $atividadesAndamento = DB::table('atividades')
+                ->where('usuario_id', $usuarioId)
+                ->whereNull('deleted_at')
+                ->whereIn('status', ['INICIADO', 'PAUSADO', 'NAO_INICIADO'])
+                ->count();
+
+            $atividadesConcluidas = DB::table('atividades')
+                ->where('usuario_id', $usuarioId)
+                ->whereNull('deleted_at')
+                ->where('status', 'CONCLUIDO')
+                ->count();
+        }
+
+        return [
+            'plano_numero' => $planoNumero,
+            'plano_status' => $planoStatus,
+            'total_entregas_plano' => $totalEntregasPlano,
+            'atividades_andamento' => $atividadesAndamento,
+            'atividades_concluidas' => $atividadesConcluidas,
         ];
     }
 }

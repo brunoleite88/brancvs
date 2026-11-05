@@ -8,16 +8,13 @@
           <input-search [size]="12" [label]="'Vínculo com ' + lex.translate('entrega') + ' de ' + lex.translate('plano de entrega') + ' superior'" controlName="entrega_pai_id" [dao]="planoEntregaEntregaDao" [where]="['plano_entrega.unidade_id', 'in', idsUnidadesAscendentes]" [selectRoute]="{route: ['gestao', 'plano-entrega', 'entrega-list']}" [metadata]="{'idsUnidadesAscendentes': idsUnidadesAscendentes}"></input-search>
           <separator [title]="'Etapas da ' + lex.translate('entrega')" collapse [collapsed]="true">
             <div class="row mt-4">
-              <!--div class="col-md-6"-->
               <h5>Etapas</h5>
               <grid [control]="form!.controls.checklist" [form]="formChecklist" [hasAdd]="true" [hasDelete]="true" editable>
                 <columns>
-                  <!--<column type="switch" title="Check" field="checked"></column>-->
                   <column type="text" title="Texto" field="texto"></column>
                   <column type="options"></column>
                 </columns>
               </grid>
-              <!--/div-->
             </div>
           </separator>
         </separator>
@@ -44,11 +41,6 @@
           <input-number [size]="6" label="Parcela da entrega no plano" controlName="progresso_esperado" sufix="%" labelInfo="Quanto vou caminhar nesse plano de ação setorial. Percentual do total da entrega que será realizado durante a vigência desse plano"></input-number>
           <input-number [size]="6" label="Progresso já realizado" [stepValue]="0.01" controlName="progresso_realizado" sufix="%" disabled labelInfo="Quanto caminhei no plano atual Evolução já realizada para a meta. No ato da criação do plano, é o percentual de progresso ao início do plano em relação à meta"></input-number>
         </ng-template>
-        <separator [title]="'Caracterização da ' +  lex.translate('entrega')" collapse [collapsed]="false">
-          <input-multiselect noBox label="Etiquetas" controlName="etiquetas" [size]="12" [control]="form!.controls.etiquetas" [addItemHandle]="addItemHandleEtiquetas.bind(this)">
-            <input-select #etiqueta controlName="etiqueta" [control]="form!.controls.etiqueta" [items]="etiquetas"></input-select>
-          </input-multiselect>
-        </separator>
       </div>
     </tab>
     <tab *ngIf="planejamentoId?.length" key="OBJETIVOS" label="Objetivos">

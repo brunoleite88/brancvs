@@ -2,3 +2,34 @@
   border-bottom: 1px solid #ddd;
   padding: 2px 0;
 }
+
+.entrega-titulo {
+  font-size: var(--bs-body-font-size, 1rem);
+  line-height: 1.4;
+}
+
+.entrega-cell-text {
+  font-size: var(--bs-body-font-size, 1rem);
+  line-height: 1.4;
+}
+
+.entrega-cell-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-cell-value {
+  font-size: var(--bs-body-font-size, 1rem);
+  font-weight: 700;
+  color: #212529;
+}
+
+.meta-cell-edit {
+  min-width: 95px;
+  padding-right: 0.25rem;
+}
+
+.progresso-cell-wrapper {
+  width: 100%;
+}

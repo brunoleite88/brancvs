@@ -5,10 +5,7 @@
     width: 100px;
 }
 .grid-no-hover, .grid-no-hover:hover {
-    /* background-color: var(--bs-white) !important; */
-    background-color: var(--bs-body-bg) !important;
-    filter: brightness(95%) !important;
-    /* box-shadow: inset 0 0 0 9999px var(--bs-white); */
+    background-color: #f3f4f6 !important;
     cursor: default;
 }
 .grid-column {
@@ -27,14 +24,10 @@
 
 .grid-column-expanded {
     border-bottom: 0px;
-    /*background-color: var(--bs-light) !important;*/
-    background-color: var(--bs-body-bg) !important;
-    filter: brightness(95%) !important;
+    background-color: #f8f9fa !important;
 }
 .grid-expanded-background {
-    /*background-color: var(--bs-light) !important;*/
-    background-color: var(--bs-body-bg) !important;
-    filter: brightness(95%) !important;
+    background-color: #f3f4f6 !important;
 }
 .grid-multiselect-header {
     width: 40px;
@@ -97,8 +90,35 @@
     border-spacing: 0;
 }
 
-.grid-scroll-container thead th {
+.grid-scroll-container > table > thead > tr > th {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 6;
+    background-color: #ffffff !important;
+    box-shadow: inset 0 -1px 0 #dee2e6;
+}
+
+.grid-scroll-container > table > tbody > tr.grid-row-expanded-parent > td {
+    position: sticky;
+    top: var(--sticky-parent-row-top, 42px);
+    z-index: 5;
+    background-color: #f8f9fa !important;
+    box-shadow: inset 0 -1px 0 #ced4da;
+}
+
+::ng-deep .grid-scroll-container .grid-expanded-background .table-responsive {
+    overflow: visible !important;
+}
+
+::ng-deep .grid-scroll-container .grid-expanded-background table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+::ng-deep .grid-scroll-container .grid-expanded-background thead th {
+    position: sticky;
+    top: var(--sticky-child-thead-top, 90px);
+    z-index: 4;
+    background-color: #e9ecef !important;
+    box-shadow: inset 0 -2px 0 #ced4da, 0 2px 4px rgba(0, 0, 0, 0.06);
 }

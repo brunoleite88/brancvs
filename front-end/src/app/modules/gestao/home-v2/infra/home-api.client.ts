@@ -11,6 +11,14 @@ export interface RelatorioMensalInfo {
   total_atos: number;
 }
 
+export interface ResumoIndividualInfo {
+  plano_numero: number | null;
+  plano_status: string | null;
+  total_entregas_plano: number;
+  atividades_andamento: number;
+  atividades_concluidas: number;
+}
+
 export interface PendenciasUsuario {
   assinaturas_pe_pendentes: number;
   assinaturas_pt_pendentes: number;
@@ -20,6 +28,8 @@ export interface PendenciasUsuario {
   avaliacoes_pe_pendentes: number;
   relatorio_mensal?: RelatorioMensalInfo;
   relatorios_aguardando_homologacao?: number;
+  acesso_corregedoria?: boolean;
+  resumo_individual?: ResumoIndividualInfo;
 }
 
 export interface IndicadorQuantitativo {
@@ -66,6 +76,7 @@ export interface AgendaItem {
   titulo: string;
   unidade: string;
   prazo: string;
+  data_evento?: string | null;
   status: string;
   pilar: string;
   rota: string[];
@@ -81,11 +92,6 @@ export interface EmFeriasItem {
   nome: string;
   data_inicio: string;
   data_fim: string;
-}
-
-export interface MeusPlanosVigentesResponse {
-  plano_entregas_id: string | null;
-  plano_trabalho_id: string | null;
 }
 
 @Injectable()
@@ -153,28 +159,24 @@ export class HomeApiClient extends TenantV2ResourceApiBase {
     );
   }
 
-  /** IDs dos Planos de Entrega em avaliação pendente (mesmo critério do card). */
   getPlanosEntregaAvaliacaoPendenteIds(): Observable<string[]> {
     return this.http
       .get<{ data: { data?: { id: string }[] } }>(`${this.gb.servidorURL}/api/v2/plano-entrega/avaliacao-pendente`, { params: { size: '200' } })
       .pipe(map(r => (r?.data?.data ?? []).map(pe => pe.id)));
   }
 
-  /** IDs dos Planos de Entrega aguardando homologação (mesmo critério do card). */
   getPlanosEntregaHomologacaoPendenteIds(): Observable<string[]> {
     return this.http
       .get<{ data: { data?: { id: string }[] } }>(`${this.gb.servidorURL}/api/v2/plano-entrega/homologacao-pendente`, { params: { size: '200' } })
       .pipe(map(r => (r?.data?.data ?? []).map(pe => pe.id)));
   }
 
-  /** IDs dos Planos de Entrega com Registro de Execução em atraso (mesmo critério do card). */
   getPlanosEntregaRegistroExecucaoAtrasoIds(): Observable<string[]> {
     return this.http
       .get<{ data: { data?: { id: string }[] } }>(`${this.gb.servidorURL}/api/v2/plano-entrega/registro-execucao-atraso`, { params: { size: '200' } })
       .pipe(map(r => (r?.data?.data ?? []).map(pe => pe.id)));
   }
 
-  /** IDs dos Planos de Entrega vigentes nas unidades onde o usuário possui atribuição direta. */
   getPlanosEntregaVigentesIds(): Observable<string[]> {
     return this.http
       .get<{ data: { data?: { id: string }[] } }>(`${this.gb.servidorURL}/api/v2/plano-entrega/vigentes`, { params: { size: '200' } })

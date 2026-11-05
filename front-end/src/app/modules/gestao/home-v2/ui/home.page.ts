@@ -12,7 +12,6 @@ import { MuralAvisoTenantService } from 'src/app/services/mural-aviso-tenant.ser
 import { HomeApiClient } from '../infra/home-api.client';
 import { PendenciasUsuarioComponent } from './components/pendencias-usuario.component';
 import { PlanosVigentesComponent } from './components/planos-vigentes.component';
-import { AcoesGerenciaisComponent } from './components/acoes-gerenciais.component';
 import { ResumoEquipeComponent } from './components/resumo-equipe.component';
 import { AgendaMarcosComponent } from './components/agenda-marcos.component';
 import { AtalhoCardComponent } from './components/atalho-card.component';
@@ -34,7 +33,6 @@ export interface SelectOption {
     BreadcrumbComponent,
     PendenciasUsuarioComponent,
     PlanosVigentesComponent,
-    AcoesGerenciaisComponent,
     ResumoEquipeComponent,
     AgendaMarcosComponent,
     AtalhoCardComponent,
@@ -92,6 +90,10 @@ export class HomeV2Page implements OnInit {
     this.router.navigate(['gestao', 'paineis-gerenciais']);
   }
 
+  irParaProjetosEstruturantes(): void {
+    this.router.navigate(['gestao', 'projeto']);
+  }
+
   irParaMuralAvisos(): void {
     this.muralService.solicitarExibicao();
   }
@@ -136,10 +138,6 @@ export class HomeV2Page implements OnInit {
     this.carregarUnidadesComSubordinadas();
   }
 
-  /**
-   * #2360 RN10/RN10.1: Participante — apenas unidades de lotação/vinculação;
-   * unidade padrão é a de lotação.
-   */
   private carregarUnidadesParticipante(): void {
     const areas = this.auth.usuario?.areas_trabalho ?? [];
 
@@ -159,14 +157,7 @@ export class HomeV2Page implements OnInit {
     this.aplicarOpcoes(unique, defaultId);
   }
 
-  /**
-   * #2360 RN12/RN12.1: Demais perfis — unidades com atribuição ativa + todas as
-   * subordinadas na cadeia hierárquica (resolvidas pelo endpoint V2, com cache
-   * no back-end); unidade padrão é a mais alta na hierarquia onde o usuário
-   * possua qualquer atribuição.
-   */
   private carregarUnidadesComSubordinadas(): void {
-    // #2360 RN12.1: unidade padrão = mais alta na hierarquia (menor profundidade de path)
     const unidadesComAtribuicao = (this.auth.usuario?.areas_trabalho ?? [])
       .filter(a => a.unidade)
       .map(a => a.unidade!);
@@ -178,9 +169,6 @@ export class HomeV2Page implements OnInit {
     });
   }
 
-  /**
-   * Retorna a unidade mais alta na hierarquia (menor número de níveis no path).
-   */
   private unidadeMaisAlta<T extends { path?: string }>(unidades: T[]): T | undefined {
     return [...unidades].sort((a, b) => this.profundidade(a.path) - this.profundidade(b.path))[0];
   }

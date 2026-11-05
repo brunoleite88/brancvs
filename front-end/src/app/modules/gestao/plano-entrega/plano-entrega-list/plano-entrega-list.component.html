@@ -32,11 +32,9 @@
         <ng-template #naoEModal>
             <div class="row">
                 <input-switch [size]="1" label="Meus"
-
                               [control]="filter!.controls.meus_planos"
                               (change)="disableSub()"
                               labelInfo="Planos de ação setoriais das unidades da qual sou integrante (Áreas de trabalho)">
-
                 </input-switch>
                 <input-text [size]="3" label="Nome" controlName="nome" [control]="filter!.controls.nome" [placeholder]="'Nome do plano de ação setorial'" [attr.maxlength]=250></input-text>
                 <input-search #unidade [size]="4" [control]="filter!.controls.unidade_id" controlName="unidade_id" [dao]="unidadeDao"></input-search>
@@ -44,8 +42,7 @@
                 <input-switch [size]="1" label="Arquivados" controlName="arquivadas" [control]="filter!.controls.arquivadas" labelInfo="Listar também os planos de ação setoriais arquivados"></input-switch>
             </div>
             <div class="row">
-                <input-search #planejamento [size]="3" [control]="filter!.controls.planejamento_id" controlName="planejamento_id" [dao]="planejamentoDao"></input-search>
-                <input-search #cadeiaValor [size]="3" [control]="filter!.controls.cadeia_valor_id" controlName="cadeia_valor_id" [dao]="cadeiaValorDao"></input-search>
+                <input-search #planejamento [size]="6" [control]="filter!.controls.planejamento_id" controlName="planejamento_id" [dao]="planejamentoDao"></input-search>
                 <input-select [size]="2" label="Data" itemTodos="- Nenhum -" [valueTodos]="null" controlName="data_filtro" [control]="filter!.controls.data_filtro" [items]="DATAS_FILTRO"></input-select>
                 <input-datetime [size]="2" date [disabled]="filter!.controls.data_filtro.value == null ? 'true' : undefined" label="Início" controlName="data_filtro_inicio" [control]="filter!.controls.data_filtro_inicio" labelInfo="Data início do período"></input-datetime>
                 <input-datetime [size]="2" date [disabled]="filter!.controls.data_filtro.value == null ? 'true' : undefined" label="Fim" controlName="data_filtro_fim" [control]="filter!.controls.data_filtro_fim" labelInfo="Data fim do período"></input-datetime>
@@ -53,62 +50,52 @@
         </ng-template>
     </filter>
     <columns>
-        <column *ngIf="!selectable" type="expand" icon="bi bi-list-check" [align]="'center'" [hint]="lex.translate('Entrega')" [width]="50" [template]="columnEntregas" [expandTemplate]="columnExpandedEntregas">
+        <column *ngIf="!selectable" type="expand" icon="bi bi-list-check" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [hint]="lex.translate('Entrega')" [width]="55" [template]="columnEntregas" [expandTemplate]="columnExpandedEntregas">
             <ng-template let-row="row" #columnEntregas>
-                <span *ngIf="row.entregas?.length" class="badge rounded-pill bg-light text-dark"><i class="bi bi-list-check"></i> {{row.entregas?.length}}</span>
+                <span *ngIf="row.entregas?.length" class="fw-bold text-secondary">{{row.entregas?.length}}</span>
             </ng-template>
             <ng-template let-row="row" #columnExpandedEntregas>
                 <plano-entrega-list-entrega [parent]="this" [disabled]="avaliacao || !botaoAtendeCondicoes(BOTAO_ALTERAR, row)" [entity]="row" [execucao]="execucao" [cdRef]="cdRef" [planejamentoId]="row.planejamento_id" [cadeiaValorId]="row.cadeia_valor_id" [unidadeId]="row.unidade_id"></plano-entrega-list-entrega>
             </ng-template>
         </column>
-        <column [titleTemplate]="titleIdNumeroStatus" [template]="columnNumero" [width]="65">
-            <ng-template let-header="header" #titleIdNumeroStatus>
-                <order by="numero" [header]="header">#ID</order>
-            </ng-template>
+        <column title="#ID" orderBy="numero" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnNumero" [width]="75">
             <ng-template let-row="row" #columnNumero>
-                <small class="micro-text fw-ligh">#{{row.numero}}</small>
+                <span class="fw-semibold text-secondary">#{{row.numero}}</span>
             </ng-template>
         </column>
-        <column [titleTemplate]="titleNomeProgramaUnidade" [template]="columnNome" [minWidth]="220" [maxWidth]="350">
-            <ng-template let-header="header" #titleNomeProgramaUnidade>
-                <order by="nome" [header]="header">Nome</order><br>
-                Programa{{ !filter!.controls.agrupar.value ? ' - Unidade' : ''}}
-            </ng-template>
+        <column [title]="'Nome' + (!filter!.controls.agrupar.value ? ' - Unidade' : '')" orderBy="nome" verticalAlign="middle" cellClass="align-middle" [template]="columnNome" [minWidth]="260" [maxWidth]="440">
             <ng-template let-row="row" #columnNome>
-                <span class="text-break text-wrap" [style.max-width.px]="340">{{row.nome || ""}}</span><br>
-                <badge *ngIf="row.programa" [icon]="entityService.getIcon('Programa')" [label]="row.programa.nome" color="light"></badge>
-                <badge *ngIf="!filter!.controls.agrupar.value && row.unidade" color="secondary" [icon]="entityService.getIcon(lex.translate('unidade'))" [label]="row.unidade.sigla"></badge>
+                <div class="fw-bold text-dark text-break text-wrap">{{row.nome || ""}}</div>
+                <div class="text-secondary text-wrap mt-1" *ngIf="!filter!.controls.agrupar.value && row.unidade">
+                    <span class="fw-semibold text-secondary">{{row.unidade.sigla}}</span>
+                </div>
             </ng-template>
         </column>
-        <column title="Início" [template]="columnInicio" orderBy="data_inicio" [width]="105">
+        <column title="Início" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnInicio" orderBy="data_inicio" [width]="115">
             <ng-template let-row="row" #columnInicio>
-                <span> {{dao!.getDateFormatted(row.data_inicio)}}</span>
+                <span class="text-dark fw-semibold">{{dao!.getDateFormatted(row.data_inicio)}}</span>
             </ng-template>
         </column>
-        <column title="Fim" [template]="columnFim" orderBy="data_fim" [width]="105">
+        <column title="Fim" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnFim" orderBy="data_fim" [width]="115">
             <ng-template let-row="row" #columnFim>
-                <span> {{dao!.getDateFormatted(row.data_fim)}}</span>
+                <span class="text-secondary fw-semibold">{{dao!.getDateFormatted(row.data_fim)}}</span>
             </ng-template>
         </column>
-        <column [titleTemplate]="titlePlanoCadeia" [template]="columnPlanoCadeia" [minWidth]="200" [maxWidth]="270">
-            <ng-template let-header="header" #titlePlanoCadeia>
-                Planejamento Institucional<br>
-                Cadeia de Valor
-            </ng-template>
+        <column title="Planejamento Institucional" verticalAlign="middle" cellClass="align-middle" [template]="columnPlanoCadeia" [minWidth]="220" [maxWidth]="340">
             <ng-template let-row="row" #columnPlanoCadeia>
-                <badge *ngIf="row.planejamento" [maxWidth]="260" color="light" [icon]="entityService.getIcon('Planejamento')" [label]="row.planejamento?.nome"></badge>
-                <badge *ngIf="row.cadeia_valor" [maxWidth]="260" color="light" [icon]="entityService.getIcon('CadeiaValor')" [label]="row.cadeia_valor?.nome"></badge>
+                <div *ngIf="row.planejamento" class="text-dark fw-semibold text-wrap">{{row.planejamento?.nome}}</div>
+                <span *ngIf="!row.planejamento" class="text-muted">—</span>
             </ng-template>
         </column>
-        <column [title]="'Status\nAvaliação'" [template]="columnStatus" [width]="130" [minWidth]="130">
+        <column [title]="'Status\nAvaliação'" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnStatus" [width]="140" [minWidth]="135">
             <ng-template let-row="row" #columnStatus>
-                <badge [color]="statusColor(row)" [icon]="statusIcon(row)" [label]="statusLabel(row)"></badge><br>
-                <badge *ngIf="row.data_arquivamento" color="warning" icon="bi bi-inboxes" label="Arquivado"></badge>
-                <badge *ngIf="row.deleted_at" color="danger" icon="bi bi-trash3" label="Excluído"></badge>
-                <avaliar-nota-badge *ngIf="row.avaliacao" [align]="'left'" [tipoAvaliacao]="row.avaliacao.tipo_avaliacao" [nota]="row.avaliacao.nota"></avaliar-nota-badge>
+                <div class="fw-bold text-dark">{{statusLabel(row)}}</div>
+                <div *ngIf="row.data_arquivamento" class="text-secondary">Arquivado</div>
+                <div *ngIf="row.deleted_at" class="text-danger">Excluído</div>
+                <avaliar-nota-badge *ngIf="row.avaliacao" [align]="'center'" [tipoAvaliacao]="row.avaliacao.tipo_avaliacao" [nota]="row.avaliacao.nota"></avaliar-nota-badge>
             </ng-template>
         </column>
-        <column type="options" [width]="95" [minWidth]="95" [dynamicOptions]="dynamicOptions.bind(this)" [dynamicButtons]="dynamicButtons.bind(this)"></column>
+        <column type="options" verticalAlign="middle" cellClass="align-middle" [width]="95" [minWidth]="95" [dynamicOptions]="dynamicOptions.bind(this)" [dynamicButtons]="dynamicButtons.bind(this)"></column>
     </columns>
     <pagination
         [rows]="rowsLimit"
@@ -116,15 +103,3 @@
         [fromRoot]="true"
     ></pagination>
 </grid>
-
-<!-- Planejamento/           [ Incluir ] 
-Numero  Nome              Data inicio  Data Fim   Cadeia de Valor    Status      
-------------------------------------------------------------------------------- [...]
-                                                   | Consultar                      |
-                                                   | Alterar                        |
-                                                   | Excluir                        |
-                                                   | Entregas                       |
-                                                   | Homologar                      |
-                                                   | Ponto de Controle (Avaliação)  |
-
- -->

@@ -159,6 +159,19 @@ class MuralAvisoController extends Controller
         }
     }
 
+    public function alertasPendentes(Request $request): JsonResponse
+    {
+        try {
+            $usuarioId = (string) $request->user()->id;
+            $result = $this->service->obterAlertasPendentesUsuario($usuarioId);
+
+            return response()->json(['success' => true, 'data' => $result]);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => 'Erro ao consultar alertas pendentes.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function confirmar(Request $request): JsonResponse
     {
         try {
@@ -170,6 +183,45 @@ class MuralAvisoController extends Controller
         } catch (Throwable $e) {
             report($e);
             return response()->json(['error' => 'Ocorreu um erro inesperado.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function publicarNoTenant(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'titulo' => ['required', 'string', 'max:255'],
+                'conteudo' => ['required', 'string'],
+                'data_expiracao' => ['nullable', 'date'],
+            ]);
+
+            $tenantId = (string) tenant('id');
+            $entity = $this->service->publicarDiretoTenant(
+                $tenantId,
+                $validated['titulo'],
+                $validated['conteudo'],
+                $validated['data_expiracao'] ?? null,
+            );
+
+            return response()->json(['success' => true, 'data' => $entity], Response::HTTP_CREATED);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => $e->getMessage()], $e->status);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => 'Erro ao publicar aviso institucional.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function excluirNoTenant(string $id): JsonResponse
+    {
+        try {
+            $tenantId = (string) tenant('id');
+            $this->service->excluirDiretoTenant($id, $tenantId);
+
+            return response()->json(['success' => true]);
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['error' => 'Erro ao remover aviso.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

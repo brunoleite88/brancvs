@@ -111,7 +111,7 @@
                   [id]="'row_' + (row || {id: null})['id']"
                   [class.d-none]="row._status == 'DELETE'"
                   [class.deleted_at]="row.deleted_at"
-                  [class.table-active]="(row || {id: null})['id'] == (selected || {id: null})['id']"
+                  [class.table-active]="(row || {id: null})['id'] == (selected || {id: null})['id']" [class.grid-row-expanded-parent]="!!expandedIds[row.id]"
                   (click)="onRowClick($event, row)"
                   [attr.role]="isSelectable ? 'button' : undefined"
                 >

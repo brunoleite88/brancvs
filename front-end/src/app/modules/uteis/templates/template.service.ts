@@ -145,7 +145,7 @@ export class TemplateService {
         limit: undefined
       });
       result = await query.asPromise();
-      this.notificacoes = (query.extra?.notificacoes as TemplateNotificacao[])?.sort((a, b) => a.codigo < b.codigo ? -1 : 1) || [];
+      this.notificacoes = (query.extra?.notificacoes as TemplateNotificacao[]) || [];
       this.notifica = Object.assign(this.notifica, query.extra?.notifica_enviroment || {});
     }
     return result;

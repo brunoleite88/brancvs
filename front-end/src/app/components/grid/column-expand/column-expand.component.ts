@@ -60,6 +60,24 @@ export class ColumnExpandComponent extends ComponentBase implements OnInit {
   public onExpand(event: Event) {
     this.expanded = !this.expanded;
     this.grid?.cdRef.detectChanges();
+
+    if (this.row?.id) {
+      setTimeout(() => {
+        const rowEl = document.getElementById('row_' + this.row.id);
+        if (!rowEl) return;
+        const scrollContainer = rowEl.closest('.grid-scroll-container') as HTMLElement | null;
+        if (this.expanded && scrollContainer) {
+          const outerTable = scrollContainer.querySelector(':scope > table') as HTMLElement | null;
+          const outerThead = outerTable?.querySelector(':scope > thead') as HTMLElement | null;
+          const theadHeight = outerThead?.offsetHeight || 42;
+          const rowHeight = rowEl.offsetHeight || 48;
+          scrollContainer.style.setProperty('--sticky-parent-row-top', `${theadHeight}px`);
+          scrollContainer.style.setProperty('--sticky-child-thead-top', `${theadHeight + rowHeight}px`);
+        } else if (!this.expanded) {
+          rowEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 30);
+    }
   }
 
   public getExpandIcon(): string {

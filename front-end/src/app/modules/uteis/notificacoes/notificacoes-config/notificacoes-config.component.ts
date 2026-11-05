@@ -1,5 +1,4 @@
 import { ChangeDetectorRef, Component, Injector, Input, ViewChild } from '@angular/core';
-import { TemplateDaoService } from "src/app/dao/template-dao.service";
 import { GridComponent } from 'src/app/components/grid/grid.component';
 import { FormGroup } from "@angular/forms";
 import { IIndexable } from 'src/app/models/base.model';
@@ -24,9 +23,7 @@ export class Notificar {
 export class NotificacoesConfigComponent extends PageFrameBase {
   @ViewChild(GridComponent, { static: false }) public grid?: GridComponent;
   @Input() cdRef: ChangeDetectorRef;
-  //@Input() set control(value: AbstractControl | undefined) { super.control = value; } get control(): AbstractControl | undefined { return super.control; }
   @Input() set entity(value: HasNotificacao) { super.entity = value; } get entity(): HasNotificacao { return super.entity; }
-  //@Input() set noPersist(value: string | undefined) { super.noPersist = value; } get noPersist(): string | undefined { return super.noPersist; }
   @Input() entidadeId?: string;
   @Input() unidadeId?: string;
   @Input() disabled: boolean = false;
@@ -40,7 +37,6 @@ export class NotificacoesConfigComponent extends PageFrameBase {
   constructor(public injector: Injector) {
     super(injector);
     this.cdRef = injector.get<ChangeDetectorRef>(ChangeDetectorRef);
-    //this.dao = injector.get<TemplateDaoService>(TemplateDaoService);
     this.templateService = injector.get<TemplateService>(TemplateService);
     this.code = "MOD_NOTF_CONF";
     this.title = "Notificações";
@@ -68,7 +64,10 @@ export class NotificacoesConfigComponent extends PageFrameBase {
       this.cdRef.detectChanges();
       try {
         this.source = await this.templateService.loadNotificacoes(this.entidadeId, this.unidadeId);
-        this.notificar = this.templateService.buildNotificar(this.entity?.notificacoes || new NotificacoesConfig());
+        if (!this.entity.notificacoes) {
+          this.entity.notificacoes = new NotificacoesConfig();
+        }
+        this.notificar = this.templateService.buildNotificar(this.entity.notificacoes);
         let formValue = Object.assign({}, this.form.value);
         this.form.patchValue(this.util.fillForm(formValue, entity.notificacoes));
       } finally {
@@ -78,14 +77,26 @@ export class NotificacoesConfigComponent extends PageFrameBase {
     })();
   }
 
+  public onToggleNotificarItem(item: Notificar, checked: boolean) {
+    item.notifica = checked;
+    this.updateNotificacoes();
+  }
+
   public async saveData(form?: IIndexable) {
     this.entity!.notificacoes_templates = this.entity!.notificacoes_templates?.filter(x => !!x._status);
+    if (!this.entity!.notificacoes) {
+      this.entity!.notificacoes = new NotificacoesConfig();
+    }
     this.util.fillForm(this.entity!.notificacoes, this.form!.value);
+    this.entity!.notificacoes!.nao_notificar = this.notificar.filter(x => !x.notifica).map(x => x.codigo);
     return this.entity as HasNotificacao;
   }
 
   public updateNotificacoes() {
-    this.entity!.notificacoes!.enviar_petrvs = this.form.controls.enviar_email.value;
+    if (!this.entity!.notificacoes) {
+      this.entity!.notificacoes = new NotificacoesConfig();
+    }
+    this.entity!.notificacoes!.enviar_petrvs = this.form.controls.enviar_petrvs.value;
     this.entity!.notificacoes!.enviar_email = this.form.controls.enviar_email.value;
     this.entity!.notificacoes!.enviar_whatsapp = this.form.controls.enviar_whatsapp.value;
     this.entity!.notificacoes!.nao_notificar = this.notificar.filter(x => !x.notifica).map(x => x.codigo);

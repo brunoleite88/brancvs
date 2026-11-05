@@ -4,32 +4,34 @@
   <!-- Saudação -->
   <h2 class="fw-semibold mb-3">{{ saudacao() }}, {{ nomeUsuario() }}</h2>
 
-  <div class="row">
+  <div class="row align-items-stretch">
     <!-- ═══ Seção: Destaques do Usuário ═══ -->
     <div class="col-lg-9 mb-4">
-      <section class="home-secao h-100">
+      <section class="home-secao h-100 d-flex flex-column justify-content-between">
         <h4 class="home-secao__titulo fw-bold mb-3">Destaques do usuário</h4>
-        <div class="row align-items-center">
-          <div class="col-md-8 mb-3 mb-md-0">
-            <home-pendencias-usuario />
-          </div>
-          <div class="col-md-4">
-            @if (selectedUnidadeId()) {
-              <home-acoes-gerenciais [unidadeId]="selectedUnidadeId()" />
-            }
-          </div>
+        <div class="flex-grow-1 d-flex flex-column justify-content-center">
+          <home-pendencias-usuario />
         </div>
       </section>
     </div>
 
     <!-- ═══ Seção: Outros destaques ═══ -->
     <div class="col-lg-3 mb-4">
-      <section class="home-secao h-100">
+      <section class="home-secao h-100 d-flex flex-column">
         <h4 class="home-secao__titulo fw-bold mb-3 text-center">Outros destaques</h4>
-        <div class="d-flex flex-column align-items-center gap-3">
-          <home-atalho-card icone="bi bi-speedometer2" titulo="Cockpit do Gabinete" (acao)="irParaCockpitGabinete()" />
-          <home-atalho-card icone="bi bi-bar-chart-line" titulo="Painéis Gerenciais" (acao)="irParaPaineisGerenciais()" />
-          <home-atalho-card icone="bi bi-megaphone" titulo="Mural de Avisos" (acao)="irParaMuralAvisos()" />
+        <div class="row g-2 align-items-start justify-content-center my-auto">
+          <div class="col-6 d-flex justify-content-center">
+            <home-atalho-card icone="bi bi-speedometer2" titulo="Cockpit do Gabinete" (acao)="irParaCockpitGabinete()" />
+          </div>
+          <div class="col-6 d-flex justify-content-center">
+            <home-atalho-card icone="bi bi-bar-chart-line" titulo="Painéis Gerenciais" (acao)="irParaPaineisGerenciais()" />
+          </div>
+          <div class="col-6 d-flex justify-content-center">
+            <home-atalho-card icone="bi bi-kanban" titulo="Projetos Estruturantes" (acao)="irParaProjetosEstruturantes()" />
+          </div>
+          <div class="col-6 d-flex justify-content-center">
+            <home-atalho-card icone="bi bi-diagram-3" titulo="Mapa Estratégico" (acao)="irParaPlanosEntregasVigentes()" />
+          </div>
         </div>
       </section>
     </div>

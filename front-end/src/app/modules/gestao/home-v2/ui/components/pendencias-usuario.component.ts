@@ -27,6 +27,8 @@ export class PendenciasUsuarioComponent implements OnInit {
   readonly erro = signal<string | null>(null);
 
   readonly relatorioMensal = computed(() => this.data()?.relatorio_mensal ?? null);
+  readonly resumoIndividual = computed(() => this.data()?.resumo_individual ?? null);
+  readonly acessoCorregedoria = computed(() => Boolean(this.data()?.acesso_corregedoria));
 
   readonly totalPendenciasPE = computed(() => {
     const d = this.data();
@@ -41,6 +43,7 @@ export class PendenciasUsuarioComponent implements OnInit {
   });
 
   readonly totalHomologacoesCorregedoria = computed(() => {
+    if (!this.acessoCorregedoria()) return 0;
     return this.data()?.relatorios_aguardando_homologacao ?? 0;
   });
 
@@ -65,12 +68,32 @@ export class PendenciasUsuarioComponent implements OnInit {
     this.router.navigate(['gestao', 'corregedoria', 'painel']);
   }
 
+  irParaAgendaTarefas(): void {
+    this.router.navigate(['gestao', 'atividade']);
+  }
+
+  irParaMeusPlanos(): void {
+    this.router.navigate(['gestao', 'plano-trabalho-v2']);
+  }
+
   nomeMes(mes: number): string {
     const meses = [
       '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
     return meses[mes] || '';
+  }
+
+  formatarStatusPlano(status: string | null): string {
+    if (!status) return 'Sem plano vigente';
+    const mapa: Record<string, string> = {
+      ATIVO: 'Em vigor',
+      AGUARDANDO_ASSINATURA: 'Aguardando assinatura',
+      INCLUIDO: 'Em elaboração',
+      CONCLUIDO: 'Concluído',
+      AVALIADO: 'Avaliado',
+    };
+    return mapa[status] || status;
   }
 
   irParaAssinaturasPE(): void {
