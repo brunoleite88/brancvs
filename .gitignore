@@ -92,3 +92,10 @@ front-end/dist/*
 scripts/release/*
 AGENTS.md
 .agents/skills/*
+
+
+# Arquivos locais de deploy no servidor
+docker-compose.pgema.yml
+Dockerfile.pgema
+back-end/.env.pgema.175
+docker/pgema/nginx-175.conf.example

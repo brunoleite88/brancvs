@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 
 class AngularController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $app_config = config("app");
         $petrvs_config = config("petrvs");
         $google_config = config("google", []);
+        $apiUrl = $request->getSchemeAndHttpHost() ?: $app_config["url"];
         $config = json_encode([
-            "api_url" => $app_config["url"],
+            "api_url" => $apiUrl,
             "entidade" => $petrvs_config["entidade"],
             "suporte_url" => $petrvs_config["suporte"], 
             "logo_url" => $petrvs_config["logo"], 
@@ -26,6 +27,6 @@ class AngularController extends Controller
                 "user_password" => $petrvs_config["login"]["user-password"]
             ]
         ]);
-        return view('angular', ["host" => $app_config["url"], "config" => $config]);
+        return view('angular', ["host" => $apiUrl, "config" => $config]);
     }
 }

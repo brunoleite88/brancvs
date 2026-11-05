@@ -82,7 +82,10 @@ class PetrvsController extends ControllerBase
     $protocol = parse_url($appUrl, PHP_URL_SCHEME);
     $petrvs_config = config("petrvs");
 
-    $dominioUrl = $tenant["dominio_url"];
+    $configuredDomain = $tenant["dominio_url"] ?? $request->getHost();
+    $dominioUrl = (!in_array($configuredDomain, ['localhost', '127.0.0.1']) || in_array($request->getHost(), ['localhost', '127.0.0.1']))
+      ? $configuredDomain
+      : $request->getHost();
     if ($request->getPort() && !in_array($request->getPort(), [80, 443]) && !str_contains($dominioUrl, ':')) {
       $dominioUrl .= ':' . $request->getPort();
     }

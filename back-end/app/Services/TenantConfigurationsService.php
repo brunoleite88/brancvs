@@ -80,7 +80,10 @@ class TenantConfigurationsService
         # Setagem das informações nos configs ###
         $requestHost = request() ? request()->getHost() : 'localhost';
         $requestHttpHost = request() ? request()->getHttpHost() : $requestHost;
-        $dominioUrl = $settings['dominio_url'] ?? $requestHost;
+        $configuredDomain = $settings['dominio_url'] ?? $requestHost;
+        $dominioUrl = (!in_array($configuredDomain, ['localhost', '127.0.0.1']) || in_array($requestHost, ['localhost', '127.0.0.1']))
+            ? $configuredDomain
+            : $requestHost;
 
         // Se a requisição veio com porta (ex: localhost:8000), preserva a porta em app.url para não quebrar chamadas de API
         $appHost = (request() && request()->getPort() && !in_array(request()->getPort(), [80, 443]))
