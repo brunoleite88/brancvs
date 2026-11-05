@@ -7,7 +7,6 @@ import { CorregedoriaApiClient } from './infra/corregedoria-api.client';
 export const routes: Routes = [
   {
     path: '',
-    data: { breadcrumb: 'Corregedoria' },
     providers: [
       provideHttpClient(withInterceptors([authTenantVersionInterceptor, errorInterceptor])),
       BreadcrumbService,
@@ -16,13 +15,13 @@ export const routes: Routes = [
     children: [
       {
         path: 'meu-relatorio',
-        data: { breadcrumb: 'Meu Relatório Mensal' },
+        data: { breadcrumb: 'Relatório Mensal' },
         loadComponent: () =>
           import('./ui/corregedoria-meu-relatorio.component').then(m => m.CorregedoriaMeuRelatorioComponent),
       },
       {
         path: 'painel',
-        data: { breadcrumb: 'Painel da Corregedoria' },
+        data: { breadcrumb: 'Painel de Corregedoria' },
         loadComponent: () =>
           import('./ui/corregedoria-painel.component').then(m => m.CorregedoriaPainelComponent),
       },

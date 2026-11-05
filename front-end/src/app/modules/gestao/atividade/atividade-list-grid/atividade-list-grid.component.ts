@@ -43,7 +43,7 @@ export class AtividadeListGridComponent extends AtividadeListBase {
   constructor(public injector: Injector) {
     super(injector);
     /* Inicializações */
-    this.title = this.lex.translate("Atividades");
+    this.title = "Agenda";
     this.code = "MOD_DMD";
     this.modalWidth = 1100;
     this.filter = this.fh.FormBuilder({

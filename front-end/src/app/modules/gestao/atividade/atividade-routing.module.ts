@@ -15,8 +15,8 @@ import { AtividadeHierarquiaComponent } from './atividade-hierarquia/atividade-h
 
 
 const routes: Routes = [
-  { path: '', component: AtividadeListComponent, canActivate: [AuthGuard], resolve: { config: ConfigResolver }, data: { title: "Atividades" } },
-  { path: 'grid', component: AtividadeListGridComponent, canActivate: [AuthGuard], resolve: { config: ConfigResolver }, data: { title: "Atividades" } },
+  { path: '', component: AtividadeListComponent, canActivate: [AuthGuard], resolve: { config: ConfigResolver }, data: { title: "Agenda" } },
+  { path: 'grid', component: AtividadeListGridComponent, canActivate: [AuthGuard], resolve: { config: ConfigResolver }, data: { title: "Agenda" } },
   { path: 'new', component: AtividadeFormComponent, canActivate: [AuthGuard], resolve: { config: ConfigResolver }, data: { title: "", modal: true } },
   { path: 'tarefa', component: AtividadeFormTarefaComponent, canActivate: [AuthGuard], resolve: { config: ConfigResolver }, data: { title: "Tarefa da Atividade", modal: true } },
   { path: 'tarefa/concluir', component: AtividadeListTarefaComponent, canActivate: [AuthGuard], resolve: { config: ConfigResolver }, data: { title: "Concluir Tarefa", modal: true } },

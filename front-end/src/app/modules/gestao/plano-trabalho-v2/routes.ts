@@ -33,7 +33,7 @@ const redirectClone: RedirectFunction = ({ params, queryParams }) => inject(Rout
 export const routes: Routes = [
   {
     path: '',
-    data: { breadcrumb: 'Planos de Trabalho' },
+    data: { breadcrumb: 'Planos e Execução' },
     providers: [
       provideHttpClient(withInterceptors([authTenantVersionInterceptor, errorInterceptor])),
       // Serviços compartilhados

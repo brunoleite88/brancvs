@@ -55,7 +55,7 @@ export class RelatorioPlanoTrabalhoComponent extends RelatorioBaseComponent<Rela
       this.relatorioPlanoTrabalhoDao = injector.get<RelatorioPlanoTrabalhoDaoService>(RelatorioPlanoTrabalhoDaoService);
       this.relatorioPlanoTrabalhoDetalhadoDao = injector.get<RelatorioPlanoTrabalhoDetalhadoDaoService>(RelatorioPlanoTrabalhoDetalhadoDaoService);
       this.relatorioGeracaoDao = injector.get<RelatorioGeracaoDaoService>(RelatorioGeracaoDaoService);
-      this.title = "Relatório de Planos de Ação Individuais";
+      this.title = "Relatório de Ações Individuais";
       this.filter = this.fh.FormBuilder({
           unidade_id: { default: this.auth.unidade?.id },
           agrupar: { default: true },

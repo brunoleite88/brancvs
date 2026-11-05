@@ -89,7 +89,7 @@ export class PlanoEntregaListComponent extends PageListBase<
 		this.unidadeSelecionada = this.auth.unidade!;
 		this.code = "MOD_PLANE";
 		/* Inicializações */
-		this.title = "Planos de Ação Setoriais";
+		this.title = "Ações Setoriais";
 		this.filter = this.fh.FormBuilder(
 			{
 				agrupar: {default: true},

@@ -34,7 +34,7 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Relatório de Planos de Ação Individuais",
+      title: "Relatório de Ações Individuais",
       permission: "MOD_RELATORIO_PT"
     }
   },
@@ -45,9 +45,9 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Lacunas de Planos de Ação Individuais",
+      title: "Lacunas de Ações Individuais",
       permission: "MOD_RELATORIO_PT",
-      breadcrumb: "Lacunas de Planos de Ação Individuais",
+      breadcrumb: "Lacunas de Ações Individuais",
       modal: false
     }
   },
@@ -58,7 +58,7 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Relatórios de Planos de Ação Individuais",
+      title: "Relatórios de Ações Individuais",
       permission: "MOD_RELATORIO_PT"
     }
   },
@@ -69,8 +69,8 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Relatório de Planos de Ação Setoriais",
-      breadcrumb: "Planos de Ação Setoriais Cadastrados",
+      title: "Relatório de Ações Setoriais",
+      breadcrumb: "Ações Setoriais Cadastradas",
     }
   },
   {
@@ -100,7 +100,7 @@ const routes: Routes = [
     resolve: { config: ConfigResolver },
     runGuardsAndResolvers: 'always',
     data: {
-      title: "Planos de Ação Setoriais",
+      title: "Ações Setoriais",
     }
   },
   {

@@ -36,7 +36,7 @@ export class RelatorioPlanoEntregaComponent extends RelatorioBaseComponent<Relat
       this.unidadeDao = injector.get<UnidadeDaoService>(UnidadeDaoService);
       this.tipoAvaliacaoNotaDao = injector.get<TipoAvaliacaoNotaDaoService>(TipoAvaliacaoNotaDaoService);
       this.relatorioGeracaoDao = injector.get<RelatorioGeracaoDaoService>(RelatorioGeracaoDaoService);
-      this.title = "Relatório de Planos de Ação Setoriais";
+      this.title = "Relatório de Ações Setoriais";
       this.filter = this.fh.FormBuilder({
           unidade_id: { default: this.auth.unidade?.id },
           agrupar: { default: true },
