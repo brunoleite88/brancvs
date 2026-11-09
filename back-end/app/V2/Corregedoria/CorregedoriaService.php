@@ -18,7 +18,8 @@ class CorregedoriaService
 {
     public function buscarOuCriarMeuRelatorio(string $usuarioId, int $mes, int $ano, ?string $unidadeId = null): RelatorioCorregedoria
     {
-        $relatorio = RelatorioCorregedoria::with(['usuario:id,nome,email,matricula', 'unidade:id,nome,sigla', 'atos'])
+        if (empty($unidadeId)) { $u = Usuario::with(['lotacao.unidade', 'areasTrabalho.unidade'])->find($usuarioId); $unidadeId = ($u?->config['unidade_id'] ?? null) ?: ($u?->lotacao?->unidade_id ?? $u?->areasTrabalho?->first()?->unidade_id ?? '4f705d83-5808-4240-8b92-39ca88139076'); }
+        $relatorio = RelatorioCorregedoria::with(['usuario:id,nome,email,matricula', 'unidade:id,nome,sigla', 'atos'])->where('unidade_id', $unidadeId)
             ->where('usuario_id', $usuarioId)
             ->where('mes', $mes)
             ->where('ano', $ano)
@@ -98,6 +99,7 @@ class CorregedoriaService
         }
         if (array_key_exists('cabecalho', $data)) {
             $relatorio->cabecalho = is_array($data['cabecalho']) ? $data['cabecalho'] : json_decode((string) $data['cabecalho'], true);
+            if (is_array($relatorio->cabecalho)) { $cab = $relatorio->cabecalho; $cab['subtitulo'] = Unidade::where('id', $relatorio->unidade_id)->value('nome') ?? ($cab['subtitulo'] ?? 'PROCURADORIA GERAL DO ESTADO'); $relatorio->cabecalho = $cab; }
         }
         $relatorio->save();
 

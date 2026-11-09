@@ -84,8 +84,8 @@ export interface RelatorioCorregedoria {
 export class CorregedoriaApiClient extends TenantV2ResourceApiBase {
   protected readonly apiPath = '/api/v2/corregedoria';
 
-  getMeuRelatorio(mes: number, ano: number): Observable<RelatorioCorregedoria> {
-    return this.http.get<any>(this.resourceUrl(`/meu-relatorio/${mes}/${ano}`))
+  getMeuRelatorio(mes: number, ano: number, unidadeId?: string): Observable<RelatorioCorregedoria> { const params = unidadeId ? new HttpParams().set('unidade_id', unidadeId) : undefined;
+    return this.http.get<any>(this.resourceUrl(`/meu-relatorio/${mes}/${ano}`), { params })
       .pipe(map(r => r?.data));
   }
 

@@ -105,7 +105,7 @@
                 <div class="fw-bold line-orgao">{{ relatorio()?.cabecalho?.orgao || 'PROCURADORIA GERAL DO ESTADO' }}</div>
                 <div class="fw-bold line-titulo">{{ relatorio()?.cabecalho?.titulo || 'RELATÓRIO DE ATIVIDADES' }}</div>
                 <div class="fw-bold fst-italic line-subtitulo mt-1">
-                  {{ relatorio()?.cabecalho?.subtitulo || relatorio()?.unidade?.nome || 'PROCURADORIA-GERAL ADJUNTA PARA ASSUNTOS ESTRATÉGICOS' }} / 
+                  {{ relatorio()?.unidade?.nome || auth.unidade?.nome || relatorio()?.cabecalho?.subtitulo || 'PROCURADORIA GERAL DO ESTADO' }} / 
                   <span class="destaque-amarelo">{{ relatorio()?.usuario?.nome || auth.usuario?.nome }}</span> / 
                   {{ mesExtenso }} - {{ anoSelecionado() }}
                 </div>
@@ -354,7 +354,8 @@
 
               <div class="mb-3">
                 <label class="form-label small fw-bold">Setor / Subtítulo Institucional (Linha 4):</label>
-                <input type="text" class="form-control form-control-sm font-monospace text-uppercase" [ngModel]="cabecalhoEdit().subtitulo" (ngModelChange)="cabecalhoEdit().subtitulo = $event" placeholder="Ex: PROCURADORIA-GERAL ADJUNTA PARA ASSUNTOS ESTRATÉGICOS">
+                <input type="text" class="form-control form-control-sm font-monospace text-uppercase bg-light" [ngModel]="relatorio()?.unidade?.nome || auth.unidade?.nome || cabecalhoEdit().subtitulo" readonly disabled>
+                <small class="text-muted" style="font-size: 0.72rem;">Vinculado automaticamente à unidade selecionada no ambiente ({{ relatorio()?.unidade?.sigla || auth.unidade?.sigla }}). Para registrar relatório de outra unidade, altere a unidade no topo da página.</small>
               </div>
 
               <div class="form-check mt-3 p-2 bg-light rounded border">
