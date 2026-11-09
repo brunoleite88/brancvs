@@ -71,11 +71,11 @@ class LoginController extends Controller
 
         $this->forceWebGuard();
 
-        if (!Auth::guard('web')->check()) {
+        if (!Auth::guard('web')->check() && !Auth::check()) {
             return LogError::newError('Usuário não logado', new \Exception("selecionaUnidade"));
         }
 
-        $usuario = Auth::guard('web')->user();
+        $usuario = Auth::guard('web')->user() ?? Auth::user();
 
         try {
             $payload = $usuarioService->selecionaUnidade($request, $usuario, $data);

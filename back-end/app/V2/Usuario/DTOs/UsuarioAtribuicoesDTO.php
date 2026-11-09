@@ -11,7 +11,7 @@ class UsuarioAtribuicoesDTO
      */
     public function __construct(
         public readonly string $usuarioId,
-        public readonly array $atribuicoes,
+        public array $atribuicoes,
     ) {}
 
     public static function fromArray(array $data, string $usuarioId): self

@@ -188,7 +188,7 @@ export class AuthService {
       if(this.usuario?.config.unidade_id && this.unidades.find(u => u.id === this.usuario?.config.unidade_id)){
         this.unidade = this.unidades.find(u => u.id === this.usuario?.config.unidade_id);  
       }else{
-        this.unidade = this.usuario?.areas_trabalho?.find(x => x.atribuicoes?.find(y => y.atribuicao == "LOTADO"))?.unidade;
+        this.unidade = this.usuario?.areas_trabalho?.find(x => x.atribuicoes?.find(y => y.atribuicao == "LOTADO"))?.unidade || this.unidades[0];
       }
       if (this.unidade) this.calendar.loadFeriadosCadastrados(this.unidade.id);
       if (token?.length) localStorage.setItem("petrvs_api_token", token);
@@ -201,6 +201,7 @@ export class AuthService {
       this.gb.setContexto(usuarioContextos[0]);
       this.notificacao.updateNaoLidas();
       if (!unidadesVinculadasFromAuth) this.setUnidadesVinculadas();
+      this.usuarioChanged$.next();
     } else {
       this.usuario = undefined;
       this.kind = undefined;
@@ -364,6 +365,8 @@ export class AuthService {
       return this.server.post("api/seleciona-unidade", { unidade_id: id, matricula: matricula ?? undefined }).toPromise().then(response => {
         if (response?.unidade) {
           this.unidade = Object.assign(new Unidade(), response?.unidade) as Unidade;
+          if (this.usuario?.config) this.usuario.config.unidade_id = id;
+          this.usuarioChanged$.next();
           this.calendar.loadFeriadosCadastrados(this.unidade.id);
           if (this.unidade.entidade) this.lex.loadVocabulary(this.unidade.entidade.nomenclatura || []);
         }

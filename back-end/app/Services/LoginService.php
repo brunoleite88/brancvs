@@ -85,7 +85,7 @@ class LoginService
 
     private function findEntidadeBySigla(string $sigla): ?Entidade
     {
-        return $this->entidadeRepository->findBySigla($sigla, self::ENTIDADE_RELATIONS);
+        return $this->entidadeRepository->findBySigla($sigla, self::ENTIDADE_RELATIONS) ?? Entidade::with(self::ENTIDADE_RELATIONS)->first();
     }
 
     public function registrarUsuario(Request $request, ?Usuario $usuario, ?array $update = null): ?Usuario
@@ -97,6 +97,12 @@ class LoginService
         $usuario = $this->applyUserUpdatesIfNeeded($usuario, $update);
 
         $entidadeId = strval($request->session()->get("entidade_id") ?? "");
+        if (empty($entidadeId)) {
+            $entidadeId = strval(Entidade::query()->value('id') ?? "");
+            if (!empty($entidadeId) && $request->hasSession()) {
+                $request->session()->put("entidade_id", $entidadeId);
+            }
+        }
         $usuarioComRelacoes = $this->loadUserWithRelations($usuario->id, $entidadeId);
         $usuarioComRelacoes = $usuarioComRelacoes ?? $usuario->fresh() ?? $usuario;
 
@@ -147,13 +153,13 @@ class LoginService
 
     public function selecionaUnidade(array $data, Request $request): array
     {
-        $this->forceWebGuard();
+        $user = Auth::guard('web')->user() ?? Auth::user();
 
-        if (!Auth::guard('web')->check()) {
+        if (!$user) {
             throw new Exception("Usuário não logado");
         }
 
-        return $this->usuarioService->selecionaUnidade($request, Auth::guard('web')->user(), $data);
+        return $this->usuarioService->selecionaUnidade($request, $user, $data);
     }
 
     public function horarioUnidade(Request $request): string

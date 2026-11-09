@@ -100,11 +100,7 @@ export class UsuarioIntegranteComponent extends PageFrameBase {
         atribuicao => atribuicao.key == 'COLABORADOR' ? !isLotado : !atribuicoesSelecionadas.includes(atribuicao.key)
       );
 
-      if (!unidade?.executora && !perfilColaborador) {
-        atribuicoes = atribuicoes.filter(
-          atribuicao => atribuicao.key !== 'COLABORADOR'
-        );
-      }
+      // PGE-MA: permite atribuir Colaborador em qualquer unidade
 
       this.atribuicoes = atribuicoes;
       this.form?.controls.atribuicao.setValue(atribuicoesSelecionadas.includes('COLABORADOR') ? '' : "COLABORADOR");
@@ -257,7 +253,7 @@ export class UsuarioIntegranteComponent extends PageFrameBase {
       id: this.integranteDao!.generateUuid(),
       unidade_id: "",
       atribuicoes: [],
-      usuario_externo: true
+      usuario_externo: false
     } as IIndexable;
     return novo;
   }

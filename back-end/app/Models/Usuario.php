@@ -564,7 +564,7 @@ class Usuario extends Authenticatable implements AuditableContract, HasStatusHis
 
     public function setConfigAttribute($value)
     {
-        $this->attributes['config'] = json_encode($value);
+        $this->attributes['config'] = ($value instanceof \Illuminate\Contracts\Database\Query\Expression || $value instanceof \Illuminate\Database\Query\Expression) ? $value : json_encode($value);
     }
 
     public function getNotificacoesAttribute($value)
@@ -575,7 +575,7 @@ class Usuario extends Authenticatable implements AuditableContract, HasStatusHis
 
     public function setNotificacoesAttribute($value)
     {
-        $this->attributes['notificacoes'] = json_encode($value);
+        $this->attributes['notificacoes'] = ($value instanceof \Illuminate\Contracts\Database\Query\Expression || $value instanceof \Illuminate\Database\Query\Expression) ? $value : json_encode($value);
     }
 
     public function getChangesAttribute()

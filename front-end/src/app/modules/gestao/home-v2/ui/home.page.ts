@@ -70,11 +70,12 @@ export class HomeV2Page implements OnInit {
 
   ngOnInit(): void {
     this.carregarUnidades();
+    this.auth.usuarioChanged$.subscribe(() => this.carregarUnidades());
   }
 
   onUnidadeChange(event: any): void {
-    const value = event?.target?.value;
-    if (!value) return;
+    const value = event?.detail ?? event?.target?.value;
+    if (!value || typeof value !== 'string') return;
     this.selectedUnidadeId.set(value);
   }
 
@@ -130,43 +131,44 @@ export class HomeV2Page implements OnInit {
   }
 
   private carregarUnidades(): void {
-    if (this.auth.isUsuarioParticipante()) {
-      this.carregarUnidadesParticipante();
+    const areas = (this.auth.usuario?.areas_trabalho ?? []).filter(a => a.unidade);
+    const unidadesVinculadas = [
+      ...new Map(
+        areas.map(a => [
+          a.unidade_id,
+          {
+            id: a.unidade_id,
+            sigla: a.unidade!.sigla,
+            nome: a.unidade!.nome,
+            path: a.unidade!.path,
+            isLotado: a.atribuicoes?.some(attr => attr.atribuicao === 'LOTADO') ?? false,
+          },
+        ]),
+      ).values(),
+    ];
+
+    const unidadeAtiva = this.auth.unidade;
+    const defaultId =
+      unidadeAtiva?.id ??
+      unidadesVinculadas.find(u => u.isLotado)?.id ??
+      this.unidadeMaisAlta(unidadesVinculadas)?.id ??
+      unidadesVinculadas[0]?.id ??
+      '';
+
+    // Quando uma unidade específica está selecionada no ambiente (ex.: PGAAE),
+    // restringe os Destaques da Unidade apenas à unidade selecionada no ambiente.
+    if (unidadeAtiva && unidadeAtiva.sigla !== 'PGE-MA') {
+      const selecionada = unidadesVinculadas.find(u => u.id === unidadeAtiva.id) ?? {
+        id: unidadeAtiva.id,
+        sigla: unidadeAtiva.sigla,
+        nome: unidadeAtiva.nome,
+      };
+      this.aplicarOpcoes([selecionada], selecionada.id);
       return;
     }
 
-    this.carregarUnidadesComSubordinadas();
-  }
-
-  private carregarUnidadesParticipante(): void {
-    const areas = this.auth.usuario?.areas_trabalho ?? [];
-
-    const unidades = areas
-      .filter(a => a.unidade)
-      .map(a => ({
-        id: a.unidade_id,
-        sigla: a.unidade!.sigla,
-        nome: a.unidade!.nome,
-        isLotado: a.atribuicoes?.some(attr => attr.atribuicao === 'LOTADO') ?? false,
-      }));
-
-    const unique = [...new Map(unidades.map(u => [u.id, u])).values()];
-
-    const defaultId = (unique.find(u => u.isLotado) ?? unique[0])?.id ?? '';
-
-    this.aplicarOpcoes(unique, defaultId);
-  }
-
-  private carregarUnidadesComSubordinadas(): void {
-    const unidadesComAtribuicao = (this.auth.usuario?.areas_trabalho ?? [])
-      .filter(a => a.unidade)
-      .map(a => a.unidade!);
-    const defaultId = this.unidadeMaisAlta(unidadesComAtribuicao)?.id ?? '';
-
-    this.unidadeService.minhasUnidades(true).subscribe({
-      next: (unidades) => this.aplicarOpcoes(unidades, defaultId),
-      error: () => this.aplicarOpcoes([], defaultId),
-    });
+    // No ambiente geral (PGE-MA), lista apenas as unidades vinculadas do usuário
+    this.aplicarOpcoes(unidadesVinculadas, defaultId);
   }
 
   private unidadeMaisAlta<T extends { path?: string }>(unidades: T[]): T | undefined {
@@ -182,12 +184,25 @@ export class HomeV2Page implements OnInit {
     unidades: { id: string; sigla: string; nome: string }[],
     defaultId: string,
   ): void {
+    const effectiveDefault =
+      unidades.some(u => u.id === defaultId) ? defaultId : (unidades[0]?.id ?? '');
+
+    const ordenadas = [...unidades].sort((a, b) => {
+      if (a.id === effectiveDefault) return -1;
+      if (b.id === effectiveDefault) return 1;
+      return 0;
+    });
+
     this.unidadeOptions.set(
-      unidades.map(u => ({ value: u.id, label: `${u.sigla} - ${u.nome}`, selected: u.id === defaultId }))
+      ordenadas.map(u => ({
+        value: u.id,
+        label: `${u.sigla} - ${u.nome}`,
+        selected: u.id === effectiveDefault,
+      }))
     );
 
-    if (defaultId) {
-      this.selectedUnidadeId.set(defaultId);
+    if (effectiveDefault) {
+      this.selectedUnidadeId.set(effectiveDefault);
     }
   }
 }

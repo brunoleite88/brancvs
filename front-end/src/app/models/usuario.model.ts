@@ -138,7 +138,7 @@ export class Usuario extends Base implements HasNotificacao {
     public is_admin: boolean = false;
     public nome: string = ""; /* Nome do Usuário */
     public email: string = ""; /* Email do Usuário */
-    public usuario_externo: boolean = true;
+    public usuario_externo: boolean = false;
     public email_verified_at?: Date; /* Data de validação do email */
     public cpf: string = ""; /* CPF do usuário */
     public matricula: string | null = null; /* Matrícula do usuário */

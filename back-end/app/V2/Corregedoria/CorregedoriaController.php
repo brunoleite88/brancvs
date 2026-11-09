@@ -21,7 +21,7 @@ class CorregedoriaController extends Controller
     {
         try {
             $usuarioId = Auth::id() ?? $request->input('usuario_id');
-            $unidadeId = $request->input('unidade_id');
+            $unidadeId = $request->input('unidade_id') ?? ($request->hasSession() ? $request->session()->get('unidade_id') : null);
             $relatorio = $this->service->buscarOuCriarMeuRelatorio($usuarioId, $mes, $ano, $unidadeId);
 
             return response()->json(['success' => true, 'data' => $relatorio]);
@@ -89,7 +89,7 @@ class CorregedoriaController extends Controller
             $usuarioId = Auth::id() ?? $request->input('usuario_id');
             $mes = (int) ($request->input('mes') ?? now()->month);
             $ano = (int) ($request->input('ano') ?? now()->year);
-            $unidadeId = $request->input('unidade_id');
+            $unidadeId = $request->input('unidade_id') ?? ($request->hasSession() ? $request->session()->get('unidade_id') : null);
             $result = $this->service->importarDoPlanoEAtividades($usuarioId, $mes, $ano, $unidadeId);
 
             return response()->json(['success' => true, 'data' => $result['relatorio'], 'importados' => $result['importados']]);

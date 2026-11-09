@@ -20,9 +20,9 @@
                         </input-text>
                     </div>
                     <div class="row">
-                        <input-select [size]="4" label="UF" icon="bi bi-flag" controlName="uf" [items]="lookup.UF"></input-select>
-                        <input-text [size]="4" label="Telefone" controlName="telefone" [maskFormat]="'(00) 0000-0000||(00) 0 0000-0000'" [attr.maxlength]=250></input-text>
-                        <input-switch [size]="4" label="Usuário Externo" controlName="usuario_externo" [labelInfo]="'Define se é colaborador externo ou servidor interno da instituição'"></input-switch>
+                        <input-select [size]="6" label="UF" icon="bi bi-flag" controlName="uf" [items]="lookup.UF"></input-select>
+                        <input-text [size]="6" label="Telefone" controlName="telefone" [maskFormat]="'(00) 0000-0000||(00) 0 0000-0000'" [attr.maxlength]=250></input-text>
+                        
                     </div>
                     <div class="row mt-2">
                         <input-text type="password" [size]="6" label="Senha de Acesso" controlName="password" [labelInfo]="isNew ? 'Defina a senha inicial do usuário' : 'Preencha apenas caso deseje alterar a senha do usuário'"></input-text>
@@ -83,6 +83,4 @@
         </tab>
     </tabs>
 </editable-form>
-<small *ngIf="entity?.id && entity?.usuario_externo && entity?.audits_externo">
-    <span class="fs-6 text-danger">** Cadastro realizado por {{ entity?.audits_externo[0]?.performed_by || 'carregando...' }} em {{ entity?.audits_externo[0]?.created_at || 'carregando...' }} </span>
-</small>
+

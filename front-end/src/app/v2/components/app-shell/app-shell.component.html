@@ -137,7 +137,7 @@
                 (click)="toggleUnidade()">
                 <i class="bi bi-building me-1" aria-hidden="true"></i>
                 <span class="d-none d-sm-inline text-truncate" aria-hidden="true" style="max-width:10rem">
-                  {{ auth.unidade?.sigla }}@if (auth.unidade?.unidade_antiga) {<span class="unidade-antiga" aria-label="Unidade da estrutura anterior"> *</span>} ({{ auth.usuario?.matricula }})
+                  {{ auth.unidade?.sigla }}@if (auth.unidade?.unidade_antiga) {<span class="unidade-antiga" aria-label="Unidade da estrutura anterior"> *</span>} @if (auth.usuario?.matricula) { ({{ auth.usuario?.matricula }})}
                 </span>
               </button>
             </div>
@@ -200,10 +200,10 @@
       role="listbox" aria-label="Unidades disponíveis">
       @for (u of unidadesVinculadas; track u.id + (u.matricula ?? '')) {
         <li class="nav-item" role="option"
-          [attr.aria-selected]="u.id === auth.unidade?.id && u.matricula === auth.usuario?.matricula">
+          [attr.aria-selected]="u.id === auth.unidade?.id && (u.matricula ?? null) === (auth.usuario?.matricula ?? null)">
           <a class="nav-link d-flex justify-content-between align-items-center"
             tabindex="0"
-            [class.fw-bold]="u.id === auth.unidade?.id && u.matricula === auth.usuario?.matricula"
+            [class.fw-bold]="u.id === auth.unidade?.id && (u.matricula ?? null) === (auth.usuario?.matricula ?? null)"
             (click)="selecionaUnidade(u.id, u.matricula ?? null)"
             (keydown)="onKeyActivate($event, selecionaUnidade.bind(this, u.id, u.matricula ?? null))">
             <span [class.unidade-antiga]="u.unidade_antiga">

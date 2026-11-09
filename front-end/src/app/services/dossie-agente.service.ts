@@ -14,7 +14,7 @@ export class DossieAgenteService {
     this.modalidadePgd = injector.get<ModalidadePgdService>(ModalidadePgdService);
   }
 
-  public gerarHtmlDossie(u: any): string {
+  public gerarHtmlDossie(raw: any): string { const u = raw?.dossie || raw?.data || raw || {};
     const dataEmissao = new Date().toLocaleString('pt-BR');
     const situacaoFuncionalLabel = this.lookup.getValue(this.lookup.USUARIO_SITUACAO_FUNCIONAL, u.situacao_funcional) || u.situacao_funcional || 'Não informada';
     const situacaoCadastralLabel = this.lookup.getValue(this.lookup.USUARIO_SITUACAO_SIAPE, u.situacao_siape) || u.situacao_siape || 'Ativo';
@@ -25,7 +25,7 @@ export class DossieAgenteService {
 
     // Unidades e atribuições
     let unidadesHtml = '';
-    const integrantes = u.unidades_integrantes || u.unidadesIntegrantes || u.unidades_vinculadas || [];
+    const integrantes = u.unidades_integrantes || u.unidadesIntegrantes || u.areas_trabalho || u.areasTrabalho || u.unidades_vinculadas || [];
     if (integrantes.length > 0) {
       unidadesHtml = `
         <table>
@@ -40,7 +40,7 @@ export class DossieAgenteService {
             ${integrantes.map((ui: any) => {
               const sigla = ui.unidade?.sigla || ui.sigla || '-';
               const nomeUnidade = ui.unidade?.nome || ui.nome || '-';
-              const atribuicoes = (ui.atribuicoes || []).map((a: any) => typeof a === 'string' ? a : (a.atribuicao || '')).join(', ') || 'Nenhuma';
+              const atribuicoes = (ui.atribuicoes || []).map((a: any) => { const code = typeof a === 'string' ? a : (a.atribuicao || ''); return this.lookup.getValue(this.lookup.UNIDADE_INTEGRANTE_TIPO, code) || code; }).filter(Boolean).join(', ') || 'Nenhuma';
               return `<tr>
                 <td><strong>${nomeUnidade}</strong></td>
                 <td>${sigla}</td>

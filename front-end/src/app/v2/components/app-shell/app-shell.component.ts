@@ -368,7 +368,6 @@ export class AppShellV2Component implements OnInit {
   }
 
   async selecionaUnidade(id: string, matricula: string | null): Promise<void> {
-    if (!matricula) return;
     this.unidadeAberta.set(false);
     await this.auth.selecionaUnidade(id, matricula, this.cdRef);
     window.location.reload();

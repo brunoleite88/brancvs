@@ -1,51 +1,61 @@
 <grid [dao]="dao" [add]="add" [title]="isModal ? '' : title" [orderBy]="orderBy" [groupBy]="groupBy" [join]="join"
     [selectable]="selectable" (select)="onSelect($event)"
+    [scrollable]="true" [maxHeight]="650" [className]="'projeto-estruturante'"
     [hasAdd]="true" [hasEdit]="true">
     <toolbar *ngIf="!selectable"></toolbar>
-    <filter [deleted]="this.auth.hasPermissionTo('MOD_AUDIT_DEL')" [form]="filter" [where]="filterWhere" [submit]="filterSubmit.bind(this)" [collapseChange]="filterCollapseChange.bind(this)" [collapsed]="!selectable && filterCollapsed">
+    <filter [deleted]="this.auth.hasPermissionTo('MOD_AUDIT_DEL')" [form]="filter" [where]="filterWhere" [submit]="filterSubmit.bind(this)" [clear]="filterClear.bind(this)" [collapseChange]="filterCollapseChange.bind(this)" [collapsed]="!selectable && filterCollapsed">
         <div class="row">
-            <input-text [size]="12" label="Nome do Projeto Estruturante" controlName="nome"
-                [control]="filter!.controls.nome" placeholder="Filtrar por nome do projeto..." [attr.maxlength]=250></input-text>
+            <input-text [size]="4" label="Nome ou Objetivo" controlName="nome"
+                [control]="filter!.controls.nome" placeholder="Nome ou objetivo do projeto estruturante" [attr.maxlength]=250></input-text>
+            <input-select [size]="2" label="Status" controlName="status" [control]="filter!.controls.status" [items]="STATUS_LIST" itemTodos="- Todos -" [valueTodos]="null"></input-select>
+            <input-select [size]="2" label="Data" itemTodos="- Nenhum -" [valueTodos]="null" controlName="data_filtro" [control]="filter!.controls.data_filtro" [items]="DATAS_FILTRO"></input-select>
+            <input-datetime [size]="2" date [disabled]="filter!.controls.data_filtro.value == null ? 'true' : undefined" label="Início" controlName="data_filtro_inicio" [control]="filter!.controls.data_filtro_inicio" labelInfo="Data início do período"></input-datetime>
+            <input-datetime [size]="2" date [disabled]="filter!.controls.data_filtro.value == null ? 'true' : undefined" label="Fim" controlName="data_filtro_fim" [control]="filter!.controls.data_filtro_fim" labelInfo="Data fim do período"></input-datetime>
         </div>
     </filter>
     <columns>
-        <column title="#" [template]="columnNumero">
+        <column title="#ID" orderBy="numero" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnNumero" [width]="75">
             <ng-template let-row="row" #columnNumero>
-                <span class="badge bg-light text-dark border">#{{row.numero}}</span>
+                <span class="fw-semibold text-secondary">#{{row.numero}}</span>
             </ng-template>
         </column>
-        <column title="Projeto Estruturante" [template]="columnNome">
+        <column title="Projeto Estruturante" orderBy="nome" verticalAlign="middle" cellClass="align-middle" [template]="columnNome" [minWidth]="260" [maxWidth]="400">
             <ng-template let-row="row" #columnNome>
-                <span class="fw-bold text-primary">{{row.nome}}</span><br>
-                <small class="text-secondary">{{row.finalidade || row.descricao}}</small>
+                <div class="fw-bold text-dark text-break text-wrap">{{row.nome || ""}}</div>
             </ng-template>
         </column>
-        <column title="Status" [template]="columnStatus">
-            <ng-template let-row="row" #columnStatus>
-                <span class="badge" [ngClass]="getBadgeStatus(row.status)">{{row.status}}</span>
+        <column title="Objetivo / Escopo" verticalAlign="middle" cellClass="align-middle" [template]="columnEscopo" [minWidth]="280" [maxWidth]="460">
+            <ng-template let-row="row" #columnEscopo>
+                <div *ngIf="row.descricao || row.finalidade" class="text-dark text-break text-wrap">{{row.descricao || row.finalidade}}</div>
+                <span *ngIf="!row.descricao && !row.finalidade" class="text-muted">—</span>
             </ng-template>
         </column>
-        <column title="Progresso" [template]="columnProgresso">
-            <ng-template let-row="row" #columnProgresso>
-                <div class="d-flex align-items-center">
-                    <div class="progress flex-grow-1" style="height: 12px;">
-                        <div class="progress-bar bg-success" role="progressbar" [style.width.%]="row.progresso || 0"></div>
-                    </div>
-                    <span class="ms-2 small fw-bold">{{row.progresso || 0}}%</span>
-                </div>
-            </ng-template>
-        </column>
-        <column title="Início" [template]="columnInicio">
+        <column title="Início" orderBy="data_inicio" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnInicio" [width]="115">
             <ng-template let-row="row" #columnInicio>
-                <span>{{dao!.getDateFormatted(row.data_inicio)}}</span>
+                <span class="text-dark fw-semibold">{{dao!.getDateFormatted(row.data_inicio)}}</span>
             </ng-template>
         </column>
-        <column title="Término" [template]="columnFim">
+        <column title="Fim" orderBy="data_fim" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnFim" [width]="115">
             <ng-template let-row="row" #columnFim>
-                <span>{{dao!.getDateFormatted(row.data_fim)}}</span>
+                <span class="text-secondary fw-semibold">{{dao!.getDateFormatted(row.data_fim)}}</span>
             </ng-template>
         </column>
-        <column type="options" [onEdit]="edit" [options]="options"></column>
+        <column title="Progresso" orderBy="progresso" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnProgresso" [width]="130">
+            <ng-template let-row="row" #columnProgresso>
+                <progress-bar [value]="row.progresso || 0" [max]="100" color="success"></progress-bar>
+            </ng-template>
+        </column>
+        <column title="Status" orderBy="status" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [template]="columnStatus" [width]="125">
+            <ng-template let-row="row" #columnStatus>
+                <div class="fw-bold text-dark">{{statusLabel(row.status)}}</div>
+                <div *ngIf="row.deleted_at" class="text-danger">Excluído</div>
+            </ng-template>
+        </column>
+        <column type="options" verticalAlign="middle" cellClass="align-middle" [width]="95" [minWidth]="95" [onEdit]="edit" [options]="options"></column>
     </columns>
-    <pagination [rows]="rowsLimit"></pagination>
+    <pagination
+        [rows]="rowsLimit"
+        [infiniteScrollContainer]="'.projeto-estruturante-table'"
+        [fromRoot]="true"
+    ></pagination>
 </grid>

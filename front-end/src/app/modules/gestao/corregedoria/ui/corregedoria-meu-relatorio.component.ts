@@ -76,14 +76,15 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
     this.mesSelecionado.set(hoje.getMonth() + 1);
     this.anoSelecionado.set(hoje.getFullYear() < 2026 ? 2026 : hoje.getFullYear());
     this.carregarRelatorio();
+    this.auth.usuarioChanged$.subscribe(() => this.carregarRelatorio());
   }
 
   carregarRelatorio(): void {
     this.carregando.set(true);
-    this.api.getMeuRelatorio(this.mesSelecionado(), this.anoSelecionado()).subscribe({
+    this.api.getMeuRelatorio(this.mesSelecionado(), this.anoSelecionado(), this.auth.unidade?.id).subscribe({
       next: (res) => {
         if (!res.cabecalho) {
-          res.cabecalho = this.obterCabecalhoPadrao(res);
+          res.cabecalho = this.obterCabecalhoPadrao(res); } res.cabecalho.subtitulo = res.unidade?.nome || this.auth.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO'; if (false) {
         }
 
         // Mapeia o vinculo_tipo existente nos atos ou detecta pelo prefixo [CODIGO]
@@ -236,7 +237,7 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
       ente: atual.ente || 'ESTADO DO MARANHÃO',
       orgao: atual.orgao || 'PROCURADORIA GERAL DO ESTADO',
       titulo: atual.titulo || 'RELATÓRIO DE ATIVIDADES',
-      subtitulo: atual.subtitulo || rel?.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO',
+      subtitulo: rel?.unidade?.nome || this.auth.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO',
       altura_logo: atual.altura_logo || 68,
     });
     this.modalCabecalhoAberto.set(true);
@@ -307,7 +308,7 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
   obterCabecalhoPadrao(rel?: RelatorioCorregedoria | null): RelatorioCabecalho {
     try {
       const salvo = localStorage.getItem('pge_corregedoria_cabecalho_padrao');
-      if (salvo) return JSON.parse(salvo);
+      if (salvo) { const parsed = JSON.parse(salvo); parsed.subtitulo = rel?.unidade?.nome || this.auth.unidade?.nome || 'PROCURADORIA GERAL DO ESTADO'; return parsed; }
     } catch {}
     return {
       logo_url: 'assets/images/brasao_ma.png',
@@ -321,8 +322,9 @@ export class CorregedoriaMeuRelatorioComponent implements OnInit {
 
   mudarPeriodo(mes: number, ano: number): void {
     this.mesSelecionado.set(mes);
-    this.anoSelecionado.set(ano);
+    this.anoSelecionado.set(ano); this.carregarRelatorio(); } private _unusedMudarPeriodo(): void {
     this.carregarRelatorio();
+    this.auth.usuarioChanged$.subscribe(() => this.carregarRelatorio());
   }
 
   get mesExtenso(): string {
