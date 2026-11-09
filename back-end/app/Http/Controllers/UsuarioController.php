@@ -414,8 +414,9 @@ class UsuarioController extends ControllerBase
 
             $usuario = Usuario::with([
                 'perfil',
-                'unidadesIntegrantes.unidade',
-                'unidadesIntegrantes.atribuicoes',
+                'unidadesIntegrantes' => function ($q) {
+                    $q->whereHas('atribuicoes')->with(['unidade', 'atribuicoes']);
+                },
                 'planosTrabalho' => function ($q) {
                     $q->orderBy('data_inicio', 'desc')->take(5);
                 }

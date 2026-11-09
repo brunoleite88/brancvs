@@ -59,7 +59,7 @@ class UsuarioService
 
         $this->authorizationValidator->validarEscopo($editor, $alvo);
 
-        $dados = (bool) $alvo->usuario_externo ? $dto->toArray() : $dto->toArrayInterno();
+        $dados = $dto->toArray();
 
         $this->usuarioRepository->update($usuarioId, $dados);
 
@@ -99,7 +99,7 @@ class UsuarioService
         $editor = $this->getUsuarioLogado();
 
         $this->authorizationValidator->validarEscopo($editor, $alvo);
-        $this->updateValidator->validarAtribuicoes($dto->atribuicoes, (bool) $alvo->usuario_externo);
+        $this->updateValidator->validarAtribuicoes($dto->atribuicoes, false);
 
         return DB::transaction(function () use ($dto) {
             /** @todo V1 delegation — substituir por repository V2 */
@@ -174,6 +174,22 @@ class UsuarioService
     /** @todo V1 delegation — substituir por repository V2 */
     private function salvarAtribuicoes(string $usuarioId, array $atribuicoes): void
     {
+        if (!empty($atribuicoes)) {
+            $hasLotado = false;
+            foreach ($atribuicoes as $item) {
+                if (in_array('LOTADO', $item['atribuicoes'] ?? [], true)) {
+                    $hasLotado = true;
+                    break;
+                }
+            }
+            if (!$hasLotado) {
+                $primeiraAtrib = $atribuicoes[0]['atribuicoes'] ?? [];
+                $primeiraAtrib = array_values(array_diff($primeiraAtrib, ['COLABORADOR']));
+                array_unshift($primeiraAtrib, 'LOTADO');
+                $atribuicoes[0]['atribuicoes'] = array_values(array_unique($primeiraAtrib));
+            }
+        }
+
         $vinculos = array_map(
             fn (array $item) => array_merge($item, ['usuario_id' => $usuarioId]),
             $atribuicoes

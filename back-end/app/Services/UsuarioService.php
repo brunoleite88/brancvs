@@ -390,7 +390,7 @@ class UsuarioService extends ServiceBase
             $action = empty($data['id']) ? ServiceBase::ACTION_INSERT : ServiceBase::ACTION_EDIT;
 
             if ($action == ServiceBase::ACTION_EDIT) {
-                if (!$data['usuario_externo']) unset($data['cpf']);
+                $data['usuario_externo'] = 0;
                 $result = $this->update($data, $unidade, $transaction);
                 if ($transaction) DB::commit();
                 return $result;

@@ -102,7 +102,8 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
     return result;
   }
 
-  public dynamicButtons(row: any): ToolbarButton[] {
+  public dynamicButtons(row: any): ToolbarButton[] { return []; }
+  private _unusedDynamicButtons(row: any): ToolbarButton[] {
     let result: ToolbarButton[] = [];
     if (!row.usuario_externo) {
       if (this.auth.hasPermissionTo('MOD_PART_PEDAGIO') && !row.pedagio) result.push(this.BOTAO_PEDAGIO);
@@ -142,7 +143,7 @@ export class UsuarioListComponent extends PageListBase<Usuario, UsuarioDaoServic
       });
     }
 
-    if(row.perfil.nivel === Perfil.NIVEL.COLABORADOR && !!row.usuario_externo ) {
+    if (false && row.perfil.nivel === Perfil.NIVEL.COLABORADOR && !!row.usuario_externo ) {
       result.push(this.OPTION_EXCLUIR)
     }
 

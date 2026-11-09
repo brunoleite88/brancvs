@@ -14,7 +14,7 @@ class UsuarioStoreDTO
         public readonly string $email,
         public readonly string $nome,
         public readonly string $perfilId,
-        public readonly array $atribuicoes,
+        public array $atribuicoes,
         public readonly ?string $apelido = null,
         public readonly ?string $telefone = null,
         public readonly ?string $dataNascimento = null,
@@ -27,7 +27,7 @@ class UsuarioStoreDTO
         public readonly ?string $participaPgd = null,
         public readonly ?string $modalidadePgd = null,
         public readonly ?string $textoComplementarPlano = null,
-        public readonly ?bool $usuarioExterno = null,
+        public readonly ?bool $usuarioExterno = false,
     ) {}
 
     public static function fromArray(array $data): self
@@ -50,7 +50,7 @@ class UsuarioStoreDTO
             participaPgd: $data['participa_pgd'] ?? null,
             modalidadePgd: $data['modalidade_pgd'] ?? null,
             textoComplementarPlano: $data['texto_complementar_plano'] ?? null,
-            usuarioExterno: isset($data['usuario_externo']) ? (bool) $data['usuario_externo'] : true,
+            usuarioExterno: false,
         );
     }
 
@@ -68,10 +68,10 @@ class UsuarioStoreDTO
             'sexo' => $this->sexo,
             'matricula' => $this->matricula,
             'perfil_id' => $this->perfilId,
-            'usuario_externo' => $this->usuarioExterno ?? true,
+            'usuario_externo' => false,
             'situacao_funcional' => $this->situacaoFuncional ?? 'ESTATUTARIO_SERVIDOR',
             'situacao_siape' => $this->situacaoSiape ?? 'ATIVO',
-            'participa_pgd' => $this->participaPgd ?? 'não',
+            'participa_pgd' => $this->participaPgd ?? 'sim',
             'modalidade_pgd' => $this->modalidadePgd,
             'texto_complementar_plano' => $this->textoComplementarPlano,
         ];

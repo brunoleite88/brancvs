@@ -58,10 +58,10 @@ class UsuarioUpdateValidator
                 }
             }
             if (!$hasLotado && count($atribuicoes) > 0) {
-                if (!isset($atribuicoes[0]['atribuicoes'])) {
-                    $atribuicoes[0]['atribuicoes'] = [];
-                }
-                $atribuicoes[0]['atribuicoes'][] = Atribuicao::LOTADO->value;
+                $primeiraAtrib = $atribuicoes[0]['atribuicoes'] ?? [];
+                $primeiraAtrib = array_values(array_diff($primeiraAtrib, [Atribuicao::COLABORADOR->value]));
+                array_unshift($primeiraAtrib, Atribuicao::LOTADO->value);
+                $atribuicoes[0]['atribuicoes'] = array_values(array_unique($primeiraAtrib));
             } elseif (!$hasLotado) {
                 throw new ValidateException('Usuário interno deve possuir ao menos uma lotação.');
             }

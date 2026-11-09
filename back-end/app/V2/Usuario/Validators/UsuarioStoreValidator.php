@@ -21,7 +21,7 @@ class UsuarioStoreValidator
     ) {}
 
     /**
-     * Valida regras de negócio para criação de usuário externo.
+     * Valida regras de negócio para criação de usuário.
      * Retorna o usuário soft-deleted se encontrado para restauração, ou null para criação nova.
      */
     public function validar(UsuarioStoreDTO $dto): ?Usuario
@@ -40,9 +40,7 @@ class UsuarioStoreValidator
             throw new ValidateException('Perfil não encontrado.');
         }
 
-        if ($perfil->nivel < PerfilEnum::COLABORADOR->value) {
-            throw new ValidateException('Usuário externo não pode ter este nível de acesso.');
-        }
+        // PGE-MA: Todos os usuários são internos e podem receber qualquer perfil disponível
     }
 
     private function validarUnidades(array $atribuicoes): void

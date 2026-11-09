@@ -67,7 +67,7 @@ export class UsuarioDaoService extends DaoBaseService<Usuario> {
   }
 
   public getDossie(id: string): Promise<any> {
-    return firstValueFrom(this.server.post('api/Usuario/dossie', { id }));
+    return firstValueFrom(this.server.post('api/Usuario/dossie', { id })).then((res: any) => res?.dossie || res?.data || res);
   }
 
   public consultarSIAPE(cpf: string) {

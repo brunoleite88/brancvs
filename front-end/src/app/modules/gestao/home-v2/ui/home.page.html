@@ -50,6 +50,7 @@
             <br-select
               label="Unidade"
               [options]="unidadeOptions()"
+              [value]="selectedUnidadeId()"
               (valueChange)="onUnidadeChange($event)"
               class="w-100">
             </br-select>

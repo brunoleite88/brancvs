@@ -171,7 +171,7 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
       participa_pgd: this.form!.controls.participa_pgd.value || null,
       modalidade_pgd: this.form!.controls.modalidade_pgd.value || null,
       texto_complementar_plano: this.form!.controls.texto_complementar_plano.value || null,
-      usuario_externo: !!this.form!.controls.usuario_externo.value,
+      usuario_externo: false,
     }));
   }
 
@@ -226,7 +226,7 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
       participa_pgd: this.form!.controls.participa_pgd.value || null,
       modalidade_pgd: this.form!.controls.modalidade_pgd.value || null,
       texto_complementar_plano: this.form!.controls.texto_complementar_plano.value || null,
-      usuario_externo: !!this.form!.controls.usuario_externo.value,
+      usuario_externo: false,
       ...(this.form!.controls.password.value ? { password: this.form!.controls.password.value } : {})
     })));
 
@@ -243,23 +243,15 @@ export class UsuarioFormComponent extends PageFormBase<Usuario, UsuarioDaoServic
     }
   }
 
-  private readonly CAMPOS_DADOS_PESSOAIS = ['telefone'];
-  private readonly CAMPOS_DADOS_PESSOAIS_EXTERNO = ['nome', 'email', 'cpf', 'data_nascimento', 'uf'];
+  private readonly CAMPOS_DADOS_PESSOAIS = ['telefone', 'nome', 'email', 'cpf', 'data_nascimento', 'uf'];
 
   private hasDadosPessoaisDirty(): boolean {
-    const campos = this.entity?.usuario_externo
-      ? [...this.CAMPOS_DADOS_PESSOAIS, ...this.CAMPOS_DADOS_PESSOAIS_EXTERNO]
-      : this.CAMPOS_DADOS_PESSOAIS;
-    return campos.some(c => this.form!.controls[c]?.dirty);
+    return this.CAMPOS_DADOS_PESSOAIS.some(c => this.form!.controls[c]?.dirty);
   }
 
   private buildDadosPessoais(): Record<string, any> {
     const dados: Record<string, any> = {};
-    const campos = this.entity?.usuario_externo
-      ? [...this.CAMPOS_DADOS_PESSOAIS, ...this.CAMPOS_DADOS_PESSOAIS_EXTERNO]
-      : this.CAMPOS_DADOS_PESSOAIS;
-
-    for (const campo of campos) {
+    for (const campo of this.CAMPOS_DADOS_PESSOAIS) {
       if (this.form!.controls[campo]?.dirty) {
         dados[campo] = this.form!.controls[campo].value || null;
       }

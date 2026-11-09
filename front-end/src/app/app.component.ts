@@ -878,7 +878,6 @@ export class AppComponent implements IAppComponent {
   }
 
   public async selecionaUnidade(id: string, matricula?: string | null) {
-    if (!matricula) return;
     await this.auth.selecionaUnidade(id, matricula, this.cdRef);
     window.location.reload();
   }

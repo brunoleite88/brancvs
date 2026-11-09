@@ -97,10 +97,7 @@ trait Atribuicao
             }
         }
 
-        if (!$unidadeDestino->executora && $usuario->perfil->nivel != NivelAcessoService::PERFIL_COLABORADOR) {
-            $this->alteracoes = ['info' => sprintf('Não é possível atribuir Colaborador a um usuário com perfil diferente de Colaborador em unidade não executora! Usuário: %s, Unidade: %s', $usuario->id, $unidadeDestino->id)];
-            return;
-        }
+        // PGE-MA: permite atribuir Colaborador em qualquer unidade
         
         $this->alteracoes = ['lotacao' => sprintf('Atribuindo Colaborador ao servidor %s na Unidade %s', $usuario->id, $unidadeDestino->id)];
         $this->lotaServidor(EnumAtribuicao::COLABORADOR, $integranteNovoOuExistente);
