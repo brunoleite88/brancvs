@@ -4,12 +4,14 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use App\Models\Entidade;
 use App\Models\Unidade;
 use App\Models\Cidade;
 use App\Models\EixoTematico;
 use App\Models\Planejamento;
 use App\Models\PlanejamentoObjetivo;
+use App\Models\PlanoEntregaEntregaObjetivo;
 use App\Models\Projeto;
 use App\Models\TipoProjeto;
 
@@ -100,10 +102,19 @@ class PgemaSgpeSeeder extends Seeder
             $nome = trim($u['nome'] ?? $sigla);
             if (empty($sigla)) continue;
 
-            $unidadeObj = Unidade::firstOrCreate(
-                ['sigla' => $sigla],
-                [
+            $unidadeObj = Unidade::withTrashed()->where('sigla', $sigla)->first();
+            if ($unidadeObj) {
+                $unidadeObj->restore();
+                $unidadeObj->update([
+                    'nome' => $nome,
+                    'entidade_id' => $entidade->id,
+                    'cidade_id' => $cidade ? $cidade->id : $unidadeObj->cidade_id,
+                    'texto_complementar_plano' => $u['pauta_reuniao'] ?? $unidadeObj->texto_complementar_plano,
+                ]);
+            } else {
+                $unidadeObj = Unidade::create([
                     'id' => (string) Str::uuid(),
+                    'sigla' => $sigla,
                     'nome' => $nome,
                     'codigo' => sprintf('PGE-%03d', $index + 2),
                     'instituidora' => 0,
@@ -111,8 +122,8 @@ class PgemaSgpeSeeder extends Seeder
                     'unidade_pai_id' => $unidadeRaiz->id,
                     'cidade_id' => $cidade ? $cidade->id : null,
                     'texto_complementar_plano' => $u['pauta_reuniao'] ?? null,
-                ]
-            );
+                ]);
+            }
             $unidadesMap[$sigla] = $unidadeObj->id;
         }
         $this->command->info(count($unidadesMap) . " unidades institucionais mapeadas.");
@@ -178,15 +189,16 @@ class PgemaSgpeSeeder extends Seeder
         );
         $this->command->info("Planejamento Institucional criado.");
 
-        // 7. Cadastrar Objetivos Estratégicos e KRs (Key Results / OKRs)
+        // 7. Cadastrar e Sincronizar Objetivos Estratégicos e KRs (Key Results / OKRs)
         $krsList = $data['overview']['krs'] ?? [];
         $objetivosMap = [];
+        $objetivosAtivosIds = [];
         $seq = 1;
 
         foreach ($krsList as $kr) {
             $eixoTxt = $kr['eixo'] ?? '';
             $objTxt = $kr['objetivo'] ?? '';
-            $krCod = $kr['kr_codigo'] ?? '';
+            $krCod = trim($kr['kr_codigo'] ?? '');
             $krFull = $kr['kr_texto_completo'] ?? $krCod;
 
             // Extrair código do eixo (ex: E1)
@@ -199,40 +211,100 @@ class PgemaSgpeSeeder extends Seeder
             // Chave única para o Objetivo Pai
             $objKey = "{$eixoCod}_{$objTxt}";
             if (!isset($objetivosMap[$objKey])) {
-                $objPai = PlanejamentoObjetivo::firstOrCreate(
-                    [
+                $objPai = PlanejamentoObjetivo::withTrashed()
+                    ->where('planejamento_id', $planejamento->id)
+                    ->where('integra_okr', 0)
+                    ->where('nome', $objTxt)
+                    ->first();
+
+                if ($objPai) {
+                    $objPai->restore();
+                    $objPai->update([
+                        'fundamentacao' => "Objetivo Estratégico vinculado ao {$eixoCod}",
+                        'sequencia' => $seq++,
+                        'eixo_tematico_id' => $eixoId,
+                        'objetivo_pai_id' => null,
+                    ]);
+                } else {
+                    $objPai = PlanejamentoObjetivo::create([
+                        'id' => (string) Str::uuid(),
                         'planejamento_id' => $planejamento->id,
                         'nome' => $objTxt,
-                    ],
-                    [
-                        'id' => (string) Str::uuid(),
                         'fundamentacao' => "Objetivo Estratégico vinculado ao {$eixoCod}",
                         'sequencia' => $seq++,
                         'eixo_tematico_id' => $eixoId,
                         'integra_okr' => 0,
                         'objetivo_pai_id' => null,
-                    ]
-                );
+                    ]);
+                }
                 $objetivosMap[$objKey] = $objPai->id;
+                $objetivosAtivosIds[] = $objPai->id;
             }
 
-            // Criar o KR como Objetivo Filho com integra_okr = 1
-            PlanejamentoObjetivo::firstOrCreate(
-                [
-                    'planejamento_id' => $planejamento->id,
+            // Localizar ou criar o KR como Objetivo Filho com integra_okr = 1
+            $fundamentacaoKr = "Key Result [{$krCod}] da PGE-MA";
+            $krObj = PlanejamentoObjetivo::withTrashed()
+                ->where('planejamento_id', $planejamento->id)
+                ->where('integra_okr', 1)
+                ->where(function ($q) use ($fundamentacaoKr, $krCod, $krFull) {
+                    $q->where('fundamentacao', $fundamentacaoKr)
+                      ->orWhere('nome', 'like', "[{$krCod}]%")
+                      ->orWhere('nome', $krFull);
+                })
+                ->first();
+
+            if ($krObj) {
+                $krObj->restore();
+                $krObj->update([
                     'nome' => $krFull,
-                ],
-                [
-                    'id' => (string) Str::uuid(),
-                    'fundamentacao' => "Key Result [{$krCod}] da PGE-MA",
+                    'fundamentacao' => $fundamentacaoKr,
                     'sequencia' => $seq++,
                     'eixo_tematico_id' => $eixoId,
                     'integra_okr' => 1,
                     'objetivo_pai_id' => $objetivosMap[$objKey],
-                ]
-            );
+                ]);
+            } else {
+                $krObj = PlanejamentoObjetivo::create([
+                    'id' => (string) Str::uuid(),
+                    'planejamento_id' => $planejamento->id,
+                    'nome' => $krFull,
+                    'fundamentacao' => $fundamentacaoKr,
+                    'sequencia' => $seq++,
+                    'eixo_tematico_id' => $eixoId,
+                    'integra_okr' => 1,
+                    'objetivo_pai_id' => $objetivosMap[$objKey],
+                ]);
+            }
+            $objetivosAtivosIds[] = $krObj->id;
         }
-        $this->command->info(count($krsList) . " KRs e Objetivos Estratégicos cadastrados.");
+
+        // Remover KRs/Objetivos obsoletos que saíram do SGPE (ex: E7.O3.KR2 unificado em E9.O2.KR1)
+        if (!empty($objetivosAtivosIds)) {
+            $obsoletosIds = PlanejamentoObjetivo::withTrashed()
+                ->where('planejamento_id', $planejamento->id)
+                ->whereNotIn('id', $objetivosAtivosIds)
+                ->pluck('id')
+                ->toArray();
+
+            if (!empty($obsoletosIds)) {
+                PlanoEntregaEntregaObjetivo::withTrashed()
+                    ->whereIn('planejamento_objetivo_id', $obsoletosIds)
+                    ->forceDelete();
+
+                PlanejamentoObjetivo::withTrashed()
+                    ->whereIn('id', $obsoletosIds)
+                    ->whereNotNull('objetivo_pai_id')
+                    ->forceDelete();
+
+                PlanejamentoObjetivo::withTrashed()
+                    ->whereIn('id', $obsoletosIds)
+                    ->whereNull('objetivo_pai_id')
+                    ->forceDelete();
+
+                $this->command->info(count($obsoletosIds) . " Objetivos/KRs obsoletos removidos.");
+            }
+        }
+        $this->command->info(count($krsList) . " KRs e Objetivos Estratégicos sincronizados.");
 
         // 8. Cadastrar Grupos de Trabalho (GTs) como Projetos Estruturantes
         $tipoProjeto = TipoProjeto::firstOrCreate(
@@ -246,10 +318,10 @@ class PgemaSgpeSeeder extends Seeder
 
         $gtsList = $data['gts'] ?? [];
         foreach ($gtsList as $gt) {
-            $codigo = $gt['codigo'] ?? '';
-            $titulo = $gt['titulo'] ?? '';
-            $objetivo = $gt['objetivo'] ?? '';
-            $statusGt = $gt['status'] ?? '';
+            $codigo = trim($gt['codigo'] ?? '');
+            $titulo = trim($gt['titulo'] ?? '');
+            $objetivo = trim($gt['objetivo'] ?? '');
+            $statusGt = trim($gt['status'] ?? '');
 
             // Mapear status do GT para enum do Petrvs
             $statusProjeto = 'PLANEJADO';
@@ -259,10 +331,21 @@ class PgemaSgpeSeeder extends Seeder
                 $statusProjeto = 'CONCLUIDO';
             }
 
-            Projeto::firstOrCreate(
-                ['nome' => mb_substr("[{$codigo}] {$titulo}", 0, 250)],
-                [
+            $nomeProjeto = mb_substr("[{$codigo}] {$titulo}", 0, 250);
+            $projetoObj = Projeto::withTrashed()->where('nome', 'like', "[{$codigo}]%")->first();
+            if ($projetoObj) {
+                $projetoObj->restore();
+                $projetoObj->update([
+                    'nome' => $nomeProjeto,
+                    'descricao' => mb_substr($objetivo, 0, 250),
+                    'finalidade' => mb_substr("Metas e Entregáveis do {$codigo} da PGE-MA", 0, 250),
+                    'status' => $statusProjeto,
+                    'tipo_projeto_id' => $tipoProjeto->id,
+                ]);
+            } else {
+                Projeto::create([
                     'id' => (string) Str::uuid(),
+                    'nome' => $nomeProjeto,
                     'descricao' => mb_substr($objetivo, 0, 250),
                     'finalidade' => mb_substr("Metas e Entregáveis do {$codigo} da PGE-MA", 0, 250),
                     'status' => $statusProjeto,
@@ -283,10 +366,103 @@ class PgemaSgpeSeeder extends Seeder
                     'soma_custos_filhos' => 0,
                     'custo' => 0,
                     'tipo_projeto_id' => $tipoProjeto->id,
-                ]
-            );
+                ]);
+            }
         }
-        $this->command->info(count($gtsList) . " Projetos Estruturantes (GTs) criados.");
+        $this->command->info(count($gtsList) . " Projetos Estruturantes (GTs) sincronizados.");
+
+        // 9. Sincronizar tabelas auxiliares sgpe_iniciativas e sgpe_projetos (Painéis, Home V2 e Corregedoria)
+        DB::statement("CREATE TABLE IF NOT EXISTS `sgpe_iniciativas` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `sigla_unidade` varchar(50) NOT NULL,
+            `ordem` int(11) DEFAULT 1,
+            `eixo` varchar(255) DEFAULT NULL,
+            `objetivo` varchar(255) DEFAULT NULL,
+            `kr_codigo` varchar(50) NOT NULL,
+            `kr_texto_completo` text DEFAULT NULL,
+            `acao` text NOT NULL,
+            `subacao` text DEFAULT NULL,
+            `responsaveis` text DEFAULT NULL,
+            `prazo` varchar(100) DEFAULT NULL,
+            `pilar_3ps` varchar(100) DEFAULT NULL,
+            `papel_unidade` varchar(50) DEFAULT NULL,
+            `unidades_parceiras` text DEFAULT NULL,
+            `status_execucao` varchar(100) DEFAULT NULL,
+            `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`id`),
+            KEY `idx_sigla_unidade` (`sigla_unidade`),
+            KEY `idx_kr_codigo` (`kr_codigo`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        DB::statement("CREATE TABLE IF NOT EXISTS `sgpe_projetos` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `codigo` varchar(20) NOT NULL,
+            `titulo` varchar(255) NOT NULL,
+            `tipo` varchar(100) DEFAULT NULL,
+            `krs_vinculados` text DEFAULT NULL,
+            `lider` varchar(255) DEFAULT NULL,
+            `unidades_participantes` text DEFAULT NULL,
+            `status` varchar(100) DEFAULT NULL,
+            `prazo` varchar(100) DEFAULT NULL,
+            `objetivo` text DEFAULT NULL,
+            `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`id`),
+            KEY `idx_codigo` (`codigo`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        DB::table('sgpe_iniciativas')->truncate();
+        $acoesInsert = [];
+        foreach ($data['acoes'] ?? [] as $acao) {
+            $acoesInsert[] = [
+                'sigla_unidade' => trim($acao['sigla_unidade'] ?? ''),
+                'ordem' => (int) ($acao['ordem'] ?? 1),
+                'eixo' => $acao['eixo'] ?? null,
+                'objetivo' => $acao['objetivo'] ?? null,
+                'kr_codigo' => trim($acao['kr_codigo'] ?? ''),
+                'kr_texto_completo' => $acao['kr_texto_completo'] ?? null,
+                'acao' => $acao['acao'] ?? '',
+                'subacao' => $acao['subacao'] ?? null,
+                'responsaveis' => $acao['responsaveis'] ?? null,
+                'prazo' => $acao['prazo'] ?? null,
+                'pilar_3ps' => $acao['pilar_3ps'] ?? null,
+                'papel_unidade' => $acao['papel_unidade'] ?? null,
+                'unidades_parceiras' => is_array($acao['unidades_parceiras'] ?? null)
+                    ? implode(',', $acao['unidades_parceiras'])
+                    : ($acao['unidades_parceiras'] ?? null),
+                'status_execucao' => $acao['status_execucao'] ?? null,
+            ];
+            if (count($acoesInsert) >= 250) {
+                DB::table('sgpe_iniciativas')->insert($acoesInsert);
+                $acoesInsert = [];
+            }
+        }
+        if (!empty($acoesInsert)) {
+            DB::table('sgpe_iniciativas')->insert($acoesInsert);
+        }
+
+        DB::table('sgpe_projetos')->truncate();
+        $gtsInsert = [];
+        foreach ($gtsList as $gt) {
+            $gtsInsert[] = [
+                'codigo' => trim($gt['codigo'] ?? ''),
+                'titulo' => trim($gt['titulo'] ?? ''),
+                'tipo' => $gt['tipo'] ?? null,
+                'krs_vinculados' => is_array($gt['krs_vinculados'] ?? null)
+                    ? implode(', ', $gt['krs_vinculados'])
+                    : ($gt['krs_vinculados'] ?? null),
+                'lider' => $gt['lider'] ?? null,
+                'unidades_participantes' => is_array($gt['unidades_participantes'] ?? null)
+                    ? implode(', ', $gt['unidades_participantes'])
+                    : ($gt['unidades_participantes'] ?? null),
+                'status' => $gt['status'] ?? null,
+                'prazo' => $gt['prazo'] ?? null,
+                'objetivo' => $gt['objetivo'] ?? null,
+            ];
+        }
+        if (!empty($gtsInsert)) {
+            DB::table('sgpe_projetos')->insert($gtsInsert);
+        }
+        $this->command->info("Tabelas sgpe_iniciativas (" . count($data['acoes'] ?? []) . ") e sgpe_projetos (" . count($gtsList) . ") sincronizadas.");
 
         $this->command->info("=== Semeamento PGE-MA Concluído com Sucesso! ===");
     }

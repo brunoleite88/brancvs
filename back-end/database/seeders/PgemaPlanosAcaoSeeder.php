@@ -122,14 +122,16 @@ class PgemaPlanosAcaoSeeder extends Seeder
         $totalGestoresCriados = 0;
         $totalPlanosCriados = 0;
         $totalEntregasCriadas = 0;
+        $totalEntregasRemovidas = 0;
 
         $unidadesOverview = $data['overview']['unidades'] ?? [];
 
-        $this->command->info("Criando gestores, planos setoriais e ações...");
+        $this->command->info("Sincronizando gestores, planos setoriais e ações...");
         PlanoEntrega::withoutEvents(function () use (
             &$totalGestoresCriados,
             &$totalPlanosCriados,
             &$totalEntregasCriadas,
+            &$totalEntregasRemovidas,
             $unidadesOverview,
             $unidadesDb,
             $perfilUnidadeId,
@@ -143,6 +145,7 @@ class PgemaPlanosAcaoSeeder extends Seeder
                 &$totalGestoresCriados,
                 &$totalPlanosCriados,
                 &$totalEntregasCriadas,
+                &$totalEntregasRemovidas,
                 $unidadesOverview,
                 $unidadesDb,
                 $perfilUnidadeId,
@@ -152,6 +155,8 @@ class PgemaPlanosAcaoSeeder extends Seeder
                 $entregaCatalogo,
                 $krMap
             ) {
+                $todasEntregasAtivasIds = [];
+
                 foreach ($unidadesOverview as $index => $uMeta) {
                     $sigla = trim($uMeta['sigla'] ?? '');
                     if (empty($sigla) || !isset($unidadesDb[$sigla])) {
@@ -216,16 +221,26 @@ class PgemaPlanosAcaoSeeder extends Seeder
                     $processoSei = trim($uMeta['processo_sei'] ?? '');
                     $temSei = !empty($processoSei) && stripos($processoSei, 'Verificar') === false;
 
-                    // 9. Criar o Plano de Ação Setorial (Plano de Entrega)
+                    // 9. Criar ou localizar o Plano de Ação Setorial (Plano de Entrega)
                     $nomePlano = "Plano de Ação Setorial (2026–2030) - {$sigla}";
-                    $proximoNumero = app(\App\Services\TenantSequenceService::class)->nextNumber(\App\Enums\SequenceType::PLANO_ENTREGA);
-                    $planoEntrega = PlanoEntrega::firstOrCreate(
-                        [
+                    $planoEntrega = PlanoEntrega::withTrashed()
+                        ->where('unidade_id', $unidade->id)
+                        ->where('planejamento_id', $planejamento->id)
+                        ->first();
+
+                    if ($planoEntrega) {
+                        $planoEntrega->restore();
+                        $planoEntrega->update([
+                            'nome' => $nomePlano,
+                            'status' => 'ATIVO',
+                            'programa_id' => $programa->id,
+                        ]);
+                    } else {
+                        $proximoNumero = app(\App\Services\TenantSequenceService::class)->nextNumber(\App\Enums\SequenceType::PLANO_ENTREGA);
+                        $planoEntrega = PlanoEntrega::create([
+                            'id' => (string) Str::uuid(),
                             'unidade_id' => $unidade->id,
                             'planejamento_id' => $planejamento->id,
-                        ],
-                        [
-                            'id' => (string) Str::uuid(),
                             'numero' => $proximoNumero,
                             'nome' => $nomePlano,
                             'data_inicio' => '2026-01-01 00:00:00',
@@ -233,18 +248,22 @@ class PgemaPlanosAcaoSeeder extends Seeder
                             'status' => 'ATIVO',
                             'programa_id' => $programa->id,
                             'criacao_usuario_id' => $usuario->id,
-                        ]
-                    );
+                        ]);
+                    }
                     $totalPlanosCriados++;
 
-                    // 10. Criar as Entregas vinculadas às 1.174 Ações do SGPE
+                    $objetivosPorEntrega = [];
+
+                    // 10. Criar ou atualizar as Entregas vinculadas às Ações do SGPE
                     foreach ($acoesDaUnidade as $idxAcao => $acao) {
                         $tituloAcao = mb_substr(trim($acao['acao'] ?? "Ação " . ($idxAcao + 1)), 0, 250);
                         $subacao = trim($acao['subacao'] ?? $tituloAcao);
                         $prazo = trim($acao['prazo'] ?? 'Ciclo 2026–2030');
                         $pilar = trim($acao['pilar_3ps'] ?? 'Estratégico');
                         $papel = trim($acao['papel_unidade'] ?? 'Líder');
-                        $parceiras = trim($acao['unidades_parceiras'] ?? '');
+                        $parceiras = is_array($acao['unidades_parceiras'] ?? null)
+                            ? implode(', ', $acao['unidades_parceiras'])
+                            : trim($acao['unidades_parceiras'] ?? '');
                         $statusExec = trim($acao['status_execucao'] ?? 'Planejado');
                         $krCodigo = strtoupper(trim($acao['kr_codigo'] ?? ''));
 
@@ -274,13 +293,31 @@ class PgemaPlanosAcaoSeeder extends Seeder
                             ['key' => 'prazo', 'value' => $prazo, 'color' => '#B45309', 'icon' => 'bi bi-clock']
                         ];
 
-                        $entrega = PlanoEntregaEntrega::firstOrCreate(
-                            [
+                        $entrega = PlanoEntregaEntrega::withTrashed()
+                            ->where('plano_entrega_id', $planoEntrega->id)
+                            ->where('descricao', $tituloAcao)
+                            ->first();
+
+                        if ($entrega) {
+                            $entrega->restore();
+                            $entrega->update([
+                                'unidade_id' => $unidade->id,
+                                'entrega_id' => $entregaCatalogo->id,
+                                'descricao_entrega' => $subacao,
+                                'descricao_meta' => $metaDesc,
+                                'destinatario' => 'PGE-MA e Sociedade Maranhense',
+                                'meta' => ['quantitativo' => 100],
+                                'realizado' => ['quantitativo' => $realizado],
+                                'progresso_esperado' => 100.00,
+                                'progresso_realizado' => $progressoRealizado,
+                                'homologado' => 1,
+                                'etiquetas' => $etiquetas,
+                            ]);
+                        } else {
+                            $entrega = PlanoEntregaEntrega::create([
+                                'id' => (string) Str::uuid(),
                                 'plano_entrega_id' => $planoEntrega->id,
                                 'descricao' => $tituloAcao,
-                            ],
-                            [
-                                'id' => (string) Str::uuid(),
                                 'unidade_id' => $unidade->id,
                                 'entrega_id' => $entregaCatalogo->id,
                                 'descricao_entrega' => $subacao,
@@ -294,31 +331,86 @@ class PgemaPlanosAcaoSeeder extends Seeder
                                 'data_inicio' => '2026-01-01 00:00:00',
                                 'data_fim' => '2030-12-31 23:59:59',
                                 'etiquetas' => $etiquetas,
-                            ]
-                        );
+                            ]);
+                        }
+
+                        $todasEntregasAtivasIds[] = $entrega->id;
                         $totalEntregasCriadas++;
 
                         // 11. Vincular Entrega ao KR correspondente
                         if ($krCodigo && isset($krMap[$krCodigo])) {
-                            PlanoEntregaEntregaObjetivo::firstOrCreate(
-                                [
-                                    'entrega_id' => $entrega->id,
-                                    'planejamento_objetivo_id' => $krMap[$krCodigo],
-                                ],
-                                [
+                            $objId = $krMap[$krCodigo];
+                            $objetivosPorEntrega[$entrega->id][] = $objId;
+
+                            $vinculoObj = PlanoEntregaEntregaObjetivo::withTrashed()
+                                ->where('entrega_id', $entrega->id)
+                                ->where('planejamento_objetivo_id', $objId)
+                                ->first();
+
+                            if ($vinculoObj) {
+                                $vinculoObj->restore();
+                            } else {
+                                PlanoEntregaEntregaObjetivo::create([
                                     'id' => (string) Str::uuid(),
-                                ]
-                            );
+                                    'entrega_id' => $entrega->id,
+                                    'planejamento_objetivo_id' => $objId,
+                                ]);
+                            }
                         }
+                    }
+
+                    // Limpar vínculos de KRs antigos nas entregas ativas desta unidade
+                    foreach ($objetivosPorEntrega as $entId => $objIdsAtivos) {
+                        PlanoEntregaEntregaObjetivo::withTrashed()
+                            ->where('entrega_id', $entId)
+                            ->whereNotIn('planejamento_objetivo_id', array_unique($objIdsAtivos))
+                            ->forceDelete();
+                    }
+                }
+
+                // 12. Expurgar entregas obsoletas (heranças indevidas removidas do SGPE) que não possuem plano de trabalho vinculado
+                $todasEntregasAtivasIds = array_values(array_unique($todasEntregasAtivasIds));
+                $planosDoPlanejamentoIds = PlanoEntrega::withTrashed()
+                    ->where('planejamento_id', $planejamento->id)
+                    ->pluck('id')
+                    ->toArray();
+
+                if (!empty($planosDoPlanejamentoIds) && !empty($todasEntregasAtivasIds)) {
+                    $entregasComPtIds = DB::table('planos_trabalhos_entregas')
+                        ->whereNotNull('plano_entrega_entrega_id')
+                        ->whereNull('deleted_at')
+                        ->pluck('plano_entrega_entrega_id')
+                        ->toArray();
+
+                    $entregasObsoletasIds = PlanoEntregaEntrega::withTrashed()
+                        ->whereIn('plano_entrega_id', $planosDoPlanejamentoIds)
+                        ->whereNotIn('id', $todasEntregasAtivasIds)
+                        ->whereNotIn('id', $entregasComPtIds)
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (!empty($entregasObsoletasIds)) {
+                        PlanoEntregaEntregaObjetivo::withTrashed()
+                            ->whereIn('entrega_id', $entregasObsoletasIds)
+                            ->forceDelete();
+
+                        DB::table('planos_entregas_entregas_progressos')
+                            ->whereIn('plano_entrega_entrega_id', $entregasObsoletasIds)
+                            ->delete();
+
+                        $totalEntregasRemovidas = PlanoEntregaEntrega::withTrashed()
+                            ->whereIn('id', $entregasObsoletasIds)
+                            ->forceDelete();
                     }
                 }
             });
         });
 
-        $this->command->info("=== CARGA CONCLUÍDA COM SUCESSO! ===");
+        $this->command->info("=== CARGA E SANEAMENTO CONCLUÍDOS COM SUCESSO! ===");
         $this->command->info("• Agentes Públicos Gestores: {$totalGestoresCriados}");
-        $this->command->info("• Planos de Ação Setoriais Criados: {$totalPlanosCriados}");
-        $this->command->info("• Ações / Entregas Estratégicas Povoadas: {$totalEntregasCriadas}");
+        $this->command->info("• Planos de Ação Setoriais Sincronizados: {$totalPlanosCriados}");
+        $this->command->info("• Ações / Entregas Estratégicas Sincronizadas: {$totalEntregasCriadas}");
+        $this->command->info("• Entregas Obsoletas Expurgadas: {$totalEntregasRemovidas}");
     }
 
     /**
