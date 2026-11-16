@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface PainelItem {
   titulo: string;
   rota: string;
   icon: string;
+  permissao?: string;
 }
 
 @Component({
@@ -19,14 +21,21 @@ interface PainelItem {
 })
 export class PaineisGerenciaisPage {
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
-  readonly paineis: PainelItem[] = [
-    { titulo: 'Cockpit do Gabinete', rota: 'cockpit-gabinete', icon: 'bi bi-speedometer2' },
+  private readonly todosPaineis: PainelItem[] = [
+    { titulo: 'Cockpit do Gabinete', rota: 'cockpit-gabinete', icon: 'bi bi-speedometer2', permissao: 'MOD_PAINEL_COCKPIT' },
     { titulo: 'Metas e Entregas', rota: 'metas-entregas', icon: 'bi bi-graph-up-arrow' },
     { titulo: 'Conformidade', rota: 'conformidade', icon: 'bi bi-clipboard2-check' },
     { titulo: 'Projetos', rota: 'projetos', icon: 'bi bi-kanban' },
     { titulo: 'Monitoramento & Repactuação', rota: 'repactuacoes', icon: 'bi bi-clock-history' },
   ];
+
+  get paineis(): PainelItem[] {
+    return this.todosPaineis.filter(
+      p => !p.permissao || this.auth.isAdmin() || this.auth.hasPermissionTo(p.permissao)
+    );
+  }
 
   navegarPara(rota: string): void {
     this.router.navigate(['gestao', 'paineis-gerenciais', rota]);

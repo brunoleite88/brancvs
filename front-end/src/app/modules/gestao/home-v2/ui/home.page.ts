@@ -55,6 +55,8 @@ export class HomeV2Page implements OnInit {
   readonly exibeToggleSubordinadas = computed(() => {
     return !this.auth.isUsuarioParticipante() && !this.auth.isUsuarioConsulta();
   });
+  readonly exibeCockpitGabinete = signal(false);
+  readonly exibePaineisGerenciais = signal(false);
 
   readonly saudacao = computed(() => {
     const hora = new Date().getHours();
@@ -69,8 +71,17 @@ export class HomeV2Page implements OnInit {
   });
 
   ngOnInit(): void {
+    this.atualizarPermissoesAtalhos();
     this.carregarUnidades();
-    this.auth.usuarioChanged$.subscribe(() => this.carregarUnidades());
+    this.auth.usuarioChanged$.subscribe(() => {
+      this.atualizarPermissoesAtalhos();
+      this.carregarUnidades();
+    });
+  }
+
+  private atualizarPermissoesAtalhos(): void {
+    this.exibeCockpitGabinete.set(this.auth.isAdmin() || this.auth.hasPermissionTo('MOD_PAINEL_COCKPIT'));
+    this.exibePaineisGerenciais.set(this.auth.isAdmin() || this.auth.hasPermissionTo('MOD_PAINEL_GER'));
   }
 
   onUnidadeChange(event: any): void {

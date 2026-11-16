@@ -630,12 +630,6 @@ export class AppComponent implements IAppComponent {
         ],
       },
       {
-        name: this.lex.translate("Cockpit do Gabinete"),
-        icon: 'bi bi-speedometer2',
-        route: ['gestao', 'paineis-gerenciais', 'cockpit-gabinete'],
-        permition: 'MOD_PAINEL_COCKPIT',
-      },
-      {
         name: this.lex.translate("Painéis Gerenciais"),
         icon: 'bi bi-bar-chart-line',
         route: ['gestao', 'paineis-gerenciais'],
@@ -688,12 +682,6 @@ export class AppComponent implements IAppComponent {
           this.menuSchema.RELATORIO_UNIDADES,
           this.menuSchema.RELATORIO_GERACAO,
         ],
-      },
-      {
-        name: this.lex.translate("Cockpit do Gabinete"),
-        icon: 'bi bi-speedometer2',
-        route: ['gestao', 'paineis-gerenciais', 'cockpit-gabinete'],
-        permition: 'MOD_PAINEL_COCKPIT',
       },
       {
         name: this.lex.translate("Painéis Gerenciais"),

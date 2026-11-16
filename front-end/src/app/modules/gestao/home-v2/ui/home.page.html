@@ -20,12 +20,16 @@
       <section class="home-secao h-100 d-flex flex-column">
         <h4 class="home-secao__titulo fw-bold mb-3 text-center">Outros destaques</h4>
         <div class="row g-2 align-items-start justify-content-center my-auto">
-          <div class="col-6 d-flex justify-content-center">
-            <home-atalho-card icone="bi bi-speedometer2" titulo="Cockpit do Gabinete" (acao)="irParaCockpitGabinete()" />
-          </div>
-          <div class="col-6 d-flex justify-content-center">
-            <home-atalho-card icone="bi bi-bar-chart-line" titulo="Painéis Gerenciais" (acao)="irParaPaineisGerenciais()" />
-          </div>
+          @if (exibeCockpitGabinete()) {
+            <div class="col-6 d-flex justify-content-center">
+              <home-atalho-card icone="bi bi-speedometer2" titulo="Cockpit do Gabinete" (acao)="irParaCockpitGabinete()" />
+            </div>
+          }
+          @if (exibePaineisGerenciais()) {
+            <div class="col-6 d-flex justify-content-center">
+              <home-atalho-card icone="bi bi-bar-chart-line" titulo="Painéis Gerenciais" (acao)="irParaPaineisGerenciais()" />
+            </div>
+          }
           <div class="col-6 d-flex justify-content-center">
             <home-atalho-card icone="bi bi-kanban" titulo="Projetos Estruturantes" (acao)="irParaProjetosEstruturantes()" />
           </div>
