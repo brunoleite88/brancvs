@@ -27,9 +27,11 @@ export type RouteMetadata = {
     modalWidth?: number /* Width da janela */
 }
 
+export type MenuPermission = string | (string | string[])[];
+
 export type Schema = {
   name: string,
-  permition?: string,
+  permition?: MenuPermission,
   route?: string[],
   metadata?: RouteMetadata,
   params?: any,
@@ -41,7 +43,7 @@ export type MenuSchema = { [key: string]: Schema };
 
 export type MenuItem = {
   name: string,
-  permition?: string,
+  permition?: MenuPermission,
   id: string,
   menu: Schema[]
 } | Schema;

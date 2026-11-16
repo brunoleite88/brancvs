@@ -564,6 +564,19 @@ export class AppComponent implements IAppComponent {
       },
     };
 
+    const criarMenuConfiguracoes = () => ({
+      name: this.lex.translate("Configurações"),
+      permition: ['MOD_CFG_ENTD', 'MOD_CFG_UND', 'MOD_CFG_USER', 'MOD_CFG_PERFS'],
+      id: "navbarDropdownConfiguracoes",
+      icon: 'bi bi-gear',
+      menu: [
+        this.menuSchema.ENTIDADES,
+        this.menuSchema.UNIDADES,
+        this.menuSchema.USUARIOS,
+        this.menuSchema.PERFIS,
+      ],
+    });
+
     this.moduloGestao = [
       {
         name: "Ações Setoriais",
@@ -599,8 +612,6 @@ export class AppComponent implements IAppComponent {
           this.menuSchema.PLANEJAMENTOS_INSTITUCIONAIS,
           this.menuSchema.CADEIAS_VALORES,
           this.menuSchema.PROGRAMAS_GESTAO,
-          this.menuSchema.UNIDADES,
-          this.menuSchema.USUARIOS,
           this.menuSchema.EIXOS_TEMATICOS,
           this.menuSchema.ELEMENTOS_PLANEJAMENTO,
         ],
@@ -630,18 +641,7 @@ export class AppComponent implements IAppComponent {
         route: ['gestao', 'paineis-gerenciais'],
         permition: 'MOD_PAINEL_GER',
       },
-      {
-        name: this.lex.translate("Configurações"),
-        permition: "MOD_CFG",
-        id: "navbarDropdownConfiguracoes",
-        icon: 'bi bi-gear',
-        menu: [
-          this.menuSchema.ENTIDADES,
-          this.menuSchema.UNIDADES,
-          this.menuSchema.USUARIOS,
-          this.menuSchema.PERFIS,
-        ],
-      },
+      criarMenuConfiguracoes(),
     ];
 
     this.moduloExecucao = [
@@ -672,18 +672,7 @@ export class AppComponent implements IAppComponent {
         route: ['gestao', 'paineis-gerenciais'],
         permition: 'MOD_PAINEL_GER',
       },
-      {
-        name: this.lex.translate("Configurações"),
-        permition: "MOD_CFG",
-        id: "navbarDropdownConfiguracoes",
-        icon: 'bi bi-gear',
-        menu: [
-          this.menuSchema.ENTIDADES,
-          this.menuSchema.UNIDADES,
-          this.menuSchema.USUARIOS,
-          this.menuSchema.PERFIS,
-        ],
-      },
+      criarMenuConfiguracoes(),
     ];
 
     this.moduloAdministrador = [
@@ -712,18 +701,7 @@ export class AppComponent implements IAppComponent {
         route: ['gestao', 'paineis-gerenciais'],
         permition: 'MOD_PAINEL_GER',
       },
-      {
-        name: this.lex.translate("Configurações"),
-        permition: "MOD_CFG",
-        id: "navbarDropdownConfiguracoes",
-        icon: 'bi bi-gear',
-        menu: [
-          this.menuSchema.ENTIDADES,
-          this.menuSchema.UNIDADES,
-          this.menuSchema.USUARIOS,
-          this.menuSchema.PERFIS,
-        ],
-      },
+      criarMenuConfiguracoes(),
     ];
 
     this.moduloDev = [

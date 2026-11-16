@@ -16,7 +16,7 @@ import { SafeUrl } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, map, distinctUntilChanged, debounceTime } from 'rxjs';
 import { WebcomponentsAngularModule } from '@govbr-ds/webcomponents-angular';
-import { AuthService, UnidadeVinculada } from 'src/app/services/auth.service';
+import { AuthService, Permission, UnidadeVinculada } from 'src/app/services/auth.service';
 import { DialogService } from 'src/app/services/dialog.service';
 import { GlobalsService } from 'src/app/services/globals.service';
 import { NavigateService } from 'src/app/services/navigate.service';
@@ -342,7 +342,7 @@ export class AppShellV2Component implements OnInit {
     return item?.route?.[0] === 'impersonate';
   }
 
-  hasPermission(permition: string | undefined): boolean {
+  hasPermission(permition: Permission | undefined): boolean {
     if (!permition) return true;
     if (permition === 'MOD_CORREGEDORIA_PAINEL') {
       return this.auth.isAdmin()
