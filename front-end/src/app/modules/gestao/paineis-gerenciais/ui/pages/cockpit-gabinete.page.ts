@@ -1,33 +1,64 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { BreadcrumbComponent } from 'src/app/v2/components/breadcrumb/breadcrumb.component';
+import { NavigateService } from 'src/app/services/navigate.service';
 import {
+  CockpitConfig,
   CockpitGabineteResponse,
   CockpitUnidadeDetalhe,
+  CockpitWidgetItem,
   PainelApiClient,
 } from '../../infra/painel-api.client';
+import { CockpitConfigModalComponent } from '../components/cockpit-config-modal.component';
+import { CockpitSetorModalComponent } from '../components/cockpit-setor-modal.component';
 
 @Component({
   selector: 'cockpit-gabinete-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, BreadcrumbComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    BreadcrumbComponent,
+    CockpitConfigModalComponent,
+    CockpitSetorModalComponent,
+  ],
   templateUrl: './cockpit-gabinete.page.html',
   styleUrls: ['./cockpit-gabinete.page.scss'],
 })
 export class CockpitGabinetePage implements OnInit {
   private readonly api = inject(PainelApiClient);
-  private readonly router = inject(Router);
+  private readonly go = inject(NavigateService);
 
   readonly carregando = signal(true);
+  readonly erro = signal<string | null>(null);
   readonly dados = signal<CockpitGabineteResponse | null>(null);
 
+  // Filtros de consulta ao servidor
+  readonly filtroStatusPlanos = signal<string>('');
+  readonly filtroDataInicio = signal<string>('');
+  readonly filtroDataFim = signal<string>('');
+
+  // Filtros locais
   readonly filtroTexto = signal('');
   readonly filtroMacroArea = signal<string>('TODAS');
   readonly filtroFarol = signal<'TODOS' | 'VERDE' | 'AMARELO' | 'VERMELHO'>('TODOS');
+  readonly abaEstrategica = signal<'eixos' | 'pilares'>('eixos');
+
+  // Modais
   readonly setorSelecionado = signal<CockpitUnidadeDetalhe | null>(null);
+  readonly configuradorAberto = signal(false);
+
+  readonly secoesVisiveis = computed<CockpitWidgetItem[]>(() => {
+    const secoes = this.dados()?.config?.widgets?.secoes ?? [];
+    return secoes.filter(s => s.visivel);
+  });
+
+  readonly kpisVisiveis = computed<CockpitWidgetItem[]>(() => {
+    const kpis = this.dados()?.config?.widgets?.kpis ?? [];
+    return kpis.filter(k => k.visivel);
+  });
 
   readonly unidadesFiltradas = computed(() => {
     const list = this.dados()?.unidades ?? [];
@@ -36,21 +67,19 @@ export class CockpitGabinetePage implements OnInit {
     const farol = this.filtroFarol();
 
     return list.filter(u => {
-      // Filtro de texto por sigla ou nome
       if (texto) {
         const match =
           u.sigla.toLowerCase().includes(texto) ||
           u.nome.toLowerCase().includes(texto) ||
+          (u.gestor && u.gestor.toLowerCase().includes(texto)) ||
           (u.plano_nome && u.plano_nome.toLowerCase().includes(texto));
         if (!match) return false;
       }
 
-      // Filtro de macro área
       if (macro !== 'TODAS' && u.macro_area !== macro) {
         return false;
       }
 
-      // Filtro de farol
       if (farol !== 'TODOS' && u.farol !== farol) {
         return false;
       }
@@ -60,35 +89,61 @@ export class CockpitGabinetePage implements OnInit {
   });
 
   readonly macroAreasDisponiveis = computed(() => {
-    const macros = this.dados()?.macro_areas ?? [];
-    return macros.map(m => m.macro_area);
+    return (this.dados()?.macro_areas ?? []).map(m => m.macro_area);
   });
 
   ngOnInit(): void {
-    this.carregarDados();
+    this.carregarDados(true);
   }
 
-  carregarDados(): void {
+  carregarDados(inicial = false): void {
     this.carregando.set(true);
-    this.api.getCockpitGabinete().subscribe({
-      next: res => {
-        this.dados.set(res);
-        this.carregando.set(false);
-      },
-      error: () => {
-        this.carregando.set(false);
-      },
-    });
+    this.erro.set(null);
+
+    const status = this.filtroStatusPlanos();
+    const dtIni = this.filtroDataInicio();
+    const dtFim = this.filtroDataFim();
+
+    this.api
+      .getCockpitGabinete({
+        status_planos: status || undefined,
+        data_inicio: dtIni || undefined,
+        data_fim: dtFim || undefined,
+      })
+      .subscribe({
+        next: res => {
+          this.dados.set(res);
+          if (inicial && res.config?.opcoes) {
+            this.abaEstrategica.set(res.config.opcoes.aba_estrategica_padrao);
+            this.filtroStatusPlanos.set(res.config.opcoes.status_planos_padrao);
+          }
+          this.carregando.set(false);
+        },
+        error: err => {
+          this.erro.set(err?.error?.error || 'Não foi possível carregar os dados do Cockpit Executivo.');
+          this.carregando.set(false);
+        },
+      });
+  }
+
+  aoSalvarConfiguracao(novaConfig: CockpitConfig): void {
+    this.configuradorAberto.set(false);
+    this.abaEstrategica.set(novaConfig.opcoes.aba_estrategica_padrao);
+    this.filtroStatusPlanos.set(novaConfig.opcoes.status_planos_padrao);
+    this.carregarDados(false);
   }
 
   acessarPlano(unidade: CockpitUnidadeDetalhe): void {
-    if (unidade.plano_id) {
-      this.router.navigate(['execucao', 'plano-entrega'], {
-        queryParams: { id: unidade.plano_id },
-      });
-    } else {
-      this.router.navigate(['execucao', 'plano-entrega']);
-    }
+    this.go.navigate({
+      route: ['execucao', 'plano-entrega'],
+      params: {
+        execucao: true,
+        filter: {
+          unidade_id: unidade.id,
+          meus_planos: false,
+        },
+      },
+    });
   }
 
   selecionarSetor(unidade: CockpitUnidadeDetalhe): void {
@@ -97,6 +152,13 @@ export class CockpitGabinetePage implements OnInit {
 
   fecharModal(): void {
     this.setorSelecionado.set(null);
+  }
+
+  limparFiltrosPeriodo(): void {
+    this.filtroDataInicio.set('');
+    this.filtroDataFim.set('');
+    this.filtroStatusPlanos.set(this.dados()?.config?.opcoes?.status_planos_padrao || 'VALIDOS');
+    this.carregarDados(false);
   }
 
   imprimir(): void {

@@ -94,12 +94,99 @@ export interface ProjetosPainelResponse {
   projetos: ProjetoResumoItem[];
 }
 
+export interface CockpitWidgetItem {
+  id: string;
+  label: string;
+  visivel: boolean;
+}
+
+export interface CockpitMacroAreaConfig {
+  id: string;
+  nome: string;
+  siglas: string[];
+}
+
+export interface CockpitRegrasFarol {
+  progresso_verde_min: number;
+  progresso_amarelo_min: number;
+  dias_curto_prazo: number;
+  dias_medio_prazo: number;
+  dias_alerta_vencimento: number;
+  limite_vermelho_atrasos: number;
+  repactuacao_pendente_alerta: boolean;
+  incluir_planos_nao_ativos: boolean;
+  contabilizar_etiquetas_sgpe_prazo: boolean;
+  unidades_consolidadoras: string[];
+}
+
+export interface CockpitColunasTabela {
+  gestor: boolean;
+  progresso: boolean;
+  planos_individuais: boolean;
+  repactuacoes: boolean;
+  corregedoria: boolean;
+}
+
+export interface CockpitConfig {
+  titulo: string;
+  subtitulo: string;
+  widgets: {
+    kpis: CockpitWidgetItem[];
+    secoes: CockpitWidgetItem[];
+    colunas_tabela: CockpitColunasTabela;
+  };
+  macro_areas: CockpitMacroAreaConfig[];
+  regras_farol: CockpitRegrasFarol;
+  opcoes: {
+    aba_estrategica_padrao: 'eixos' | 'pilares';
+    status_planos_padrao: 'VALIDOS' | 'ATIVO' | 'HOMOLOGANDO' | 'CONCLUIDO';
+  };
+}
+
+export interface CockpitPilarDetalhado {
+  nome: string;
+  total: number;
+  percentual: number;
+}
+
+export interface CockpitEixoEstrategico {
+  id: string;
+  nome: string;
+  icone: string;
+  cor: string;
+  total_entregas: number;
+  percentual: number;
+  progresso_medio: number;
+  concluidas: number;
+}
+
 export interface CockpitKpis {
   total_unidades: number;
+  unidades_alvo_cobertura: number;
+  unidades_com_plano: number;
   total_planos_ativos: number;
   cobertura_percentual: number;
   total_entregas: number;
+  entregas_concluidas: number;
+  entregas_atrasadas: number;
+  entregas_vencendo_breve: number;
+  progresso_medio_global: number;
   projetos_gt_total: number;
+  projetos_iniciados: number;
+  projetos_concluidos: number;
+  projetos_progresso_medio: number;
+  projetos_marcos_total: number;
+  projetos_marcos_concluidos: number;
+  planos_individuais_total: number;
+  participantes_pgd_ativos: number;
+  entregas_desdobradas_pt: number;
+  repactuacoes_total: number;
+  repactuacoes_pendentes: number;
+  repactuacoes_homologadas: number;
+  corregedoria_enviados_mes: number;
+  corregedoria_rascunhos_mes: number;
+  corregedoria_total_mes: number;
+  ocorrencias_ativas: number;
   farol: {
     verde: number;
     amarelo: number;
@@ -111,6 +198,7 @@ export interface CockpitKpis {
     estruturante: number;
   };
   pilares: Record<string, number>;
+  pilares_detalhados: CockpitPilarDetalhado[];
 }
 
 export interface CockpitMacroArea {
@@ -120,6 +208,8 @@ export interface CockpitMacroArea {
   verde: number;
   amarelo: number;
   vermelho: number;
+  repactuacoes_pendentes: number;
+  planos_individuais: number;
   progresso_medio: number;
 }
 
@@ -127,19 +217,94 @@ export interface CockpitUnidadeDetalhe {
   id: string;
   sigla: string;
   nome: string;
+  gestor: string | null;
   macro_area: string;
+  eh_consolidadora: boolean;
   plano_id: string | null;
   plano_numero: number | null;
   plano_nome: string | null;
+  plano_status: string | null;
+  total_planos: number;
   total_entregas: number;
+  entregas_atrasadas: number;
+  entregas_vencendo: number;
   progresso_medio: number;
   farol: 'VERDE' | 'AMARELO' | 'VERMELHO';
   situacao: string;
+  farol_motivos: string[];
   pilar_predominante: string;
+  repactuacoes_pendentes: number;
+  planos_individuais: number;
+  corregedoria_enviados: number;
+  corregedoria_rascunhos: number;
+  ocorrencias_ativas: number;
+}
+
+export interface CockpitUnidadeDrilldown {
+  unidade: {
+    id: string;
+    sigla: string;
+    nome: string;
+    gestor: string | null;
+  };
+  planos: Array<{
+    id: string;
+    numero: number;
+    nome: string;
+    status: string;
+    data_inicio: string;
+    data_fim: string | null;
+    numero_processo_sei: string | null;
+  }>;
+  entregas: Array<{
+    id: string;
+    plano_entrega_id: string;
+    titulo: string;
+    detalhamento: string;
+    meta_info: string;
+    progresso_realizado: number;
+    homologado: boolean;
+    data_inicio: string | null;
+    data_fim: string | null;
+    pilar: string | null;
+    prazo_label: string | null;
+    atrasada: boolean;
+    vencendo: boolean;
+    repactuacao_pendente: boolean;
+    objetivos: Array<{ objetivo: string; eixo: string; cor: string }>;
+  }>;
+  repactuacoes: Array<{
+    id: string;
+    tipo: string;
+    motivo: string;
+    status: string;
+    descricao_ajuste: string;
+    data_nova: string | null;
+    created_at: string;
+  }>;
+  planos_individuais: Array<{
+    id: string;
+    numero: number;
+    status: string;
+    data_inicio: string;
+    data_fim: string;
+    participante: string;
+  }>;
+  corregedoria_mes: Array<{
+    id: string;
+    status: string;
+    data_assinatura: string | null;
+    usuario_nome: string;
+  }>;
 }
 
 export interface CockpitGabineteResponse {
+  config: CockpitConfig;
+  pode_editar: boolean;
+  atualizado_em: string;
+  competencia_corregedoria: string;
   kpis: CockpitKpis;
+  eixos_estrategicos: CockpitEixoEstrategico[];
   macro_areas: CockpitMacroArea[];
   unidades: CockpitUnidadeDetalhe[];
 }
@@ -285,9 +450,31 @@ export class PainelApiClient extends TenantV2ResourceApiBase {
       .pipe(map(r => r.data));
   }
 
-  getCockpitGabinete(): Observable<CockpitGabineteResponse> {
+  getCockpitGabinete(filtros?: { status_planos?: string; data_inicio?: string; data_fim?: string }): Observable<CockpitGabineteResponse> {
+    const params: Record<string, string> = {};
+    if (filtros?.status_planos) params['status_planos'] = filtros.status_planos;
+    if (filtros?.data_inicio) params['data_inicio'] = filtros.data_inicio;
+    if (filtros?.data_fim) params['data_fim'] = filtros.data_fim;
     return this.http
-      .get<{ data: CockpitGabineteResponse }>(this.resourceUrl('/cockpit-gabinete'))
+      .get<{ data: CockpitGabineteResponse }>(this.resourceUrl('/cockpit-gabinete'), { params })
+      .pipe(map(r => r.data));
+  }
+
+  getCockpitUnidadeDetalhe(unidadeId: string): Observable<CockpitUnidadeDrilldown> {
+    return this.http
+      .get<{ data: CockpitUnidadeDrilldown }>(this.resourceUrl(`/cockpit-gabinete/unidade/${unidadeId}`))
+      .pipe(map(r => r.data));
+  }
+
+  saveCockpitConfig(config: CockpitConfig): Observable<CockpitConfig> {
+    return this.http
+      .put<{ data: CockpitConfig }>(this.resourceUrl('/cockpit-gabinete/config'), config)
+      .pipe(map(r => r.data));
+  }
+
+  resetCockpitConfig(): Observable<CockpitConfig> {
+    return this.http
+      .post<{ data: CockpitConfig }>(this.resourceUrl('/cockpit-gabinete/config/reset'), {})
       .pipe(map(r => r.data));
   }
 

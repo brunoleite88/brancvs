@@ -1,0 +1,283 @@
+<div class="modal d-block" tabindex="-1" role="dialog" style="background: rgba(0, 0, 0, 0.5); z-index: 1060;">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title fw-semibold text-dark mb-0">
+          Configurar Cockpit do Gabinete
+        </h5>
+        <button type="button" class="btn-close" aria-label="Fechar" (click)="fechar.emit()"></button>
+      </div>
+
+      @if (draft(); as cfg) {
+        <div class="modal-body p-4">
+          @if (erro()) {
+            <div class="alert alert-danger py-2 small mb-3">{{ erro() }}</div>
+          }
+
+          <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+              <button type="button" class="nav-link" [class.active]="abaAtiva() === 'painel'" (click)="abaAtiva.set('painel')">
+                Painel e Indicadores
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class="nav-link" [class.active]="abaAtiva() === 'macros'" (click)="abaAtiva.set('macros')">
+                Macro-Áreas ({{ cfg.macro_areas.length }})
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class="nav-link" [class.active]="abaAtiva() === 'regras'" (click)="abaAtiva.set('regras')">
+                Regras do Farol e Prazos
+              </button>
+            </li>
+          </ul>
+
+          <!-- ABA 1: PAINEL & INDICADORES -->
+          @if (abaAtiva() === 'painel') {
+            <div class="row g-3 mb-4">
+              <div class="col-md-5">
+                <label class="form-label small fw-bold">Título do Cockpit</label>
+                <input type="text" class="form-control form-control-sm" [ngModel]="cfg.titulo" (ngModelChange)="atualizarCampoRaiz('titulo', $event)" />
+              </div>
+              <div class="col-md-7">
+                <label class="form-label small fw-bold">Subtítulo Institucional</label>
+                <input type="text" class="form-control form-control-sm" [ngModel]="cfg.subtitulo" (ngModelChange)="atualizarCampoRaiz('subtitulo', $event)" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Visão Estratégica Padrão</label>
+                <select class="form-select form-select-sm" [ngModel]="cfg.opcoes.aba_estrategica_padrao" (ngModelChange)="atualizarOpcao('aba_estrategica_padrao', $event)">
+                  <option value="eixos">9 Eixos Estratégicos (PEI Real)</option>
+                  <option value="pilares">Pilares 3 Ps e Governança</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Status de Planos Padrão</label>
+                <select class="form-select form-select-sm" [ngModel]="cfg.opcoes.status_planos_padrao" (ngModelChange)="atualizarOpcao('status_planos_padrao', $event)">
+                  <option value="VALIDOS">Todos Válidos (Ativos, Homologando, Concluídos)</option>
+                  <option value="ATIVO">Somente Ativos</option>
+                  <option value="HOMOLOGANDO">Em Homologação</option>
+                  <option value="CONCLUIDO">Concluídos / Avaliados</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-4">
+              <!-- Cards de KPI -->
+              <div class="col-lg-6">
+                <h6 class="fw-bold text-dark mb-2">Cards Executivos (KPIs): Exibição e Ordem</h6>
+                <div class="list-group list-group-flush">
+                  @for (kpi of cfg.widgets.kpis; track kpi.id; let idx = $index; let first = $first; let last = $last) {
+                    <div class="list-group-item d-flex align-items-center gap-2 py-2 px-0">
+                      <input type="checkbox" class="form-check-input mt-0" [ngModel]="kpi.visivel" (ngModelChange)="toggleWidgetVisivel('kpis', idx, $event)" />
+                      <input type="text" class="form-control form-control-sm flex-grow-1" [ngModel]="kpi.label" (ngModelChange)="atualizarWidgetLabel('kpis', idx, $event)" />
+                      <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary py-0 px-1" [disabled]="first" (click)="moverWidget('kpis', idx, -1)" title="Subir">
+                          <i class="bi bi-chevron-up" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary py-0 px-1" [disabled]="last" (click)="moverWidget('kpis', idx, 1)" title="Descer">
+                          <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Blocos da Página + Colunas da Tabela -->
+              <div class="col-lg-6">
+                <h6 class="fw-bold text-dark mb-2">Seções do Painel</h6>
+                <div class="list-group list-group-flush mb-3">
+                  @for (sec of cfg.widgets.secoes; track sec.id; let idx = $index; let first = $first; let last = $last) {
+                    <div class="list-group-item d-flex align-items-center gap-2 py-2 px-0">
+                      <input type="checkbox" class="form-check-input mt-0" [ngModel]="sec.visivel" (ngModelChange)="toggleWidgetVisivel('secoes', idx, $event)" />
+                      <input type="text" class="form-control form-control-sm flex-grow-1" [ngModel]="sec.label" (ngModelChange)="atualizarWidgetLabel('secoes', idx, $event)" />
+                      <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary py-0 px-1" [disabled]="first" (click)="moverWidget('secoes', idx, -1)" title="Subir">
+                          <i class="bi bi-chevron-up" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary py-0 px-1" [disabled]="last" (click)="moverWidget('secoes', idx, 1)" title="Descer">
+                          <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">Colunas na Tabela de Unidades</h6>
+                <div class="row g-2 p-2 bg-light mx-0 small">
+                  <div class="col-6">
+                    <label class="form-check-label d-flex align-items-center gap-2">
+                      <input type="checkbox" class="form-check-input mt-0" [ngModel]="cfg.widgets.colunas_tabela.gestor" (ngModelChange)="atualizarColunaTabela('gestor', $event)" />
+                      Gestor(a) da Unidade
+                    </label>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-check-label d-flex align-items-center gap-2">
+                      <input type="checkbox" class="form-check-input mt-0" [ngModel]="cfg.widgets.colunas_tabela.progresso" (ngModelChange)="atualizarColunaTabela('progresso', $event)" />
+                      % Execução Média
+                    </label>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-check-label d-flex align-items-center gap-2">
+                      <input type="checkbox" class="form-check-input mt-0" [ngModel]="cfg.widgets.colunas_tabela.planos_individuais" (ngModelChange)="atualizarColunaTabela('planos_individuais', $event)" />
+                      Planos Individuais
+                    </label>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-check-label d-flex align-items-center gap-2">
+                      <input type="checkbox" class="form-check-input mt-0" [ngModel]="cfg.widgets.colunas_tabela.repactuacoes" (ngModelChange)="atualizarColunaTabela('repactuacoes', $event)" />
+                      Repactuações Pendentes
+                    </label>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-check-label d-flex align-items-center gap-2">
+                      <input type="checkbox" class="form-check-input mt-0" [ngModel]="cfg.widgets.colunas_tabela.corregedoria" (ngModelChange)="atualizarColunaTabela('corregedoria', $event)" />
+                      Corregedoria (Mês Atual)
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ABA 2: CONSTRUTOR DE MACRO-ÁREAS -->
+          @if (abaAtiva() === 'macros') {
+            <div class="row g-3">
+              <div class="col-md-5">
+                <div class="input-group input-group-sm mb-2">
+                  <input type="text" class="form-control" placeholder="Nova Macro-Área..." [ngModel]="novaMacroNome()" (ngModelChange)="novaMacroNome.set($event)" (keydown.enter)="adicionarMacroArea()" />
+                  <button type="button" class="btn btn-primary" (click)="adicionarMacroArea()">Adicionar</button>
+                </div>
+
+                <div class="list-group">
+                  @for (ma of cfg.macro_areas; track ma.id; let idx = $index) {
+                    <div
+                      class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2"
+                      [class.active]="macroSelecionadaIdx() === idx"
+                      role="button"
+                      (click)="macroSelecionadaIdx.set(idx)"
+                    >
+                      <input
+                        type="text"
+                        class="form-control form-control-sm flex-grow-1"
+                        [ngModel]="ma.nome"
+                        (ngModelChange)="renomearMacroArea(idx, $event)"
+                        (click)="$event.stopPropagation()"
+                      />
+                      <span class="small">{{ ma.siglas.length }}</span>
+                      @if (cfg.macro_areas.length > 1) {
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" (click)="removerMacroArea(idx); $event.stopPropagation()" title="Excluir grupo">
+                          <i class="bi bi-trash" aria-hidden="true"></i>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="col-md-7">
+                <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
+                  <span class="small fw-bold text-dark">
+                    Unidades em: <span class="text-primary">{{ cfg.macro_areas[macroSelecionadaIdx()]?.nome }}</span>
+                  </span>
+                  <input type="text" class="form-control form-control-sm w-50" placeholder="Filtrar unidade..." [ngModel]="buscaUnidadeMacro()" (ngModelChange)="buscaUnidadeMacro.set($event)" />
+                </div>
+
+                <div class="bg-light p-2 overflow-auto" style="max-height: 360px;">
+                  @for (u of unidadesFiltradasMacro(); track u.id) {
+                    <div class="d-flex align-items-center justify-content-between py-1 px-2 border-bottom small">
+                      <label class="form-check-label d-flex align-items-center gap-2 flex-grow-1 mb-0" style="cursor: pointer;">
+                        <input
+                          type="checkbox"
+                          class="form-check-input mt-0"
+                          [checked]="siglaPertenceAMacro(u.sigla, macroSelecionadaIdx())"
+                          (change)="toggleSiglaNaMacro(u.sigla, macroSelecionadaIdx(), $any($event.target).checked)"
+                        />
+                        <strong class="text-primary">{{ u.sigla }}</strong>
+                        <span class="text-muted text-truncate" style="max-width: 240px;">{{ u.nome }}</span>
+                      </label>
+                      <span class="text-muted ms-2">{{ macroDaSigla(u.sigla) }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ABA 3: REGRAS DO FAROL E PRAZOS -->
+          @if (abaAtiva() === 'regras') {
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">% Mínimo Execução p/ Verde</label>
+                <input type="number" min="0" max="100" class="form-control form-control-sm" [ngModel]="cfg.regras_farol.progresso_verde_min" (ngModelChange)="atualizarRegra('progresso_verde_min', +$event)" />
+                <div class="form-text small">Abaixo gera Atenção (Amarelo).</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">% Mínimo Crítico (Abaixo = Vermelho)</label>
+                <input type="number" min="0" max="100" class="form-control form-control-sm" [ngModel]="cfg.regras_farol.progresso_amarelo_min" (ngModelChange)="atualizarRegra('progresso_amarelo_min', +$event)" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Entregas em Atraso p/ Alerta Vermelho</label>
+                <input type="number" min="1" max="999" class="form-control form-control-sm" [ngModel]="cfg.regras_farol.limite_vermelho_atrasos" (ngModelChange)="atualizarRegra('limite_vermelho_atrasos', +$event)" />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Janela Curto Prazo (dias)</label>
+                <input type="number" min="1" max="730" class="form-control form-control-sm" [ngModel]="cfg.regras_farol.dias_curto_prazo" (ngModelChange)="atualizarRegra('dias_curto_prazo', +$event)" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Janela Médio Prazo (dias)</label>
+                <input type="number" min="1" max="1460" class="form-control form-control-sm" [ngModel]="cfg.regras_farol.dias_medio_prazo" (ngModelChange)="atualizarRegra('dias_medio_prazo', +$event)" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Alerta Antecipado de Vencimento (dias)</label>
+                <input type="number" min="1" max="180" class="form-control form-control-sm" [ngModel]="cfg.regras_farol.dias_alerta_vencimento" (ngModelChange)="atualizarRegra('dias_alerta_vencimento', +$event)" />
+              </div>
+
+              <div class="col-12 mt-3">
+                <div class="p-3 bg-light d-flex flex-column gap-2 small">
+                  <label class="form-check form-switch mb-0">
+                    <input type="checkbox" class="form-check-input" [ngModel]="cfg.regras_farol.repactuacao_pendente_alerta" (ngModelChange)="atualizarRegra('repactuacao_pendente_alerta', $event)" />
+                    <span class="form-check-label fw-semibold">Repactuação pendente de deliberação sinaliza Farol Amarelo (Atenção)</span>
+                  </label>
+                  <label class="form-check form-switch mb-0">
+                    <input type="checkbox" class="form-check-input" [ngModel]="cfg.regras_farol.incluir_planos_nao_ativos" (ngModelChange)="atualizarRegra('incluir_planos_nao_ativos', $event)" />
+                    <span class="form-check-label fw-semibold">Incluir planos em Homologação e Concluídos/Avaliados no padrão "Válidos"</span>
+                  </label>
+                  <label class="form-check form-switch mb-0">
+                    <input type="checkbox" class="form-check-input" [ngModel]="cfg.regras_farol.contabilizar_etiquetas_sgpe_prazo" (ngModelChange)="atualizarRegra('contabilizar_etiquetas_sgpe_prazo', $event)" />
+                    <span class="form-check-label fw-semibold">Usar etiqueta de prazo (ex.: 90 dias, 180 dias) quando a data fim for o teto do ciclo (2030)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold mb-1">Unidades Consolidadoras (isentas de plano setorial próprio no Farol)</label>
+                <div class="d-flex flex-wrap gap-3 p-2 bg-light overflow-auto small" style="max-height: 120px;">
+                  @for (u of unidadesDisponiveis; track u.id) {
+                    <label class="form-check-label d-flex align-items-center gap-1" style="cursor: pointer;">
+                      <input type="checkbox" class="form-check-input mt-0" [checked]="ehConsolidadora(u.sigla)" (change)="toggleConsolidadora(u.sigla, $any($event.target).checked)" />
+                      {{ u.sigla }}
+                    </label>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer bg-light justify-content-between">
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="salvando()" (click)="restaurarPadrao()">
+            Restaurar Padrão
+          </button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="salvando()" (click)="fechar.emit()">Cancelar</button>
+            <button type="button" class="btn btn-sm btn-primary" [disabled]="salvando()" (click)="salvar()">
+              {{ salvando() ? 'Salvando...' : 'Salvar e Aplicar' }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
