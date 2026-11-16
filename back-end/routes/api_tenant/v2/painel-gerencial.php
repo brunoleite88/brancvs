@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('painel-gerencial/unidade-inicial', [PainelGerencialV2::class, 'unidadeInicial']);
 Route::get('painel-gerencial/cockpit-gabinete', [CockpitGabineteV2::class, 'index']);
+Route::get('painel-gerencial/cockpit-gabinete/unidade/{unidadeId}', [CockpitGabineteV2::class, 'unidadeDetalhe']);
+Route::get('painel-gerencial/cockpit-gabinete/config', [CockpitGabineteV2::class, 'getConfig']);
+Route::put('painel-gerencial/cockpit-gabinete/config', [CockpitGabineteV2::class, 'updateConfig']);
+Route::post('painel-gerencial/cockpit-gabinete/config/reset', [CockpitGabineteV2::class, 'resetConfig']);
 Route::get('painel-gerencial/alinhamento-desempenho/alinhamento-institucional', [AlinhamentoDesempenhoV2::class, 'alinhamentoInstitucional']);
 Route::get('painel-gerencial/alinhamento-desempenho/avaliacoes-plano-entrega', [AlinhamentoDesempenhoV2::class, 'avaliacoesPlanoEntrega']);
 Route::get('painel-gerencial/alinhamento-desempenho/avaliacoes-plano-trabalho', [AlinhamentoDesempenhoV2::class, 'avaliacoesPlanoTrabalho']);

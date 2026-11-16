@@ -149,18 +149,40 @@ class PgemaSgpeSeeder extends Seeder
             $nome = trim($e['eixo'] ?? '');
             $corConfig = $coresEixos[$cod] ?? ['#3B82F6', 'bi bi-bookmark'];
 
-            $eixoObj = EixoTematico::firstOrCreate(
-                ['nome' => $nome],
-                [
-                    'id' => (string) Str::uuid(),
+            preg_match('/E(\d+)/i', $cod, $m);
+            $num = $m[1] ?? null;
+
+            $eixoObj = null;
+            if ($num) {
+                $eixoObj = EixoTematico::where('nome', 'like', "Eixo Estratégico {$num} %")
+                    ->orWhere('nome', 'like', "Eixo Estratégico {$num} –%")
+                    ->orWhere('descricao', 'like', "%[{$cod}]%")
+                    ->first();
+            }
+
+            if (!$eixoObj) {
+                $eixoObj = EixoTematico::where('nome', $nome)->first();
+            }
+
+            if ($eixoObj) {
+                $eixoObj->update([
+                    'nome' => $nome,
                     'cor' => $corConfig[0],
                     'icone' => $corConfig[1],
-                    'descricao' => "{$nome} - PGE-MA (Ciclo 2026–2030)"
-                ]
-            );
+                    'descricao' => "{$nome} - PGE-MA (Ciclo 2026–2030) [{$cod}]"
+                ]);
+            } else {
+                $eixoObj = EixoTematico::create([
+                    'id' => (string) Str::uuid(),
+                    'nome' => $nome,
+                    'cor' => $corConfig[0],
+                    'icone' => $corConfig[1],
+                    'descricao' => "{$nome} - PGE-MA (Ciclo 2026–2030) [{$cod}]"
+                ]);
+            }
             $eixosMap[$cod] = $eixoObj->id;
         }
-        $this->command->info(count($eixosMap) . " Eixos Temáticos criados.");
+        $this->command->info(count($eixosMap) . " Eixos Temáticos sincronizados.");
 
         // 6. Cadastrar o Planejamento Estratégico Institucional (Ciclo 2026-2030)
         $planejamento = Planejamento::firstOrCreate(
@@ -217,9 +239,19 @@ class PgemaSgpeSeeder extends Seeder
                     ->where('nome', $objTxt)
                     ->first();
 
+                // Caso tenha sido renomeado (ex: Objetivo 1 do Eixo 4)
+                if (!$objPai && $eixoCod === 'E4') {
+                    $objPai = PlanejamentoObjetivo::withTrashed()
+                        ->where('planejamento_id', $planejamento->id)
+                        ->where('integra_okr', 0)
+                        ->where('eixo_tematico_id', $eixoId)
+                        ->first();
+                }
+
                 if ($objPai) {
                     $objPai->restore();
                     $objPai->update([
+                        'nome' => $objTxt,
                         'fundamentacao' => "Objetivo Estratégico vinculado ao {$eixoCod}",
                         'sequencia' => $seq++,
                         'eixo_tematico_id' => $eixoId,

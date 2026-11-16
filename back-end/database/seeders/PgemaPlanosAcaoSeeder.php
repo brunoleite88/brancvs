@@ -293,14 +293,31 @@ class PgemaPlanosAcaoSeeder extends Seeder
                             ['key' => 'prazo', 'value' => $prazo, 'color' => '#B45309', 'icon' => 'bi bi-clock']
                         ];
 
+                        $aliases = [
+                            'Sanear o barramento do SPA e auditar nós do MNI com o TJMA (Chamado TJMA nº 233881)' => 'Corrigir falhas do SPA na captura de expedientes do PJe e outros sistemas',
+                            'Implantar notificação diária de intimações, divergências e conformidade D-3' => 'Implantar notificação diária de intimações e divergências',
+                            'Instituir o Programa Institucional de Prevenção de Perda de Prazos e a Diretriz Operacional D-3 (SEI 2026.11103.08358)' => 'Instituir o Programa Institucional de Prevenção de Perda de Prazos',
+                            'Saneamento e checagem cruzada dos sistemas de protocolo (SPA x PJe) e auditoria MNI/TJMA' => 'Saneamento e checagem cruzada dos sistemas de protocolo (SPA x PJe)',
+                            'Manter a soberania do Data Center, contingência do SPA e gestão da transição de hiperconvergência (SEI 2026.11103.06878)' => 'Manter a soberania do Data Center da PGE e instituir governança rígida de chamados de TIC',
+                            'Instituir testes práticos de contingência e o Protocolo de Crise de TIC em 3 Níveis Operacionais' => 'Instituir calendário semestral de testes práticos de contingência e restauração de dados',
+                        ];
+
                         $entrega = PlanoEntregaEntrega::withTrashed()
                             ->where('plano_entrega_id', $planoEntrega->id)
                             ->where('descricao', $tituloAcao)
                             ->first();
 
+                        if (!$entrega && isset($aliases[$tituloAcao])) {
+                            $entrega = PlanoEntregaEntrega::withTrashed()
+                                ->where('plano_entrega_id', $planoEntrega->id)
+                                ->where('descricao', $aliases[$tituloAcao])
+                                ->first();
+                        }
+
                         if ($entrega) {
                             $entrega->restore();
                             $entrega->update([
+                                'descricao' => $tituloAcao,
                                 'unidade_id' => $unidade->id,
                                 'entrega_id' => $entregaCatalogo->id,
                                 'descricao_entrega' => $subacao,

@@ -1,0 +1,217 @@
+<div class="modal d-block" tabindex="-1" role="dialog" style="background: rgba(0, 0, 0, 0.5); z-index: 1055;">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-light">
+        <div>
+          <h5 class="modal-title fw-semibold mb-0 text-dark">
+            {{ unidadeResumo.sigla }} — {{ unidadeResumo.nome }}
+          </h5>
+          <div class="small text-muted mt-1">
+            Macro-Área: {{ unidadeResumo.macro_area }}
+            @if (unidadeResumo.gestor) {
+              <span class="mx-2">|</span>Gestor(a): {{ unidadeResumo.gestor }}
+            }
+          </div>
+        </div>
+        <button type="button" class="btn-close" aria-label="Fechar" (click)="fechar.emit()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Resumo do Farol -->
+        <div class="bg-light py-2 px-3 small mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="badge"
+              [class.bg-success]="unidadeResumo.farol === 'VERDE'"
+              [class.bg-warning]="unidadeResumo.farol === 'AMARELO'"
+              [class.text-dark]="unidadeResumo.farol === 'AMARELO'"
+              [class.bg-danger]="unidadeResumo.farol === 'VERMELHO'">
+              {{ unidadeResumo.situacao }}
+            </span>
+            @if (unidadeResumo.farol_motivos.length > 0) {
+              <span class="text-muted">{{ unidadeResumo.farol_motivos.join('; ') }}</span>
+            }
+          </div>
+          <span class="fw-semibold text-dark">Execução Média: {{ unidadeResumo.progresso_medio }}%</span>
+        </div>
+
+        @if (carregando()) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="small text-muted mt-2">Carregando dados integrados da unidade...</div>
+          </div>
+        } @else if (detalhe(); as det) {
+          <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+              <button type="button" class="nav-link" [class.active]="aba() === 'entregas'" (click)="aba.set('entregas')">
+                Entregas Setoriais ({{ det.entregas.length }})
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class="nav-link" [class.active]="aba() === 'planos_ind'" (click)="aba.set('planos_ind')">
+                Planos Individuais ({{ det.planos_individuais.length }})
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class="nav-link" [class.active]="aba() === 'repactuacoes'" (click)="aba.set('repactuacoes')">
+                Repactuações ({{ det.repactuacoes.length }})
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class="nav-link" [class.active]="aba() === 'corregedoria'" (click)="aba.set('corregedoria')">
+                Corregedoria no Mês ({{ det.corregedoria_mes.length }})
+              </button>
+            </li>
+          </ul>
+
+          @if (aba() === 'entregas') {
+            <div class="mb-3">
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                placeholder="Filtrar entregas por título, detalhamento, pilar ou KR..."
+                [ngModel]="filtroEntrega()"
+                (ngModelChange)="filtroEntrega.set($event)"
+              />
+            </div>
+
+            <div class="list-group list-group-flush overflow-auto" style="max-height: 380px;">
+              @for (ent of entregasFiltradas(); track ent.id) {
+                <div class="list-group-item py-2 px-1">
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                    <div class="fw-semibold text-dark small">{{ ent.titulo }}</div>
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0 small">
+                      @if (ent.atrasada) {
+                        <span class="badge bg-danger">Em atraso</span>
+                      } @else if (ent.vencendo) {
+                        <span class="badge bg-warning text-dark">Vence em breve</span>
+                      }
+                      @if (ent.repactuacao_pendente) {
+                        <span class="badge bg-warning text-dark">Repactuação pendente</span>
+                      }
+                      <span class="fw-semibold text-primary">{{ ent.progresso_realizado }}%</span>
+                    </div>
+                  </div>
+                  @if (ent.detalhamento && ent.detalhamento !== ent.titulo) {
+                    <div class="small text-muted mb-1">{{ ent.detalhamento }}</div>
+                  }
+                  <div class="d-flex flex-wrap gap-3 align-items-center small text-muted">
+                    @if (ent.pilar) {
+                      <span>{{ ent.pilar }}</span>
+                    }
+                    @if (ent.prazo_label) {
+                      <span>Prazo: {{ ent.prazo_label }}</span>
+                    } @else if (ent.data_fim) {
+                      <span>Término: {{ ent.data_fim }}</span>
+                    }
+                    @for (obj of ent.objetivos; track obj.objetivo) {
+                      <span class="d-inline-flex align-items-center gap-1">
+                        <span class="rounded-circle d-inline-block" style="width: 8px; height: 8px;" [style.background-color]="obj.cor || '#1351b4'"></span>
+                        {{ obj.objetivo }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              } @empty {
+                <div class="text-center text-muted small py-4">Nenhuma entrega encontrada.</div>
+              }
+            </div>
+          }
+
+          @if (aba() === 'planos_ind') {
+            <div class="table-responsive">
+              <table class="table table-sm table-hover small mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Nº</th>
+                    <th>Agente Público</th>
+                    <th>Status</th>
+                    <th>Vigência</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (pt of det.planos_individuais; track pt.id) {
+                    <tr>
+                      <td>#{{ pt.numero }}</td>
+                      <td class="fw-semibold">{{ pt.participante || 'Não informado' }}</td>
+                      <td>{{ pt.status }}</td>
+                      <td>{{ pt.data_inicio | slice:0:10 }} a {{ pt.data_fim | slice:0:10 }}</td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="4" class="text-center text-muted py-3">Nenhum plano individual vigente nesta unidade.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          @if (aba() === 'repactuacoes') {
+            <div class="table-responsive">
+              <table class="table table-sm table-hover small mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Motivo</th>
+                    <th>Ajuste Solicitado</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (rep of det.repactuacoes; track rep.id) {
+                    <tr>
+                      <td class="fw-semibold">{{ rep.tipo }}</td>
+                      <td>{{ rep.motivo }}</td>
+                      <td>{{ rep.descricao_ajuste }}</td>
+                      <td>
+                        <span class="badge"
+                          [class.bg-warning]="rep.status === 'PENDENTE'"
+                          [class.text-dark]="rep.status === 'PENDENTE'"
+                          [class.bg-success]="rep.status === 'HOMOLOGADO'"
+                          [class.bg-danger]="rep.status === 'REJEITADO'">
+                          {{ rep.status }}
+                        </span>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="4" class="text-center text-muted py-3">Nenhuma repactuação registrada para esta unidade.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          @if (aba() === 'corregedoria') {
+            <div class="table-responsive">
+              <table class="table table-sm table-hover small mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Agente Público</th>
+                    <th>Situação no Mês Atual</th>
+                    <th>Assinatura</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (rel of det.corregedoria_mes; track rel.id) {
+                    <tr>
+                      <td class="fw-semibold">{{ rel.usuario_nome || 'Não identificado' }}</td>
+                      <td>{{ rel.status }}</td>
+                      <td>{{ rel.data_assinatura ? (rel.data_assinatura | slice:0:16) : 'Pendente' }}</td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="3" class="text-center text-muted py-3">Nenhum relatório mensal iniciado na competência atual.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="fechar.emit()">Fechar</button>
+        <button type="button" class="btn btn-sm btn-primary" (click)="abrirPlano.emit(unidadeResumo)">
+          Abrir Plano de Ação Setorial
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
