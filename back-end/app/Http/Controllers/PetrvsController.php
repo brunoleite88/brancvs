@@ -51,8 +51,14 @@ class PetrvsController extends ControllerBase
       $app_config = config("app");
       $petrvs_config = config("petrvs");
       $google_config = config("google");
+      $scheme = $request->header('X-Forwarded-Proto') ?: $request->getScheme();
+      if (str_starts_with($app_config['url'] ?? '', 'https://')) {
+        $scheme = 'https';
+      }
+      $apiUrl = $scheme . '://' . ($request->header('X-Forwarded-Host') ?: $request->getHost());
+
       $config = json_encode([
-        "api_url" => $app_config["url"],
+        "api_url" => $apiUrl,
         "app_env" => $app_config["env"],
         "edicao" => "MGI",
         "entidade" => $petrvs_config["entidade"],
@@ -78,8 +84,11 @@ class PetrvsController extends ControllerBase
     // Obtém a URL do aplicativo do arquivo de configuração
     $appUrl = config('app.url');
 
-    // Obtém o esquema (HTTP ou HTTPS) da URL
-    $protocol = parse_url($appUrl, PHP_URL_SCHEME);
+    // Obtém o esquema (HTTP ou HTTPS) da URL ou do request proxy
+    $protocol = $request->header('X-Forwarded-Proto') ?: parse_url($appUrl, PHP_URL_SCHEME);
+    if (str_starts_with($appUrl ?? '', 'https://')) {
+      $protocol = 'https';
+    }
     $petrvs_config = config("petrvs");
 
     $configuredDomain = $tenant["dominio_url"] ?? $request->getHost();
