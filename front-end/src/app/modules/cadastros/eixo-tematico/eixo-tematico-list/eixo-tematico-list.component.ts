@@ -66,4 +66,27 @@ export class EixoTematicoListComponent extends PageListBase<EixoTematico, EixoTe
     return result;
   }
 
+  /** Retorna true quando o eixo possui objetivos ou KRs para expandir. */
+  public hasObjetivos(row: EixoTematico): boolean {
+    return (row.objetivos_detalhes?.length || 0) > 0;
+  }
+
+  /** Retorna a cor configurada no eixo ou o azul padrão do sistema. */
+  public getCorEixo(row: EixoTematico): string {
+    return row.cor || 'var(--interactive, #1351b4)';
+  }
+
+  /** Oculta subtítulo quando a descrição apenas repete o nome do eixo. */
+  public hasDescricaoDistinta(row: EixoTematico): boolean {
+    const descricao = (row.descricao || '').trim();
+    const nome = (row.nome || '').trim();
+    if (!descricao.length) return false;
+    return !descricao.toLowerCase().startsWith(nome.toLowerCase());
+  }
+
+  /** Lista os planejamentos institucionais vinculados ao eixo em texto corrido. */
+  public getPlanejamentosLabel(row: EixoTematico): string {
+    return (row.planejamentos || []).map((item) => item.nome).filter(Boolean).join(', ');
+  }
+
 }

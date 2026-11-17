@@ -1,20 +1,111 @@
-<grid [dao]="dao" [add]="add" [title]="isModal ? '' : title" [hasAdd]="auth.hasPermissionTo('MOD_EXTM_INCL')" [hasEdit]="auth.hasPermissionTo('MOD_EXTM_EDT')" 
-      [selectable]="selectable" (select)="onSelect($event)" [orderBy]="orderBy">
+<grid [dao]="dao" [add]="add" [title]="isModal ? '' : title" [hasAdd]="auth.hasPermissionTo('MOD_EXTM_INCL')" [hasEdit]="auth.hasPermissionTo('MOD_EXTM_EDT')"
+      [selectable]="selectable" (select)="onSelect($event)" [orderBy]="orderBy" [className]="'eixo-tematico'">
     <toolbar *ngIf="!selectable"></toolbar>
     <filter [deleted]="this.auth.hasPermissionTo('MOD_AUDIT_DEL')" [form]="filter" [where]="filterWhere" [submit]="filterSubmit.bind(this)" [clear]="filterClear.bind(this)" [collapseChange]="filterCollapseChange.bind(this)" [collapsed]="!selectable && filterCollapsed">
         <div class="row">
-            <input-text [size]="6" [label]="lex.translate('Eixo temático')" controlName="nome"
-                [control]="filter!.controls.nome" [placeholder]="'Nome ' + lex.translate('eixo temático') + '...'" [attr.maxlength]=250></input-text>
-            <input-search [size]="6" [label]="lex.translate('Planejamento Institucional')" controlName="planejamento_id"
-                [control]="filter!.controls.planejamento_id" [dao]="planejamentoDao"></input-search>
+            <input-search [size]="5" [label]="lex.translate('Planejamento Institucional')" controlName="planejamento_id"
+                [control]="filter!.controls.planejamento_id" [dao]="planejamentoDao" placeholder="Todos os planejamentos..."></input-search>
+            <input-text [size]="7" [label]="lex.translate('Eixo temático')" controlName="nome"
+                [control]="filter!.controls.nome" [placeholder]="'Buscar por ' + lex.translate('eixo temático') + '...'" [attr.maxlength]=250></input-text>
         </div>
     </filter>
     <columns>
-        <column title="Nome" [template]="columnNome" orderBy="nome">
-            <ng-template let-row="row" #columnNome>
-                <badge [color]="row.cor" [icon]="row.icone" [label]="row.nome" [hint]="row.nome"></badge>
+        <column *ngIf="!selectable" type="expand" icon="bi bi-diagram-3" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [width]="48"
+                [hint]="lex.translate('Objetivo') + 's e KRs vinculados'" [expandable]="hasObjetivos.bind(this)" [expandTemplate]="columnExpandedObjetivos">
+            <ng-template let-row="row" #columnExpandedObjetivos>
+                <div class="eixo-detalhes-wrapper">
+                    <div class="eixo-detalhes-titulo">
+                        Objetivos estratégicos e resultados-chave (KRs) vinculados
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 eixo-detalhes-table">
+                            <thead>
+                                <tr>
+                                    <th>Objetivo estratégico / Resultado-chave (KR)</th>
+                                    <th class="eixo-col-planejamento">{{ lex.translate('Planejamento Institucional') }}</th>
+                                    <th class="text-end eixo-col-numero">{{ lex.translate('Entregas') }}</th>
+                                    <th class="text-end eixo-col-numero">{{ lex.translate('Unidades') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let obj of row.objetivos_detalhes">
+                                    <tr class="eixo-detalhe-objetivo">
+                                        <td class="text-wrap fw-semibold text-dark">{{ obj.nome }}</td>
+                                        <td class="text-wrap text-secondary small">{{ obj.planejamento_nome }}</td>
+                                        <td class="text-end fw-semibold text-dark eixo-num-tabular">{{ obj.qtd_entregas }}</td>
+                                        <td class="text-end text-secondary eixo-num-tabular">{{ obj.qtd_unidades }}</td>
+                                    </tr>
+                                    <tr *ngFor="let kr of obj.krs" class="eixo-detalhe-kr">
+                                        <td class="eixo-kr-celula text-wrap text-secondary">{{ kr.nome }}</td>
+                                        <td class="text-muted small">—</td>
+                                        <td class="text-end text-secondary eixo-num-tabular">{{ kr.qtd_entregas }}</td>
+                                        <td class="text-end text-muted eixo-num-tabular">{{ kr.qtd_unidades }}</td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </ng-template>
         </column>
+
+        <column [title]="lex.translate('Eixo Temático')" [template]="columnNome" orderBy="nome" verticalAlign="middle" cellClass="align-middle" [minWidth]="280">
+            <ng-template let-row="row" #columnNome>
+                <div class="eixo-nome-cell">
+                    <span class="eixo-cor-barra" [style.background-color]="getCorEixo(row)"></span>
+                    <div class="eixo-nome-texto">
+                        <div class="eixo-titulo text-wrap">{{ row.nome }}</div>
+                        <div *ngIf="hasDescricaoDistinta(row)" class="eixo-subtitulo text-muted text-wrap">
+                            {{ row.descricao }}
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </column>
+
+        <column *ngIf="!selectable" [title]="lex.translate('Planejamento Institucional')" [template]="columnPlanejamentos" verticalAlign="middle" cellClass="align-middle" [minWidth]="210">
+            <ng-template let-row="row" #columnPlanejamentos>
+                <span *ngIf="getPlanejamentosLabel(row); else semPlanejamento" class="text-secondary text-wrap">
+                    {{ getPlanejamentosLabel(row) }}
+                </span>
+                <ng-template #semPlanejamento>
+                    <span class="text-muted fst-italic">Não vinculado</span>
+                </ng-template>
+            </ng-template>
+        </column>
+
+        <column *ngIf="!selectable" [title]="lex.translate('Objetivos')" [template]="columnObjetivos" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [width]="90">
+            <ng-template let-row="row" #columnObjetivos>
+                <span [class]="(row.qtd_objetivos || 0) > 0 ? 'eixo-metrica-valor' : 'eixo-metrica-zero'">
+                    {{ row.qtd_objetivos || 0 }}
+                </span>
+            </ng-template>
+        </column>
+
+        <column *ngIf="!selectable" title="KRs" [template]="columnKrs" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [width]="65">
+            <ng-template let-row="row" #columnKrs>
+                <span [class]="(row.qtd_krs || 0) > 0 ? 'eixo-metrica-valor' : 'eixo-metrica-zero'">
+                    {{ row.qtd_krs || 0 }}
+                </span>
+            </ng-template>
+        </column>
+
+        <column *ngIf="!selectable" [title]="lex.translate('Entregas')" [template]="columnEntregas" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [width]="85">
+            <ng-template let-row="row" #columnEntregas>
+                <span [class]="(row.qtd_entregas || 0) > 0 ? 'eixo-metrica-valor' : 'eixo-metrica-zero'">
+                    {{ row.qtd_entregas || 0 }}
+                </span>
+            </ng-template>
+        </column>
+
+        <column *ngIf="!selectable" [title]="lex.translate('Unidades')" [template]="columnUnidades" [align]="'center'" verticalAlign="middle" cellClass="align-middle" [width]="85">
+            <ng-template let-row="row" #columnUnidades>
+                <span [class]="(row.qtd_unidades || 0) > 0 ? 'eixo-metrica-valor text-secondary' : 'eixo-metrica-zero'">
+                    {{ row.qtd_unidades || 0 }}
+                </span>
+            </ng-template>
+        </column>
+
         <column type="options" [onEdit]="edit" [options]="options"></column>
     </columns>
     <pagination [rows]="rowsLimit"></pagination>
