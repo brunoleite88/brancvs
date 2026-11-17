@@ -27,6 +27,9 @@ export class EixoTematicoFormComponent extends PageFormBase<EixoTematico, EixoTe
   
   public validate = (control: AbstractControl, controlName: string) => {
     let result = null;
+    if (['nome', 'descricao', 'icone', 'cor'].includes(controlName) && !String(control.value ?? '').trim().length) {
+      result = "Obrigatório";
+    }
     return result;
   }
 
@@ -36,13 +39,17 @@ export class EixoTematicoFormComponent extends PageFormBase<EixoTematico, EixoTe
   }
 
   public initializeData(form: FormGroup) {
-    form.patchValue(new EixoTematico());
+    this.entity = new EixoTematico();
+    form.patchValue(this.entity);
   }
 
   public async saveData(form: IIndexable): Promise<EixoTematico> {
-    return new Promise<EixoTematico>((resolve, reject) => {
-      const eixo = this.util.fill(new EixoTematico(), this.entity!);
-      resolve(this.util.fillForm(eixo, this.form!.value));
+    return new Promise<EixoTematico>((resolve) => {
+      const eixo = this.util.fill(new EixoTematico(), this.entity || new EixoTematico());
+      const preenchido = this.util.fillForm(eixo, this.form!.value);
+      preenchido.nome = (preenchido.nome || '').trim();
+      preenchido.descricao = (preenchido.descricao || '').trim();
+      resolve(preenchido);
     });
   }
 

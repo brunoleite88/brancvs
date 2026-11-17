@@ -1,0 +1,101 @@
+:host ::ng-deep filter input-search .dropdown-menu {
+  z-index: 1060;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.eixo-nome-cell {
+  display: flex;
+  align-items: stretch;
+  gap: 0.625rem;
+}
+
+.eixo-cor-barra {
+  width: 3px;
+  min-height: 1.25rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.eixo-nome-texto {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.eixo-titulo {
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.eixo-subtitulo {
+  font-size: 0.78rem;
+  line-height: 1.3;
+  margin-top: 0.15rem;
+}
+
+.eixo-metrica-valor,
+.eixo-num-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.eixo-metrica-valor {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.eixo-metrica-zero {
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.eixo-detalhes-wrapper {
+  padding: 0.5rem 0.75rem;
+}
+
+.eixo-detalhes-titulo {
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.eixo-detalhes-table {
+  background-color: #ffffff;
+}
+
+.eixo-detalhes-table thead th {
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.eixo-col-planejamento {
+  width: 26%;
+}
+
+.eixo-col-numero {
+  width: 90px;
+}
+
+.eixo-detalhe-objetivo > td {
+  background-color: #ffffff;
+  border-bottom-color: #e9ecef;
+}
+
+.eixo-detalhe-kr > td {
+  background-color: #f8fafc;
+  font-size: 0.85rem;
+  border-bottom-color: #f1f5f9;
+}
+
+.eixo-kr-celula {
+  padding-left: 1.5rem !important;
+}
