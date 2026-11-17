@@ -11,7 +11,15 @@ class AngularController extends Controller
         $app_config = config("app");
         $petrvs_config = config("petrvs");
         $google_config = config("google", []);
-        $apiUrl = $request->getSchemeAndHttpHost() ?: $app_config["url"];
+
+        // Garante https se o request vier através de proxy SSL ou se app.url for https
+        $scheme = $request->header('X-Forwarded-Proto') ?: $request->getScheme();
+        if (str_starts_with($app_config['url'] ?? '', 'https://')) {
+            $scheme = 'https';
+        }
+        $host = $request->header('X-Forwarded-Host') ?: $request->getHost();
+        $apiUrl = $scheme . '://' . $host;
+
         $config = json_encode([
             "api_url" => $apiUrl,
             "entidade" => $petrvs_config["entidade"],
